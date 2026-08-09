@@ -602,10 +602,10 @@
       <button class="cancel-edit-btn hidden" id="growth-cancel-btn" type="button">Annuler la modification</button>
     </div>
 
-    <div class="cal-day-detail-label">Courbe de poids</div>
+    <div class="cal-day-detail-label" id="weight-chart-label">Courbe de poids</div>
     <div class="chart-scroll" id="weight-chart-scroll"></div>
 
-    <div class="cal-day-detail-label" style="margin-top:22px;">Courbe de taille</div>
+    <div class="cal-day-detail-label" id="height-chart-label" style="margin-top:22px;">Courbe de taille</div>
     <div class="chart-scroll" id="height-chart-scroll"></div>
 
     <div class="cal-day-detail-label" style="margin-top:22px;">Historique des mesures</div>
@@ -988,12 +988,33 @@ function renderSimpleLineChart(container, points, opts){
   requestAnimationFrame(() => { container.scrollLeft = container.scrollWidth; });
 }
 
+function avgRatePerDay(points, unit){
+  if(points.length < 2) return '';
+  const first = points[0], last = points[points.length - 1];
+  const days = (new Date(last.date) - new Date(first.date)) / 86400000;
+  if(days <= 0) return '';
+  const rate = (last.value - first.value) / days;
+  if(unit === 'g'){
+    const gPerDay = Math.round(rate * 1000);
+    const sign = gPerDay > 0 ? '+' : '';
+    return `${sign}${gPerDay} g/j en moyenne`;
+  }
+  const cmPerDay = Math.round(rate * 10) / 10;
+  const sign = cmPerDay > 0 ? '+' : '';
+  return `${sign}${cmPerDay.toFixed(1).replace('.', ',')} cm/j en moyenne`;
+}
+
 function renderGrowthCharts(){
   const sorted = [...growthEntries].sort((a,b) => a.date.localeCompare(b.date));
-  const weightPoints = sorted.filter(g => g.weight != null).map(g => ({ label: formatShortDateNoYear(g.date), value: g.weight }));
-  const heightPoints = sorted.filter(g => g.height != null).map(g => ({ label: formatShortDateNoYear(g.date), value: g.height }));
+  const weightPoints = sorted.filter(g => g.weight != null).map(g => ({ date: g.date, label: formatShortDateNoYear(g.date), value: g.weight }));
+  const heightPoints = sorted.filter(g => g.height != null).map(g => ({ date: g.date, label: formatShortDateNoYear(g.date), value: g.height }));
   renderSimpleLineChart($('weight-chart-scroll'), weightPoints, { suffix: ' kg', decimals: 2 });
   renderSimpleLineChart($('height-chart-scroll'), heightPoints, { suffix: ' cm', decimals: 0 });
+
+  const weightAvg = avgRatePerDay(weightPoints, 'g');
+  const heightAvg = avgRatePerDay(heightPoints, 'cm');
+  $('weight-chart-label').textContent = 'Courbe de poids' + (weightAvg ? ' · ' + weightAvg : '');
+  $('height-chart-label').textContent = 'Courbe de taille' + (heightAvg ? ' · ' + heightAvg : '');
 }
 
 async function doLogin(){
