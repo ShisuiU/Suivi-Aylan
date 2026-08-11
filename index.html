@@ -28,6 +28,8 @@
     --milk-dim: #dce8f6;
     --diaper: #3d6a94;
     --diaper-dim: #d3e3f2;
+    --vomit: #b54a3f;
+    --vomit-dim: #f6e2de;
     --sage: #7fa5c9;
     --line: #e2eaf3;
     --radius: 18px;
@@ -45,6 +47,8 @@
     --milk-dim: #203955;
     --diaper: #4c7aab;
     --diaper-dim: #1c2f47;
+    --vomit: #d9836f;
+    --vomit-dim: #3a2018;
     --sage: #6fa3d8;
     --line: #223752;
     --bg-glow: #16253a;
@@ -168,6 +172,14 @@
   .diaper-btn .ic{ font-size:18px; }
   .diaper-btn.active{ background: var(--diaper-dim); color: var(--diaper); border-color: var(--diaper); font-weight:700; }
 
+  .vomit-btn{
+    width:100%; display:flex; align-items:center; justify-content:center; gap:8px;
+    background: var(--bg-2); border:1px solid var(--line); color: var(--ink-dim);
+    padding: 12px; border-radius:12px; cursor:pointer; font-family:'Inter'; font-size:14px; font-weight:600;
+  }
+  .vomit-btn .ic{ font-size:17px; }
+  .vomit-btn.active{ background: var(--vomit-dim); color: var(--vomit); border-color: var(--vomit); }
+
   .save-btn{
     width:100%; margin-top:20px; background: var(--milk); color: #ffffff;
     border:none; padding:15px; border-radius:14px; font-family:'Inter'; font-weight:700;
@@ -200,6 +212,7 @@
   .entry-details{ display:flex; flex-direction:column; gap:2px; }
   .entry-ml{ font-size:14px; color: var(--milk); font-weight:600; }
   .entry-diaper{ font-size:11.5px; color: var(--ink-faint); }
+  .entry-vomit{ font-size:11.5px; color: var(--vomit); font-weight:600; margin-top:2px; }
   .entry-author{
     width:20px; height:20px; border-radius:50%; background: var(--milk-dim); color: var(--milk);
     font-size:9.5px; font-weight:700; display:flex; align-items:center; justify-content:center;
@@ -476,6 +489,11 @@
         <button data-ml="180">180</button>
       </div>
 
+      <label class="field-label">Vomissement après le biberon</label>
+      <button class="vomit-btn" id="vomit-btn" type="button" aria-pressed="false">
+        <span class="ic">🤮</span><span id="vomit-btn-label">Non</span>
+      </button>
+
       <button class="save-btn" id="save-btn">Enregistrer</button>
       <button class="cancel-edit-btn hidden" id="cancel-edit-btn" type="button">Annuler la modification</button>
     </div>
@@ -631,6 +649,7 @@ const db = firebase.database();
 
 let entries = [];
 let selectedDiaper = 'none';
+let selectedVomit = false;
 let currentView = 'today';
 let calMonthDate = new Date();
 let selectedCalDay = null;
@@ -1172,6 +1191,7 @@ function entryRowHtml(e){
           <div class="entry-details">
             <div class="entry-ml">${e.ml} ml</div>
             <div class="entry-diaper">${diaperLabel(e.diaper)}</div>
+            ${e.vomit ? `<div class="entry-vomit">🤮 Vomissement</div>` : ''}
           </div>
         </div>
         <div class="entry-actions">
@@ -1399,6 +1419,13 @@ function selectDiaper(val){
   });
 }
 
+function selectVomit(val){
+  selectedVomit = val;
+  $('vomit-btn').classList.toggle('active', val);
+  $('vomit-btn').setAttribute('aria-pressed', val ? 'true' : 'false');
+  $('vomit-btn-label').textContent = val ? 'Oui' : 'Non';
+}
+
 let editingId = null;
 let editingOriginalAuthor = null;
 
@@ -1412,6 +1439,7 @@ function startEdit(id){
   $('time-input').value = entry.time;
   $('ml-input').value = entry.ml;
   selectDiaper(entry.diaper);
+  selectVomit(!!entry.vomit);
 
   $('form-title').textContent = 'Modifier ce biberon';
   $('save-btn').textContent = 'Enregistrer les modifications';
@@ -1431,6 +1459,7 @@ function cancelEdit(){
   $('save-btn').textContent = 'Enregistrer';
   $('cancel-edit-btn').classList.add('hidden');
   selectDiaper('none');
+  selectVomit(false);
   setDateOffset(0);
   setNow();
 }
@@ -1451,6 +1480,7 @@ async function saveEntry(){
     time: timeVal,
     ml: ml,
     diaper: selectedDiaper,
+    vomit: selectedVomit,
     timestamp: entryDate.getTime(),
     dayKey: dateVal,
     authorEmail: isEditing ? (editingOriginalAuthor || currentEmail) : currentEmail
@@ -1463,6 +1493,7 @@ async function saveEntry(){
     cancelEdit();
   }else{
     selectDiaper('none');
+    selectVomit(false);
     setDateOffset(0);
     setNow();
   }
@@ -1540,6 +1571,8 @@ document.querySelectorAll('.diaper-btn').forEach(btn => {
   btn.addEventListener('click', () => selectDiaper(btn.getAttribute('data-val')));
 });
 
+$('vomit-btn').addEventListener('click', () => selectVomit(!selectedVomit));
+
 document.querySelectorAll('#quick-ml button').forEach(btn => {
   btn.addEventListener('click', () => {
     $('ml-input').value = btn.getAttribute('data-ml');
@@ -1615,6 +1648,7 @@ $('import-btn').addEventListener('click', async () => {
       time: pad(h) + ':' + pad(mi),
       ml: Number(item.ml) || 0,
       diaper: item.diaper || 'none',
+      vomit: !!item.vomit,
       timestamp: entryDate.getTime(),
       dayKey: item.date
     };
