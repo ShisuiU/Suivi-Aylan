@@ -93,7 +93,7 @@
     font-size: 11px; text-transform:uppercase; letter-spacing:.1em; opacity:.85;
   }
   .stats-row{
-    display:grid; grid-template-columns: repeat(2,1fr); gap:10px;
+    display:grid; grid-template-columns: repeat(3,1fr); gap:10px;
   }
   .stat{
     background: var(--card); border:1px solid var(--line); border-radius: var(--radius);
@@ -172,13 +172,13 @@
   .diaper-btn .ic{ font-size:18px; }
   .diaper-btn.active{ background: var(--diaper-dim); color: var(--diaper); border-color: var(--diaper); font-weight:700; }
 
-  .vomit-btn{
+  .vomit-log-btn{
     width:100%; display:flex; align-items:center; justify-content:center; gap:8px;
-    background: var(--bg-2); border:1px solid var(--line); color: var(--ink-dim);
-    padding: 12px; border-radius:12px; cursor:pointer; font-family:'Inter'; font-size:14px; font-weight:600;
+    background: var(--vomit-dim); border:1px solid var(--vomit); color: var(--vomit);
+    padding: 13px; border-radius:14px; cursor:pointer; font-family:'Inter'; font-size:14px; font-weight:700;
+    margin-bottom:18px;
   }
-  .vomit-btn .ic{ font-size:17px; }
-  .vomit-btn.active{ background: var(--vomit-dim); color: var(--vomit); border-color: var(--vomit); }
+  .vomit-log-btn:active{ transform: scale(0.99); }
 
   .save-btn{
     width:100%; margin-top:20px; background: var(--milk); color: #ffffff;
@@ -212,7 +212,8 @@
   .entry-details{ display:flex; flex-direction:column; gap:2px; }
   .entry-ml{ font-size:14px; color: var(--milk); font-weight:600; }
   .entry-diaper{ font-size:11.5px; color: var(--ink-faint); }
-  .entry-vomit{ font-size:11.5px; color: var(--vomit); font-weight:600; margin-top:2px; }
+  .entry-vomit-label{ font-size:14px; color: var(--vomit); font-weight:600; }
+  .entry .node.vomit-node{ background: var(--vomit-dim); }
   .entry-author{
     width:20px; height:20px; border-radius:50%; background: var(--milk-dim); color: var(--milk);
     font-size:9.5px; font-weight:700; display:flex; align-items:center; justify-content:center;
@@ -447,6 +448,8 @@
   <div class="view active" id="view-today">
     <div class="stats" id="stats"></div>
 
+    <button class="vomit-log-btn" id="vomit-log-btn" type="button">🤮 Signaler un vomissement</button>
+
     <div class="card">
       <h2 id="form-title">Ajout d'un biberon</h2>
       <button class="same-as-last-btn" id="same-as-last-btn" type="button">↻ Comme la dernière fois</button>
@@ -488,11 +491,6 @@
         <button data-ml="150">150</button>
         <button data-ml="180">180</button>
       </div>
-
-      <label class="field-label">Vomissement pendant le biberon</label>
-      <button class="vomit-btn" id="vomit-btn" type="button" aria-pressed="false">
-        <span class="ic">🤮</span><span id="vomit-btn-label">Non</span>
-      </button>
 
       <button class="save-btn" id="save-btn">Enregistrer</button>
       <button class="cancel-edit-btn hidden" id="cancel-edit-btn" type="button">Annuler la modification</button>
@@ -649,7 +647,6 @@ const db = firebase.database();
 
 let entries = [];
 let selectedDiaper = 'none';
-let selectedVomit = false;
 let currentView = 'today';
 let calMonthDate = new Date();
 let selectedCalDay = null;
@@ -1149,13 +1146,16 @@ function render(){
 function renderStats(){
   const today = todayKey(new Date());
   const todays = entries.filter(e => e.dayKey === today);
-  const totalMl = todays.reduce((s,e)=> s + (e.ml||0), 0);
-  const feedCount = todays.length;
-  const diaperCount = todays.filter(e => e.diaper !== 'none').length;
+  const bottlesToday = todays.filter(e => e.type !== 'vomit');
+  const totalMl = bottlesToday.reduce((s,e)=> s + (e.ml||0), 0);
+  const feedCount = bottlesToday.length;
+  const diaperCount = bottlesToday.filter(e => e.diaper !== 'none').length;
+  const vomitCount = todays.filter(e => e.type === 'vomit').length;
 
   let lastAgo = '—';
-  if(entries.length){
-    const sorted = [...entries].sort((a,b)=> b.timestamp - a.timestamp);
+  const bottleEntries = entries.filter(e => e.type !== 'vomit');
+  if(bottleEntries.length){
+    const sorted = [...bottleEntries].sort((a,b)=> b.timestamp - a.timestamp);
     const diffMin = Math.round((Date.now() - sorted[0].timestamp) / 60000);
     if(diffMin < 60) lastAgo = diffMin + ' min';
     else lastAgo = Math.floor(diffMin/60) + ' h ' + (diffMin%60) + ' min';
@@ -1171,6 +1171,7 @@ function renderStats(){
     <div class="stats-row">
       <div class="stat"><div class="num">${totalMl} ml</div><div class="lbl">Aujourd'hui</div></div>
       <div class="stat"><div class="num">${feedCount} / ${diaperCount}</div><div class="lbl">Bib. / Couches</div></div>
+      <div class="stat"><div class="num">${vomitCount}</div><div class="lbl">Vomissements</div></div>
     </div>
   `;
 }
@@ -1182,6 +1183,24 @@ function authorInitials(email){
 }
 
 function entryRowHtml(e){
+  if(e.type === 'vomit'){
+    return `
+    <div class="entry" data-id="${e.id}">
+      <div class="node vomit-node">🤮</div>
+      <div class="entry-card">
+        <div class="entry-main">
+          <div class="entry-time">${e.time}</div>
+          <div class="entry-details">
+            <div class="entry-vomit-label">Vomissement</div>
+          </div>
+        </div>
+        <div class="entry-actions">
+          ${e.authorEmail ? `<div class="entry-author" title="${e.authorEmail}">${authorInitials(e.authorEmail)}</div>` : ''}
+          <button class="entry-del" data-del="${e.id}">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }
   return `
     <div class="entry" data-id="${e.id}">
       <div class="node">${diaperIcon(e.diaper)}</div>
@@ -1191,7 +1210,6 @@ function entryRowHtml(e){
           <div class="entry-details">
             <div class="entry-ml">${e.ml} ml</div>
             <div class="entry-diaper">${diaperLabel(e.diaper)}</div>
-            ${e.vomit ? `<div class="entry-vomit">🤮 Vomissement</div>` : ''}
           </div>
         </div>
         <div class="entry-actions">
@@ -1294,9 +1312,11 @@ function renderCalDayDetail(){
     return;
   }
 
-  const totalMl = dayEntries.reduce((s,e)=> s + (e.ml||0), 0);
+  const bottleEntries = dayEntries.filter(e => e.type !== 'vomit');
+  const vomitCount = dayEntries.length - bottleEntries.length;
+  const totalMl = bottleEntries.reduce((s,e)=> s + (e.ml||0), 0);
   container.innerHTML = `
-    <div class="cal-day-detail-label">${label} · ${dayEntries.length} biberon${dayEntries.length>1?'s':''} · ${totalMl} ml</div>
+    <div class="cal-day-detail-label">${label} · ${bottleEntries.length} biberon${bottleEntries.length>1?'s':''} · ${totalMl} ml${vomitCount ? ` · ${vomitCount} vomissement${vomitCount>1?'s':''}` : ''}</div>
     <div class="timeline">${dayEntries.map(entryRowHtml).join('')}</div>
   `;
   bindEntryButtons(container);
@@ -1419,11 +1439,18 @@ function selectDiaper(val){
   });
 }
 
-function selectVomit(val){
-  selectedVomit = val;
-  $('vomit-btn').classList.toggle('active', val);
-  $('vomit-btn').setAttribute('aria-pressed', val ? 'true' : 'false');
-  $('vomit-btn-label').textContent = val ? 'Oui' : 'Non';
+async function logVomit(){
+  const now = new Date();
+  const entry = {
+    id: Date.now(),
+    type: 'vomit',
+    time: nowTimeStr(),
+    timestamp: now.getTime(),
+    dayKey: todayKey(now),
+    authorEmail: auth.currentUser ? auth.currentUser.email : null
+  };
+  await addEntryToDB(entry);
+  showToast('Vomissement enregistré');
 }
 
 let editingId = null;
@@ -1439,7 +1466,6 @@ function startEdit(id){
   $('time-input').value = entry.time;
   $('ml-input').value = entry.ml;
   selectDiaper(entry.diaper);
-  selectVomit(!!entry.vomit);
 
   $('form-title').textContent = 'Modifier ce biberon';
   $('save-btn').textContent = 'Enregistrer les modifications';
@@ -1459,7 +1485,6 @@ function cancelEdit(){
   $('save-btn').textContent = 'Enregistrer';
   $('cancel-edit-btn').classList.add('hidden');
   selectDiaper('none');
-  selectVomit(false);
   setDateOffset(0);
   setNow();
 }
@@ -1477,10 +1502,10 @@ async function saveEntry(){
 
   const entry = {
     id: isEditing ? editingId : Date.now(),
+    type: 'biberon',
     time: timeVal,
     ml: ml,
     diaper: selectedDiaper,
-    vomit: selectedVomit,
     timestamp: entryDate.getTime(),
     dayKey: dateVal,
     authorEmail: isEditing ? (editingOriginalAuthor || currentEmail) : currentEmail
@@ -1493,7 +1518,6 @@ async function saveEntry(){
     cancelEdit();
   }else{
     selectDiaper('none');
-    selectVomit(false);
     setDateOffset(0);
     setNow();
   }
@@ -1571,7 +1595,7 @@ document.querySelectorAll('.diaper-btn').forEach(btn => {
   btn.addEventListener('click', () => selectDiaper(btn.getAttribute('data-val')));
 });
 
-$('vomit-btn').addEventListener('click', () => selectVomit(!selectedVomit));
+$('vomit-log-btn').addEventListener('click', logVomit);
 
 document.querySelectorAll('#quick-ml button').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -1608,11 +1632,12 @@ $('fab-btn').addEventListener('click', () => {
 });
 
 $('same-as-last-btn').addEventListener('click', () => {
-  if(!entries.length){
+  const bottleEntries = entries.filter(e => e.type !== 'vomit');
+  if(!bottleEntries.length){
     showToast('Aucun biberon précédent trouvé');
     return;
   }
-  const last = [...entries].sort((a,b) => b.timestamp - a.timestamp)[0];
+  const last = [...bottleEntries].sort((a,b) => b.timestamp - a.timestamp)[0];
   $('ml-input').value = last.ml;
   selectDiaper(last.diaper);
   showToast('Quantité et couche reprises');
@@ -1645,10 +1670,10 @@ $('import-btn').addEventListener('click', async () => {
     const id = 'imp_' + Date.now() + '_' + i;
     updates[id] = {
       id: id,
+      type: 'biberon',
       time: pad(h) + ':' + pad(mi),
       ml: Number(item.ml) || 0,
       diaper: item.diaper || 'none',
-      vomit: !!item.vomit,
       timestamp: entryDate.getTime(),
       dayKey: item.date
     };
