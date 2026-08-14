@@ -1,0 +1,1906 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+<title>Suivi Aylan</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Suivi Aylan">
+<meta name="theme-color" content="#f6f9fd">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAIQklEQVR4nO3d+1NUZRzH8efshV1YlgVclvtVuYgo5SUry0upoPhD2kVt7KI5+A80/gf9Fc54q9HKpsaZvJNWk0w1XWYSkNJMiUVFUBAEgWW3H3C8xdfnyy7rnuc5n9dPJM8eH+3t2XOec85irNp5SABMxpboCYB5IQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gIQ4gORI9AdNxOmy7P6zLzvBM6VW7jp479N2fcZpSomDP8bj1S8qnWoYQoiQ7LR6TSSzE8Qifx7X5laooXliMOLS3ZeVsj9sZxQuLAl7DmPbpJBjieKDA7133/MzoXutOckTxZmRyiOOB7Q1z7bbo//nr986COO6ZW+p/sTovli3od0yKOIQQwjDEjnW1MW4Eew49vfJMUUVBRowbKcn2TctkzANxiCSHfWt9TezbKQx4Db3OWBCH2PByeSA95cljRkPj0u24nPbcTK1OWKweh8/j2rS8Ujrs9O8dnK1pdthh9TjeXV2dIlv1Gg2Nf3qGdd0EceijMMu79rky6bDTv3d09Q4Oj4SkI0tyEIcuGhvmSVe9IhHxxfcXhBDXbw1JN6jZCYt146idmbV4dq50WHNrsKP7thDi+q070sGFWV5bDGusZmPROPirXgdOt098cfWmPA6nw5aXmRrTzMzEonGsnF88Ky9dOuzH81cvBG9NfH2NEYcQolijww4rxuFy2rfWsVa99p9qvf91sHeQ8xKdTlisGMfrSyv8vmTpsLMtwYvBvvv/GexhxaHT5TfLxZGR6t7IWPWKRCJ7T7Y+/CvXbt4ZD0ekL8SeQ2Hvra5OTpLfVt30W8eV67cf/pXQeJhz2FGY5Y3lphBTsVYcxdlp9YtKpcPGQuF9j+42JnT2DEhf67Db8mZocsJirTgaG+Zx1iEON1/s7ptkyavzhjwOodE6qYXimF8eWFSZIx02ODx28Ez7pN/qvME8YdFkndQqcRiG0djAWvX6/Ns/B4ZGJ/0Wc8+hzTGpVeJYvbC4LFf+D7qnf/irsxeo73Za7GzWEnG4nPb3V8/hjNx/qm1kjLyvp/f28PCo/Npsvj/VYdfhL1aHP4PUW8sqZ6TJV706um+f/PXyk8cEGYcdDrst36/DCYv+cWR63W8uq+CM3H2sJSxb5uKczQpd3ln0j+P9ujluxqpX6+Xe5rYu6TBLHZNqHkdpjq9uYQln5K6jf3CGWepsVvM4GhvmcR4XaG7rarvSy9kg921Fi3UwneNYVJmzoCJbOiwcjuw+1sLc5r+8t5W8GTqcsCj/B6DYbMb2tXM5I0/+enniRkCO4ZHQzYG70mF2m1GY5WVu07S0jaN+YUlpjvyNf2RsfP+ptiltmXljhwbHpHrG4U5yvMtb9frq7IWe/uEpbZx7+Q1xmNPG5ZWZXrd02MDQ6Ge8p5UeZp2zWQ3jmJGW/MZS1qrXwTPtd+6OTXX7zCssGtxprGEcW+vmuJx26bDuvqHDzRej2D73hCUzNckhn4aZ6fY5pGW5vlULijkjA+kpRz7aEL+Z2GxGQVbqpav98fst4k23PUdjQ615PiSjhHG6ZGZaxbG4Knd+eSDRs3hA9RMWfeLgr3o9NaqfsOgTx9rnSs32P8Ns85kqTeJIdjneWVWd6Fk8LjfTwzlvMi1N4ti0vCojVb7q9ZQZhlEYUPgKiw5x+H3JG14uT/QsJqf0x7noEMe2+hrT7r2VPuxQPo5Z+emvPsta9UoIpc9mlV8h3dFQy1n0Gg2NdzM+1Isv35/KWW1Tes+hdhwvVOfVzszijDzwTfuB0+en8bfeu7Oe88B0dobHneS4y3jaxYQUfluxs1e9+gZHvvyBfI4tOsxbfgxDFCl7wqJwHA2Ly5i34h080z7t/3aZd3UIld9ZVI0jxe1krnp19w19/ePf0z4B5l0dQuVjUlXj2LyiyudxcUZ+0nR+LBSe9gkEec8oCJWvzSoZRyA9Zf1LszgjO3sGpI+/Rof5dJPA28pTtm1NDfMmq30nWqWPv0bnRv/QE57Hf1ggPSXZpeRZoXpxVBRkrKgt4oz8u6vv+3OdcZpGJCK6eJ9MKpTdeagXx451rFUvIcSeEy2RuOw17tH+nUWxOJbU5M8t9XNGtl7u/bn9WlwnE+xlH5Mijnhz2G0frOH+MLbdx8/FdTKC90EuExR96F6lONY9X1bgZ616/fLX9XP/9MR7Pswn7gX2HPHmcTu3rGStekUiYs9x7lPzseAfc/h9yR7ZDwszIWXiePvV2WkpSZyRP7R03v85GHHVf2dkcHjyD6X8PxWPSdWIIzvD89qLrFWvcDiy98Qkn0wdJ8zLbwJxxM/2NTVOB2uqTb9dYT6uOC34V1gQR1xUFWUunVfIGRkaD3/cNLUP24gR/9qsisekCsTBvNdLCHHkp0ucn+E4jaZwbVbBy2/Gqp2HEj0HMCkF9hyQKIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSIgDSP8BeRvY1r5jgz4AAAAASUVORK5CYII=">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500;1,600&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<style>
+  :root{
+    --bg: #f6f9fd;
+    --bg-2: #eaf1fa;
+    --card: #ffffff;
+    --card-hover: #eef4fb;
+    --ink: #1e3a5c;
+    --ink-dim: #5c7796;
+    --ink-faint: #9db1c9;
+    --milk: #4576ab;
+    --milk-dim: #dce8f6;
+    --diaper: #3d6a94;
+    --diaper-dim: #d3e3f2;
+    --vomit: #b54a3f;
+    --vomit-dim: #f6e2de;
+    --sage: #7fa5c9;
+    --line: #e2eaf3;
+    --radius: 18px;
+    --bg-glow: #e4eefb;
+  }
+  html[data-theme="dark"]{
+    --bg: #0e1826;
+    --bg-2: #16253a;
+    --card: #16253a;
+    --card-hover: #1c2e47;
+    --ink: #eaf1fa;
+    --ink-dim: #93a9c4;
+    --ink-faint: #5d7291;
+    --milk: #6fa3d8;
+    --milk-dim: #203955;
+    --diaper: #4c7aab;
+    --diaper-dim: #1c2f47;
+    --vomit: #d9836f;
+    --vomit-dim: #3a2018;
+    --sage: #6fa3d8;
+    --line: #223752;
+    --bg-glow: #16253a;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, var(--bg-glow) 0%, var(--bg) 55%);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 60px;
+    transition: background-color .3s ease, color .3s ease;
+  }
+  .wrap{
+    max-width: 560px; margin: 0 auto;
+    padding: calc(40px + env(safe-area-inset-top)) 18px calc(20px + env(safe-area-inset-bottom));
+  }
+
+  header{ display:flex; flex-direction:column; align-items:center; text-align:center; margin-bottom: 26px; }
+  header h1{
+    font-family:'Cormorant Garamond', serif; font-weight:600; font-style:italic;
+    font-size: 44px; margin:0; letter-spacing: 0.01em; color: var(--ink);
+  }
+  header h1 .dot{ color: var(--milk); }
+  header .subtitle{
+    font-size: 11px; color: var(--ink-faint); margin-top: 4px;
+    text-transform: uppercase; letter-spacing: .14em;
+  }
+
+  .stats{
+    margin-bottom:22px;
+  }
+  .stat-hero{
+    background: var(--milk); color:#ffffff; border-radius: var(--radius);
+    padding: 18px 20px; margin-bottom:10px; display:flex; align-items:baseline; justify-content:space-between;
+  }
+  .stat-hero .num{ font-family:'Fraunces', serif; font-size: 34px; font-weight:600; }
+  .stat-hero .lbl{
+    font-size: 11px; text-transform:uppercase; letter-spacing:.1em; opacity:.85;
+  }
+  #age-hero{ justify-content:center; text-align:center; }
+  .stats-row{
+    display:grid; grid-template-columns: repeat(3,1fr); gap:10px;
+  }
+  .stat{
+    background: var(--card); border:1px solid var(--line); border-radius: var(--radius);
+    padding: 14px 10px; text-align:center;
+  }
+  .stat .num{ font-family:'Fraunces', serif; font-size: 22px; font-weight:600; }
+  .stat .lbl{ font-size: 10.5px; color: var(--ink-faint); margin-top:2px; text-transform:uppercase; letter-spacing:.06em; }
+
+  .card{
+    background: var(--card); border:1px solid var(--line); border-radius: var(--radius);
+    padding: 20px; margin-bottom: 20px;
+  }
+  .card h2{
+    font-family:'Fraunces', serif; font-size:16px; font-weight:600; margin:0 0 14px 0;
+    color: var(--ink);
+  }
+
+  label.field-label{
+    display:block; font-size:11.5px; color: var(--ink-faint); text-transform:uppercase;
+    letter-spacing:.06em; margin-bottom:8px; margin-top:16px;
+  }
+  label.field-label:first-child{ margin-top:0; }
+
+  .time-row{ display:flex; gap:10px; align-items:center; }
+  input[type="time"]{
+    flex:1; background: var(--bg-2); border:1px solid var(--line); color: var(--ink);
+    font-family:'Inter'; font-size:17px; font-weight:500; padding:14px 16px; border-radius:12px;
+  }
+  .date-field{
+    width:100%; background: var(--bg-2); border:1px solid var(--line); border-radius:12px;
+    padding: 14px 16px; box-sizing:border-box;
+  }
+  .date-field input[type="date"]{
+    width:100%; border:none; background:transparent; color: var(--ink);
+    font-family:'Inter'; font-size:16px; font-weight:500; padding:0; margin:0;
+    -webkit-appearance:none; appearance:none;
+  }
+  .now-btn{
+    background: var(--bg-2); border:1px solid var(--line); color: var(--ink-dim);
+    width:50px; height:50px; border-radius:12px; cursor:pointer; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    transition: background-color .15s ease, transform .1s ease;
+  }
+  .now-btn:active{ background: var(--card-hover); transform: scale(0.92) rotate(-15deg); }
+
+  .ml-row{ display:flex; align-items:center; gap:12px; }
+  .ml-btn{
+    width:44px; height:44px; border-radius:50%; border:1px solid var(--line);
+    background: var(--bg-2); color: var(--ink); font-size:20px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    transition: background-color .15s ease, transform .1s ease;
+  }
+  .ml-btn:active{ background: var(--milk-dim); transform: scale(0.9); }
+  .ml-input-wrap{
+    flex:1; display:flex; align-items:baseline; justify-content:center; gap:6px;
+    background: var(--bg-2); border:1px solid var(--line); border-radius:12px; padding: 10px 8px;
+  }
+  input#ml-input{
+    width: 90px; background:transparent; border:none; color:var(--milk);
+    font-family:'Fraunces', serif; font-size: 28px; font-weight:600; text-align:right;
+    outline:none; min-width:0;
+    transition: color .15s ease;
+  }
+  .ml-unit{ color: var(--ink-faint); font-size:14px; }
+
+  .quick-ml{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+  .quick-ml button{
+    background: var(--bg-2); border:1px solid var(--line); color: var(--ink-dim);
+    padding: 7px 12px; border-radius: 20px; font-size:12.5px; cursor:pointer; font-family:'Inter';
+    transition: background-color .15s ease, color .15s ease, border-color .15s ease, transform .1s ease;
+  }
+  .quick-ml button:active{ transform: scale(0.93); }
+  .quick-ml button.active{ background: var(--milk-dim); color: var(--milk); border-color: var(--milk-dim); }
+
+  .diaper-row{ display:grid; grid-template-columns: repeat(4,1fr); gap:8px; }
+  .diaper-btn{
+    background: var(--bg-2); border:1px solid var(--line); color: var(--ink-dim);
+    padding: 12px 4px; border-radius:12px; cursor:pointer; font-family:'Inter'; font-size:12px;
+    display:flex; flex-direction:column; align-items:center; gap:5px;
+    transition: background-color .15s ease, color .15s ease, border-color .15s ease, transform .1s ease;
+  }
+  .diaper-btn:active{ transform: scale(0.95); }
+  .diaper-btn .ic{ font-size:18px; transition: transform .2s cubic-bezier(.34,1.56,.64,1); }
+  .diaper-btn.active{ background: var(--diaper-dim); color: var(--diaper); border-color: var(--diaper); font-weight:700; }
+  .diaper-btn.active .ic{ transform: scale(1.15); }
+
+  .vomit-log-btn{
+    width:100%; display:flex; align-items:center; justify-content:center; gap:8px;
+    background: var(--vomit-dim); border:1px solid var(--vomit); color: var(--vomit);
+    padding: 13px; border-radius:14px; cursor:pointer; font-family:'Inter'; font-size:14px; font-weight:700;
+    margin-bottom:18px;
+  }
+  .vomit-log-btn:active{ transform: scale(0.99); }
+
+  .save-btn{
+    width:100%; margin-top:20px; background: var(--milk); color: #ffffff;
+    border:none; padding:15px; border-radius:14px; font-family:'Inter'; font-weight:700;
+    font-size:15px; cursor:pointer; letter-spacing:.01em;
+  }
+  .save-btn:active{ transform: scale(0.99); }
+
+  /* Timeline */
+  .day-label{
+    font-size:12px; color: var(--ink-faint); text-transform:uppercase; letter-spacing:.08em;
+    margin: 26px 0 12px 4px;
+  }
+  .timeline{ position:relative; padding-left: 26px; }
+  .timeline::before{
+    content:''; position:absolute; left:9px; top:6px; bottom:6px; width:1.5px;
+    background: var(--line);
+  }
+  .entry{ position:relative; margin-bottom: 16px; }
+  .entry .node{
+    position:absolute; left:-26px; top:2px; width:18px; height:18px; border-radius:50%;
+    background: var(--milk-dim); border: 2px solid var(--bg);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .entry-card{
+    background: var(--card); border:1px solid var(--line); border-radius:14px;
+    padding: 12px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .entry-card-clickable{ cursor:pointer; transition: background-color .12s ease, transform .12s ease; }
+  .entry-card-clickable:active{ background: var(--card-hover); transform: scale(0.985); }
+
+  @keyframes entryFadeIn{
+    from{ opacity:0; transform: translateY(8px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+  .entry{
+    animation: entryFadeIn .32s cubic-bezier(.22,1,.36,1) backwards;
+  }
+  .entry:nth-child(1){ animation-delay: 0s; }
+  .entry:nth-child(2){ animation-delay: .03s; }
+  .entry:nth-child(3){ animation-delay: .06s; }
+  .entry:nth-child(4){ animation-delay: .09s; }
+  .entry:nth-child(5){ animation-delay: .12s; }
+  .entry:nth-child(n+6){ animation-delay: .14s; }
+  .entry-main{ display:flex; align-items:center; gap:12px; }
+  .entry-time{ font-family:'Fraunces', serif; font-size:15px; color: var(--ink); min-width:44px; }
+  .entry-details{ display:flex; flex-direction:column; gap:2px; }
+  .entry-ml{ font-size:14px; color: var(--milk); font-weight:600; }
+  .entry-diaper{ font-size:11.5px; color: var(--ink-faint); }
+  .entry-vomit-label{ font-size:14px; color: var(--vomit); font-weight:600; }
+  .entry .node.vomit-node{ background: var(--vomit-dim); }
+  .entry-author{
+    width:20px; height:20px; border-radius:50%; background: var(--milk-dim); color: var(--milk);
+    font-size:9.5px; font-weight:700; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; text-transform:uppercase;
+  }
+
+  .fab{
+    position:fixed; right:20px; bottom: calc(22px + env(safe-area-inset-bottom));
+    width:56px; height:56px; border-radius:50%; background: var(--milk); color:#ffffff;
+    border:none; box-shadow: 0 8px 20px rgba(0,0,0,.25); display:flex; align-items:center;
+    justify-content:center; cursor:pointer; z-index:20;
+    transition: background-color .3s ease, transform .28s cubic-bezier(.34,1.56,.64,1);
+  }
+  .fab:active{ transform: scale(0.9); }
+  .fab svg{ transition: transform .3s cubic-bezier(.34,1.56,.64,1); }
+  .fab.is-open svg{ transform: rotate(45deg); }
+
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(10,20,35,.5); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
+    z-index:50; display:flex; align-items:flex-end; justify-content:center;
+    opacity:1; transition: opacity .28s ease;
+  }
+  .modal-overlay.hidden{ opacity:0; pointer-events:none; }
+  .modal-panel{
+    background: var(--card); width:100%; max-width:560px; max-height:90vh; overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    border-radius: 24px 24px 0 0; padding: 22px 20px calc(22px + env(safe-area-inset-bottom));
+    position:relative; transform:translateY(0); transition: transform .32s cubic-bezier(.22,1,.36,1);
+  }
+  .modal-overlay.hidden .modal-panel{ transform:translateY(60px); }
+  .modal-close-btn{
+    position:absolute; top:16px; right:16px; width:34px; height:34px; border-radius:50%;
+    background: var(--bg-2); border:1px solid var(--line); color: var(--ink-faint);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition: background-color .15s ease, transform .15s ease;
+  }
+  .modal-close-btn:active{ transform: scale(0.88); background: var(--card-hover); }
+
+  .same-as-last-btn{
+    background: var(--bg-2); border:1px solid var(--line); color: var(--ink-dim);
+    font-family:'Inter'; font-size:12.5px; font-weight:600; padding:9px 14px; border-radius:20px;
+    cursor:pointer; margin-top:14px; display:inline-flex; align-items:center; gap:6px;
+  }
+  .same-as-last-btn:active{ background: var(--card-hover); }
+  .entry-del{
+    background:none; border:none; color: var(--ink-faint); font-size:16px; cursor:pointer;
+    padding:6px; border-radius:8px; transition: background-color .15s ease, color .15s ease;
+  }
+  .entry-del:active{ color: var(--diaper); }
+  .entry-del.confirming{
+    background: #c0526a; color:#ffffff; font-size:11px; font-weight:600; padding:6px 10px;
+    white-space:nowrap;
+  }
+  .entry-edit{
+    background:none; border:none; color: var(--ink-faint); cursor:pointer;
+    padding:6px; display:flex; align-items:center; justify-content:center;
+  }
+  .entry-edit:active{ color: var(--milk); }
+  .entry-actions{ display:flex; align-items:center; gap:2px; }
+
+  .cancel-edit-btn{
+    width:100%; margin-top:10px; background:none; border:1px solid var(--line); color: var(--ink-dim);
+    padding:13px; border-radius:14px; font-family:'Inter'; font-weight:600; font-size:14px; cursor:pointer;
+  }
+
+  .empty{
+    text-align:center; color: var(--ink-faint); font-size:13px; padding: 30px 10px;
+  }
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background: var(--card); border:1px solid var(--line); color: var(--ink);
+    padding:12px 20px; border-radius:30px; font-size:13px; opacity:0; pointer-events:none;
+    transition: all .25s ease; box-shadow: 0 10px 30px rgba(0,0,0,.4);
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* Tabs */
+  .tabs{
+    display:flex; gap:6px; background: var(--card); border:1px solid var(--line);
+    border-radius:14px; padding:4px; margin-bottom:22px;
+  }
+  .tab-btn{
+    flex:1; background:none; border:none; color: var(--ink-faint); font-family:'Inter';
+    font-size:12px; font-weight:600; padding:10px 4px; border-radius:10px; cursor:pointer;
+  }
+  .tab-btn.active{ background: var(--bg-2); color: var(--ink); }
+  .view{ display:none; }
+  .view.active{ display:block; }
+  .view{ transition: transform .2s ease, opacity .2s ease; }
+  .view.tab-slide-out-l{ transform: translateX(-26px); opacity:0; }
+  .view.tab-slide-out-r{ transform: translateX(26px); opacity:0; }
+  .view.tab-slide-in-prep-l{ transition:none; transform: translateX(26px); opacity:0; }
+  .view.tab-slide-in-prep-r{ transition:none; transform: translateX(-26px); opacity:0; }
+
+  /* Calendar */
+  .cal-nav{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;
+  }
+  .cal-nav-btn{
+    width:38px; height:38px; border-radius:50%; border:1px solid var(--line);
+    background: var(--card); color: var(--ink); font-size:16px; cursor:pointer;
+    transition: background-color .15s ease, transform .1s ease;
+  }
+  .cal-nav-btn:active{ background: var(--card-hover); transform: scale(0.88); }
+  .cal-nav-title{
+    font-family:'Fraunces', serif; font-size:17px; font-weight:600; text-transform:capitalize;
+  }
+  .cal-grid{
+    display:grid; grid-template-columns: repeat(7,1fr); gap:6px; margin-bottom:22px;
+    touch-action: pan-y;
+    transition: transform .22s ease, opacity .22s ease;
+  }
+  .cal-grid.slide-out-l{ transform: translateX(-24px); opacity:0; }
+  .cal-grid.slide-out-r{ transform: translateX(24px); opacity:0; }
+  .cal-grid.slide-in-prep-l{ transition:none; transform: translateX(24px); opacity:0; }
+  .cal-grid.slide-in-prep-r{ transition:none; transform: translateX(-24px); opacity:0; }
+  .cal-nav-title{ transition: opacity .18s ease; }
+  .cal-dow{
+    text-align:center; font-size:10.5px; color: var(--ink-faint); text-transform:uppercase;
+    padding-bottom:4px;
+  }
+  .cal-day{
+    aspect-ratio:1; border-radius:10px; border:1px solid transparent; background: var(--card);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    cursor:pointer; font-size:13px; color: var(--ink-dim); gap:3px; position:relative;
+  }
+  .cal-day.empty-cell{ background:none; cursor:default; }
+  .cal-day.has-entries{ color: var(--ink); }
+  .cal-day .dot{
+    width:5px; height:5px; border-radius:50%; background: var(--milk);
+  }
+  .cal-day.selected{ border-color: var(--milk); background: var(--milk-dim); color: var(--ink); }
+  .cal-day.is-today{ box-shadow: inset 0 0 0 1px var(--sage); }
+
+  .cal-day-detail-label{
+    font-family:'Fraunces', serif; font-size:16px; font-weight:600; margin: 4px 0 12px 2px;
+  }
+
+  /* Chart */
+  .chart-scroll{
+    position:relative;
+    overflow-x:auto; -webkit-overflow-scrolling:touch;
+    background: var(--card); border:1px solid var(--line); border-radius: var(--radius);
+    padding: 18px 6px 10px;
+  }
+  @keyframes chartFadeIn{
+    from{ opacity:0; transform: translateY(10px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+  .chart-scroll svg{ display:block; animation: chartFadeIn .4s cubic-bezier(.22,1,.36,1) backwards; }
+  .chart-empty{ text-align:center; color: var(--ink-faint); font-size:13px; padding: 40px 10px; }
+  .chart-point{ cursor:pointer; }
+  .chart-tooltip{
+    position:absolute; background: var(--ink); color: var(--card);
+    font-family:'Inter'; font-size:11.5px; font-weight:600; padding:6px 11px; border-radius:9px;
+    white-space:nowrap; pointer-events:none; z-index:6; box-shadow:0 6px 14px rgba(0,0,0,.22);
+    transform:translateX(-50%) scale(1); opacity:1;
+    transition: opacity .15s ease, transform .18s cubic-bezier(.34,1.56,.64,1);
+  }
+  .chart-tooltip.hidden{ opacity:0; transform:translateX(-50%) scale(.8); }
+  .chart-tooltip::after{
+    content:''; position:absolute; left:50%; top:100%; transform:translateX(-50%);
+    border:5px solid transparent; border-top-color: var(--ink);
+  }
+
+  /* Login */
+  .login-screen{
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .login-card{
+    width:100%; max-width:340px; background: var(--card); border:1px solid var(--line);
+    border-radius: var(--radius); padding: 32px 26px; text-align:center;
+  }
+  .login-title{
+    font-family:'Cormorant Garamond', serif; font-weight:600; font-style:italic;
+    font-size: 40px; margin:0 0 2px 0; color: var(--ink);
+  }
+  .login-sub{
+    font-size: 11px; color: var(--ink-faint); text-transform:uppercase; letter-spacing:.14em;
+    margin: 0 0 26px 0;
+  }
+  .login-field{
+    width:100%; background: var(--bg-2); border:1px solid var(--line); color: var(--ink);
+    font-family:'Inter'; font-size:16px; padding:14px 16px; border-radius:12px;
+    margin-bottom:10px; text-align:left;
+  }
+  .comment-field{
+    resize:vertical; box-sizing:border-box; font-size:14.5px; line-height:1.4;
+    margin-bottom:16px; margin-top:0;
+  }
+  .entry-comment{
+    font-size:12px; color: var(--ink-dim); margin-top:4px; font-style:italic;
+    line-height:1.35; overflow-wrap:anywhere;
+  }
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active{
+    -webkit-text-fill-color: var(--ink) !important;
+    -webkit-box-shadow: 0 0 0px 1000px var(--bg-2) inset !important;
+    box-shadow: 0 0 0px 1000px var(--bg-2) inset !important;
+    caret-color: var(--ink);
+    transition: background-color 5000s ease-in-out 0s;
+  }
+  .login-btn{
+    width:100%; margin-top:10px; background: var(--milk); color:#ffffff; border:none;
+    padding:15px; border-radius:14px; font-family:'Inter'; font-weight:700; font-size:15px;
+    cursor:pointer;
+  }
+  .login-btn:disabled{ opacity:.6; }
+  .login-error{
+    color:#c0526a; font-size:12.5px; margin-top:12px; min-height:16px;
+  }
+  .logout-btn{
+    position:absolute; top: calc(18px + env(safe-area-inset-top)); right:18px;
+    background: var(--card); border:1px solid var(--line); color: var(--ink-faint);
+    width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition: background-color .15s ease, transform .1s ease;
+  }
+  .logout-btn:active{ background: var(--card-hover); transform: scale(0.88); }
+  .theme-toggle-btn{
+    position:absolute; top: calc(18px + env(safe-area-inset-top)); left:18px;
+    background: var(--card); border:1px solid var(--line); color: var(--ink-faint);
+    width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; z-index:10; transition: background-color .3s ease, border-color .3s ease, transform .3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .theme-toggle-btn:active{ transform: scale(0.85) rotate(-20deg); }
+  header{ position:relative; }
+  .hidden{ display:none !important; }
+
+  /* Import */
+  .import-toggle{
+    background:none; border:none; color: var(--ink-faint); font-size:12px;
+    font-family:'Inter'; text-decoration:underline; cursor:pointer; padding:18px 4px 4px;
+    display:block;
+  }
+  .import-box{ margin-top:10px; }
+  .import-box textarea{
+    width:100%; min-height:140px; background: var(--bg-2); border:1px solid var(--line);
+    color: var(--ink); font-family:monospace; font-size:11.5px; border-radius:12px;
+    padding:12px; box-sizing:border-box; resize:vertical;
+  }
+  .import-result{ font-size:12px; color: var(--ink-faint); margin-top:8px; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Changer de thème" title="Changer de thème">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+</button>
+
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <h1 class="login-title">Aylan</h1>
+    <div class="login-sub">Connexion</div>
+    <input class="login-field" type="email" id="login-email" placeholder="Email" autocomplete="username">
+    <input class="login-field" type="password" id="login-password" placeholder="Mot de passe" autocomplete="current-password">
+    <button class="login-btn" id="login-btn">Se connecter</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<div class="wrap hidden" id="app-wrap">
+  <button class="logout-btn" id="logout-btn" aria-label="Se déconnecter" title="Se déconnecter">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+  </button>
+
+  <button class="fab" id="fab-btn" aria-label="Ajouter un biberon" title="Ajouter un biberon">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+
+  <div class="modal-overlay hidden" id="add-modal-overlay">
+    <div class="modal-panel">
+      <button class="modal-close-btn" id="modal-close-btn" aria-label="Fermer">✕</button>
+      <h2 id="form-title">Ajout d'un biberon</h2>
+      <button class="same-as-last-btn" id="same-as-last-btn" type="button">↻ Comme la dernière fois</button>
+
+      <label class="field-label">Jour</label>
+      <div class="date-field">
+        <input type="date" id="date-input">
+      </div>
+
+      <label class="field-label">Heure</label>
+      <div class="time-row">
+        <input type="time" id="time-input">
+        <button class="now-btn" id="now-btn" type="button" aria-label="Régler à maintenant">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+        </button>
+      </div>
+
+      <label class="field-label">Couche juste avant</label>
+      <div class="diaper-row" id="diaper-row">
+        <button class="diaper-btn" data-val="none"><span class="ic">·</span>Rien</button>
+        <button class="diaper-btn" data-val="pipi"><span class="ic">💧</span>Pipi</button>
+        <button class="diaper-btn" data-val="caca"><span class="ic">●</span>Caca</button>
+        <button class="diaper-btn" data-val="both"><span class="ic">✦</span>Les deux</button>
+      </div>
+
+      <label class="field-label">Quantité de lait</label>
+      <div class="ml-row">
+        <button class="ml-btn" id="ml-minus" type="button">–</button>
+        <div class="ml-input-wrap">
+          <input type="number" id="ml-input" value="90" min="0" step="10">
+          <span class="ml-unit">ml</span>
+        </div>
+        <button class="ml-btn" id="ml-plus" type="button">+</button>
+      </div>
+      <div class="quick-ml" id="quick-ml">
+        <button data-ml="60">60</button>
+        <button data-ml="90">90</button>
+        <button data-ml="120">120</button>
+        <button data-ml="150">150</button>
+        <button data-ml="180">180</button>
+      </div>
+
+      <label class="field-label">Commentaire (optionnel)</label>
+      <textarea class="login-field comment-field" id="comment-input" placeholder="ex : a mal digéré, a refusé la fin..." rows="2"></textarea>
+
+      <button class="save-btn" id="save-btn">Enregistrer</button>
+      <button class="cancel-edit-btn hidden" id="cancel-edit-btn" type="button">Annuler la modification</button>
+    </div>
+  </div>
+
+  <header>
+    <div>
+      <h1>Aylan</h1>
+      <div class="subtitle">biberons &amp; couches</div>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-view="today">Aujourd'hui</button>
+    <button class="tab-btn" data-view="calendar">Calendrier</button>
+    <button class="tab-btn" data-view="chart">Infos</button>
+    <button class="tab-btn" data-view="profile">Profil</button>
+  </div>
+
+  <div class="view active" id="view-today">
+    <div class="stats" id="stats"></div>
+
+    <button class="vomit-log-btn" id="vomit-log-btn" type="button">🤮 Signaler un vomissement</button>
+
+    <div id="timeline-container"></div>
+  </div>
+
+  <div class="view" id="view-calendar">
+    <div class="cal-nav">
+      <button class="cal-nav-btn" id="cal-prev" type="button">‹</button>
+      <div class="cal-nav-title" id="cal-title"></div>
+      <button class="cal-nav-btn" id="cal-next" type="button">›</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div id="cal-day-detail"></div>
+
+    <button class="import-toggle" id="import-toggle">Importer des biberons en liste</button>
+    <div class="import-box hidden" id="import-box">
+      <textarea id="import-textarea">[
+{"date":"2026-07-30","time":"00:20","ml":85,"diaper":"pipi"},
+{"date":"2026-07-30","time":"04:30","ml":80,"diaper":"pipi"},
+{"date":"2026-07-30","time":"07:30","ml":90,"diaper":"pipi"},
+{"date":"2026-07-30","time":"10:30","ml":100,"diaper":"pipi"},
+{"date":"2026-07-30","time":"14:00","ml":60,"diaper":"caca"},
+{"date":"2026-07-30","time":"17:15","ml":85,"diaper":"none"},
+{"date":"2026-07-30","time":"21:00","ml":60,"diaper":"pipi"},
+{"date":"2026-07-31","time":"00:40","ml":55,"diaper":"pipi"},
+{"date":"2026-07-31","time":"03:40","ml":90,"diaper":"pipi"},
+{"date":"2026-07-31","time":"08:40","ml":70,"diaper":"both"},
+{"date":"2026-07-31","time":"12:10","ml":90,"diaper":"pipi"},
+{"date":"2026-07-31","time":"15:10","ml":90,"diaper":"pipi"},
+{"date":"2026-07-31","time":"19:40","ml":150,"diaper":"pipi"},
+{"date":"2026-08-01","time":"00:00","ml":100,"diaper":"pipi"},
+{"date":"2026-08-01","time":"03:40","ml":90,"diaper":"pipi"},
+{"date":"2026-08-01","time":"08:45","ml":100,"diaper":"pipi"},
+{"date":"2026-08-01","time":"12:00","ml":75,"diaper":"pipi"},
+{"date":"2026-08-01","time":"16:10","ml":90,"diaper":"pipi"},
+{"date":"2026-08-01","time":"19:30","ml":100,"diaper":"pipi"},
+{"date":"2026-08-01","time":"22:30","ml":100,"diaper":"pipi"},
+{"date":"2026-08-02","time":"02:00","ml":80,"diaper":"pipi"},
+{"date":"2026-08-02","time":"06:50","ml":100,"diaper":"pipi"},
+{"date":"2026-08-02","time":"11:00","ml":100,"diaper":"pipi"},
+{"date":"2026-08-02","time":"15:00","ml":100,"diaper":"pipi"},
+{"date":"2026-08-02","time":"18:00","ml":90,"diaper":"pipi"},
+{"date":"2026-08-02","time":"21:10","ml":80,"diaper":"pipi"},
+{"date":"2026-08-03","time":"01:50","ml":100,"diaper":"pipi"},
+{"date":"2026-08-03","time":"06:30","ml":100,"diaper":"pipi"},
+{"date":"2026-08-03","time":"10:00","ml":70,"diaper":"pipi"},
+{"date":"2026-08-03","time":"13:15","ml":130,"diaper":"pipi"},
+{"date":"2026-08-03","time":"16:30","ml":130,"diaper":"pipi"},
+{"date":"2026-08-03","time":"19:45","ml":0,"diaper":"pipi"},
+{"date":"2026-08-03","time":"23:00","ml":40,"diaper":"pipi"},
+{"date":"2026-08-04","time":"03:45","ml":110,"diaper":"pipi"},
+{"date":"2026-08-04","time":"09:00","ml":120,"diaper":"caca"},
+{"date":"2026-08-04","time":"12:00","ml":100,"diaper":"pipi"},
+{"date":"2026-08-04","time":"16:10","ml":120,"diaper":"pipi"},
+{"date":"2026-08-04","time":"18:45","ml":60,"diaper":"pipi"},
+{"date":"2026-08-04","time":"22:15","ml":110,"diaper":"pipi"},
+{"date":"2026-08-05","time":"02:00","ml":80,"diaper":"pipi"},
+{"date":"2026-08-05","time":"05:30","ml":120,"diaper":"pipi"},
+{"date":"2026-08-05","time":"09:45","ml":120,"diaper":"pipi"},
+{"date":"2026-08-05","time":"13:45","ml":120,"diaper":"both"},
+{"date":"2026-08-05","time":"18:00","ml":120,"diaper":"pipi"},
+{"date":"2026-08-05","time":"21:10","ml":100,"diaper":"pipi"},
+{"date":"2026-08-06","time":"00:00","ml":65,"diaper":"pipi"},
+{"date":"2026-08-06","time":"05:00","ml":60,"diaper":"pipi"},
+{"date":"2026-08-06","time":"08:30","ml":120,"diaper":"pipi"},
+{"date":"2026-08-06","time":"12:15","ml":100,"diaper":"both"},
+{"date":"2026-08-06","time":"15:00","ml":90,"diaper":"both"},
+{"date":"2026-08-06","time":"19:50","ml":150,"diaper":"both"},
+{"date":"2026-08-06","time":"22:45","ml":80,"diaper":"pipi"},
+{"date":"2026-08-07","time":"07:30","ml":0,"diaper":"pipi"},
+{"date":"2026-08-07","time":"10:10","ml":100,"diaper":"both"},
+{"date":"2026-08-07","time":"15:20","ml":120,"diaper":"pipi"},
+{"date":"2026-08-07","time":"19:00","ml":130,"diaper":"caca"},
+{"date":"2026-08-07","time":"22:50","ml":80,"diaper":"pipi"},
+{"date":"2026-08-08","time":"02:10","ml":75,"diaper":"pipi"},
+{"date":"2026-08-08","time":"06:15","ml":120,"diaper":"pipi"},
+{"date":"2026-08-08","time":"10:40","ml":120,"diaper":"pipi"},
+{"date":"2026-08-08","time":"14:00","ml":120,"diaper":"pipi"},
+{"date":"2026-08-08","time":"18:45","ml":125,"diaper":"both"},
+{"date":"2026-08-08","time":"22:00","ml":160,"diaper":"pipi"}
+]</textarea>
+      <button class="save-btn" id="import-btn" type="button">Importer</button>
+      <div class="import-result" id="import-result"></div>
+    </div>
+  </div>
+
+  <div class="view" id="view-chart">
+    <div class="stats" id="chart-stats"></div>
+    <div class="cal-day-detail-label">Quantité de lait par jour</div>
+    <div class="chart-scroll" id="chart-scroll"></div>
+
+    <div class="cal-day-detail-label" style="margin-top:22px;">Vomissements par jour</div>
+    <div class="chart-scroll" id="vomit-chart-scroll"></div>
+  </div>
+
+  <div class="view" id="view-profile">
+    <div class="stat-hero hidden" id="age-hero">
+      <div>
+        <div class="lbl" id="age-name-lbl">Âge</div>
+        <div class="num" id="age-value">—</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Informations d'Aylan</h2>
+      <label class="field-label">Prénom(s)</label>
+      <input class="login-field" type="text" id="profile-firstname" placeholder="Prénom(s)" autocomplete="off" autocapitalize="words">
+      <label class="field-label">Nom</label>
+      <input class="login-field" type="text" id="profile-lastname" placeholder="Nom" autocomplete="off" autocapitalize="words">
+      <label class="field-label">Date de naissance</label>
+      <div class="date-field" style="margin-bottom:16px;">
+        <input type="date" id="profile-birthdate">
+      </div>
+      <button class="save-btn" id="profile-save-btn" type="button">Enregistrer les informations</button>
+    </div>
+
+    <div class="card">
+      <h2 id="growth-form-title">Ajouter une mesure</h2>
+      <label class="field-label">Date</label>
+      <div class="date-field"><input type="date" id="growth-date-input"></div>
+      <label class="field-label">Poids (kg)</label>
+      <div class="time-row"><input class="login-field" type="number" inputmode="decimal" step="0.01" id="growth-weight-input" placeholder="ex : 4.20" style="margin-bottom:0;"></div>
+      <label class="field-label">Taille (cm)</label>
+      <div class="time-row"><input class="login-field" type="number" inputmode="decimal" step="0.5" id="growth-height-input" placeholder="ex : 55" style="margin-bottom:0;"></div>
+      <button class="save-btn" id="growth-save-btn" type="button">Enregistrer la mesure</button>
+      <button class="cancel-edit-btn hidden" id="growth-cancel-btn" type="button">Annuler la modification</button>
+    </div>
+
+    <div class="cal-day-detail-label" id="weight-chart-label">Courbe de poids</div>
+    <div class="chart-scroll" id="weight-chart-scroll"></div>
+
+    <div class="cal-day-detail-label" id="height-chart-label" style="margin-top:22px;">Courbe de taille</div>
+    <div class="chart-scroll" id="height-chart-scroll"></div>
+
+    <div class="cal-day-detail-label" style="margin-top:22px;">Historique des mesures</div>
+    <div id="growth-list"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDS7SatJhkAhqAxjAa-1n2MzLWHHSTpoN4",
+  authDomain: "suivi-aylan.firebaseapp.com",
+  databaseURL: "https://suivi-aylan-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "suivi-aylan",
+  storageBucket: "suivi-aylan.firebasestorage.app",
+  messagingSenderId: "999972029793",
+  appId: "1:999972029793:web:06d7eb37bfb78fa4a6f120"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+let entries = [];
+let selectedDiaper = 'none';
+let currentView = 'today';
+let calMonthDate = new Date();
+let selectedCalDay = null;
+
+const $ = (id) => document.getElementById(id);
+
+const MOON_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>';
+const SUN_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  const btn = $('theme-toggle-btn');
+  if(btn) btn.innerHTML = theme === 'dark' ? SUN_ICON : MOON_ICON;
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+  if(metaTheme) metaTheme.setAttribute('content', theme === 'dark' ? '#0e1826' : '#f6f9fd');
+  try{ localStorage.setItem('aylan-theme', theme); }catch(e){}
+}
+
+function toggleTheme(){
+  const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+let initialTheme = 'light';
+try{ initialTheme = localStorage.getItem('aylan-theme') || 'light'; }catch(e){}
+applyTheme(initialTheme);
+
+function pad(n){ return String(n).padStart(2,'0'); }
+
+function nowTimeStr(){
+  const d = new Date();
+  return pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+
+function setNow(){
+  $('time-input').value = nowTimeStr();
+}
+
+function dateInputVal(dateObj){
+  return dateObj.getFullYear()+'-'+pad(dateObj.getMonth()+1)+'-'+pad(dateObj.getDate());
+}
+
+function setDateOffset(daysAgo){
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  $('date-input').value = dateInputVal(d);
+}
+
+function showToast(msg){
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=> t.classList.remove('show'), 1800);
+}
+
+let entriesRef = null;
+let profileRef = null;
+let growthRef = null;
+let profileData = null;
+let growthEntries = [];
+
+function startSync(){
+  entriesRef = db.ref('entries');
+  entriesRef.on('value', (snapshot) => {
+    const val = snapshot.val();
+    entries = val ? Object.values(val) : [];
+    render();
+  }, (err) => {
+    showToast("Erreur de synchronisation");
+  });
+
+  profileRef = db.ref('profile');
+  profileRef.on('value', (snapshot) => {
+    profileData = snapshot.val() || null;
+    renderProfileForm();
+    renderAgeHero();
+  });
+
+  growthRef = db.ref('growth');
+  growthRef.on('value', (snapshot) => {
+    const val = snapshot.val();
+    growthEntries = val ? Object.values(val) : [];
+    renderGrowthList();
+    renderGrowthCharts();
+  });
+}
+
+function stopSync(){
+  if(entriesRef) entriesRef.off();
+  if(profileRef) profileRef.off();
+  if(growthRef) growthRef.off();
+  entries = [];
+  profileData = null;
+  growthEntries = [];
+}
+
+async function addEntryToDB(entry){
+  try{
+    await db.ref('entries/' + entry.id).set(entry);
+  }catch(e){
+    showToast("Erreur d'enregistrement");
+  }
+}
+
+async function removeEntryFromDB(id){
+  try{
+    await db.ref('entries/' + id).remove();
+  }catch(e){
+    showToast("Erreur de suppression");
+  }
+}
+
+function computeAge(birthDateStr){
+  const [y,mo,d] = birthDateStr.split('-').map(Number);
+  const birth = new Date(y, mo-1, d);
+  const now = new Date();
+  if(birth > now) return '—';
+
+  let years = now.getFullYear() - birth.getFullYear();
+  let months = now.getMonth() - birth.getMonth();
+  let days = now.getDate() - birth.getDate();
+
+  if(days < 0){
+    months--;
+    const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+    days += prevMonth.getDate();
+  }
+  if(months < 0){
+    years--;
+    months += 12;
+  }
+
+  if(years > 0) return `${years} an${years > 1 ? 's' : ''}${months > 0 ? ' et ' + months + ' mois' : ''}`;
+  if(months > 0) return `${months} mois${days > 0 ? ' et ' + days + ' jour' + (days > 1 ? 's' : '') : ''}`;
+  return `${days} jour${days > 1 ? 's' : ''}`;
+}
+
+function renderProfileForm(){
+  if(!profileData) return;
+  $('profile-firstname').value = profileData.firstName || '';
+  $('profile-lastname').value = profileData.lastName || '';
+  $('profile-birthdate').value = profileData.birthDate || '';
+}
+
+function renderAgeHero(){
+  const hero = $('age-hero');
+  if(profileData && profileData.birthDate){
+    hero.classList.remove('hidden');
+    $('age-name-lbl').textContent = 'Âge';
+    $('age-value').textContent = computeAge(profileData.birthDate);
+  }else{
+    hero.classList.add('hidden');
+  }
+}
+
+async function saveProfile(){
+  const firstName = $('profile-firstname').value.trim();
+  const lastName = $('profile-lastname').value.trim();
+  const birthDate = $('profile-birthdate').value;
+
+  if(!birthDate){
+    showToast('Merci de renseigner la date de naissance');
+    return;
+  }
+
+  try{
+    await db.ref('profile').set({ firstName, lastName, birthDate });
+    showToast('Informations enregistrées');
+  }catch(e){
+    showToast("Erreur d'enregistrement");
+  }
+}
+
+function formatShortDate(dateStr){
+  const [y,m,d] = dateStr.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function formatShortDateNoYear(dateStr){
+  const [y,m,d] = dateStr.split('-');
+  return `${d}/${m}`;
+}
+
+function growthRowHtml(g){
+  const parts = [];
+  if(g.weight != null) parts.push(`${g.weight} kg`);
+  if(g.height != null) parts.push(`${g.height} cm`);
+  return `
+    <div class="entry" data-id="${g.id}">
+      <div class="node">·</div>
+      <div class="entry-card">
+        <div class="entry-main">
+          <div class="entry-time">${formatShortDate(g.date)}</div>
+          <div class="entry-details">
+            <div class="entry-ml">${parts.join(' · ')}</div>
+          </div>
+        </div>
+        <div class="entry-actions">
+          <button class="entry-edit" data-gedit="${g.id}" aria-label="Modifier">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </button>
+          <button class="entry-del" data-gdel="${g.id}">✕</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function bindGrowthButtons(container){
+  container.querySelectorAll('[data-gdel]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if(btn.classList.contains('confirming')){
+        clearTimeout(btn._confirmTimeout);
+        deleteGrowthEntry(btn.getAttribute('data-gdel'));
+        return;
+      }
+      btn.classList.add('confirming');
+      btn.textContent = 'Confirmer';
+      btn._confirmTimeout = setTimeout(() => {
+        btn.classList.remove('confirming');
+        btn.textContent = '✕';
+      }, 3000);
+    });
+  });
+  container.querySelectorAll('[data-gedit]').forEach(btn => {
+    btn.addEventListener('click', () => startEditGrowth(btn.getAttribute('data-gedit')));
+  });
+}
+
+function renderGrowthList(){
+  const container = $('growth-list');
+  if(!growthEntries.length){
+    container.innerHTML = `<div class="empty">Aucune mesure enregistrée pour l'instant.</div>`;
+    return;
+  }
+  const sorted = [...growthEntries].sort((a,b) => b.date.localeCompare(a.date));
+  container.innerHTML = `<div class="timeline">${sorted.map(growthRowHtml).join('')}</div>`;
+  bindGrowthButtons(container);
+}
+
+function resetGrowthForm(){
+  $('growth-date-input').value = dateInputVal(new Date());
+  $('growth-weight-input').value = '';
+  $('growth-height-input').value = '';
+}
+
+let editingGrowthId = null;
+
+function startEditGrowth(id){
+  const g = growthEntries.find(x => String(x.id) === String(id));
+  if(!g) return;
+
+  editingGrowthId = id;
+  $('growth-date-input').value = g.date;
+  $('growth-weight-input').value = g.weight != null ? g.weight : '';
+  $('growth-height-input').value = g.height != null ? g.height : '';
+
+  $('growth-form-title').textContent = 'Modifier cette mesure';
+  $('growth-save-btn').textContent = 'Enregistrer les modifications';
+  $('growth-cancel-btn').classList.remove('hidden');
+}
+
+function cancelEditGrowth(){
+  editingGrowthId = null;
+  $('growth-form-title').textContent = 'Ajouter une mesure';
+  $('growth-save-btn').textContent = 'Enregistrer la mesure';
+  $('growth-cancel-btn').classList.add('hidden');
+  resetGrowthForm();
+}
+
+async function saveGrowthEntry(){
+  const dateVal = $('growth-date-input').value || dateInputVal(new Date());
+  const weightVal = $('growth-weight-input').value;
+  const heightVal = $('growth-height-input').value;
+
+  if(!weightVal && !heightVal){
+    showToast('Renseigne au moins un poids ou une taille');
+    return;
+  }
+
+  const isEditing = editingGrowthId !== null;
+  const entry = {
+    id: isEditing ? editingGrowthId : Date.now(),
+    date: dateVal,
+    weight: weightVal ? parseFloat(weightVal) : null,
+    height: heightVal ? parseFloat(heightVal) : null
+  };
+
+  try{
+    await db.ref('growth/' + entry.id).set(entry);
+    showToast(isEditing ? 'Mesure modifiée' : 'Mesure enregistrée');
+  }catch(e){
+    showToast("Erreur d'enregistrement");
+  }
+
+  if(isEditing) cancelEditGrowth();
+  else resetGrowthForm();
+}
+
+async function deleteGrowthEntry(id){
+  try{
+    await db.ref('growth/' + id).remove();
+    showToast('Mesure supprimée');
+  }catch(e){
+    showToast('Erreur de suppression');
+  }
+}
+
+function renderSimpleLineChart(container, points, opts){
+  if(!points.length){
+    container.innerHTML = `<div class="chart-empty">Pas encore de mesure enregistrée.</div>`;
+    return;
+  }
+
+  const n = points.length;
+  const spacing = 56;
+  const leftPad = 34, rightPad = 20, topPad = 24, bottomPad = 28, chartH = 120;
+  const svgW = Math.max(260, leftPad + rightPad + (n - 1) * spacing);
+  const svgH = topPad + chartH + bottomPad;
+
+  const values = points.map(p => p.value);
+  const minV = Math.min(...values);
+  const maxV = Math.max(...values);
+  const range = (maxV - minV) || 1;
+  const padV = range * 0.2 || 1;
+  const scaleMin = Math.max(0, minV - padV);
+  const scaleMax = maxV + padV;
+
+  const xFor = i => n > 1 ? leftPad + i * spacing : svgW / 2;
+  const yFor = v => topPad + chartH - ((v - scaleMin) / (scaleMax - scaleMin)) * chartH;
+
+  const gridLines = [0, 0.5, 1].map(f => {
+    const val = scaleMin + (scaleMax - scaleMin) * f;
+    const y = yFor(val);
+    return `<line x1="${leftPad}" y1="${y}" x2="${svgW - rightPad}" y2="${y}" stroke="var(--line)" stroke-width="1" stroke-dasharray="3,4"/><text x="2" y="${y + 3.5}" font-size="9" fill="var(--ink-faint)" font-family="Inter">${val.toFixed(opts.decimals || 0)}</text>`;
+  }).join('');
+
+  const pathD = 'M ' + points.map((p,i) => `${xFor(i)},${yFor(p.value)}`).join(' L ');
+  const areaD = n > 1 ? `${pathD} L ${xFor(n-1)},${topPad+chartH} L ${xFor(0)},${topPad+chartH} Z` : '';
+  const dots = points.map((p,i) => `<circle cx="${xFor(i)}" cy="${yFor(p.value)}" r="3.5" fill="var(--milk)"/>`).join('');
+  const labels = points.map((p,i) => `<text x="${xFor(i)}" y="${topPad + chartH + 20}" font-size="9" fill="var(--ink-faint)" font-family="Inter" text-anchor="middle">${p.label}</text>`).join('');
+  const last = points[n-1];
+  const lastLabel = `<text x="${xFor(n-1)}" y="${yFor(last.value) - 10}" font-size="10.5" font-weight="600" fill="var(--milk)" font-family="Inter" text-anchor="middle">${last.value}${opts.suffix || ''}</text>`;
+
+  container.innerHTML = `
+    <svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">
+      ${gridLines}
+      ${areaD ? `<path d="${areaD}" fill="var(--milk-dim)" opacity="0.6"/>` : ''}
+      <path d="${pathD}" fill="none" stroke="var(--milk)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      ${dots}
+      ${lastLabel}
+      ${labels}
+    </svg>
+  `;
+
+  requestAnimationFrame(() => { container.scrollLeft = container.scrollWidth; });
+}
+
+function avgRatePerDay(points, unit){
+  if(points.length < 2) return '';
+  const first = points[0], last = points[points.length - 1];
+  const days = (new Date(last.date) - new Date(first.date)) / 86400000;
+  if(days <= 0) return '';
+  const rate = (last.value - first.value) / days;
+  if(unit === 'g'){
+    const gPerDay = Math.round(rate * 1000);
+    const sign = gPerDay > 0 ? '+' : '';
+    return `${sign}${gPerDay} g/j en moyenne`;
+  }
+  const cmPerDay = Math.round(rate * 10) / 10;
+  const sign = cmPerDay > 0 ? '+' : '';
+  return `${sign}${cmPerDay.toFixed(1).replace('.', ',')} cm/j en moyenne`;
+}
+
+function renderGrowthCharts(){
+  const sorted = [...growthEntries].sort((a,b) => a.date.localeCompare(b.date));
+  const weightPoints = sorted.filter(g => g.weight != null).map(g => ({ date: g.date, label: formatShortDateNoYear(g.date), value: g.weight }));
+  const heightPoints = sorted.filter(g => g.height != null).map(g => ({ date: g.date, label: formatShortDateNoYear(g.date), value: g.height }));
+  renderSimpleLineChart($('weight-chart-scroll'), weightPoints, { suffix: ' kg', decimals: 2 });
+  renderSimpleLineChart($('height-chart-scroll'), heightPoints, { suffix: ' cm', decimals: 0 });
+
+  const weightAvg = avgRatePerDay(weightPoints, 'g');
+  const heightAvg = avgRatePerDay(heightPoints, 'cm');
+  $('weight-chart-label').textContent = 'Courbe de poids' + (weightAvg ? ' · ' + weightAvg : '');
+  $('height-chart-label').textContent = 'Courbe de taille' + (heightAvg ? ' · ' + heightAvg : '');
+}
+
+async function doLogin(){
+  const email = $('login-email').value.trim();
+  const password = $('login-password').value;
+  const btn = $('login-btn');
+  const errEl = $('login-error');
+  errEl.textContent = '';
+
+  if(!email || !password){
+    errEl.textContent = 'Merci de remplir les deux champs.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Connexion...';
+  try{
+    await auth.signInWithEmailAndPassword(email, password);
+  }catch(e){
+    errEl.textContent = 'Email ou mot de passe incorrect.';
+  }
+  btn.disabled = false;
+  btn.textContent = 'Se connecter';
+}
+
+function doLogout(){
+  auth.signOut();
+}
+
+auth.onAuthStateChanged((user) => {
+  if(user){
+    $('login-screen').classList.add('hidden');
+    $('app-wrap').classList.remove('hidden');
+    startSync();
+  }else{
+    $('app-wrap').classList.add('hidden');
+    $('login-screen').classList.remove('hidden');
+    stopSync();
+  }
+});
+
+function diaperLabel(val){
+  return { none:'Couche sèche', pipi:'Pipi', caca:'Caca', both:'Pipi + caca' }[val] || '';
+}
+function diaperIcon(val){
+  return { none:'·', pipi:'💧', caca:'●', both:'✦' }[val] || '·';
+}
+
+function todayKey(dateObj){
+  return dateObj.getFullYear()+'-'+pad(dateObj.getMonth()+1)+'-'+pad(dateObj.getDate());
+}
+
+function formatDayLabel(key){
+  const [y,m,d] = key.split('-').map(Number);
+  const date = new Date(y, m-1, d);
+  const today = new Date();
+  const yest = new Date(); yest.setDate(today.getDate()-1);
+  if(todayKey(date) === todayKey(today)) return "Aujourd'hui";
+  if(todayKey(date) === todayKey(yest)) return "Hier";
+  return date.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
+}
+
+let tabAnimating = false;
+const TAB_ORDER = ['today', 'calendar', 'chart', 'profile'];
+
+function switchView(view){
+  if(view === currentView || tabAnimating) return;
+  tabAnimating = true;
+
+  const oldView = currentView;
+  const oldIndex = TAB_ORDER.indexOf(oldView);
+  const newIndex = TAB_ORDER.indexOf(view);
+  const direction = newIndex > oldIndex ? 1 : -1;
+
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-view') === view);
+  });
+
+  const oldEl = $('view-' + oldView);
+  const newEl = $('view-' + view);
+  const outClass = direction === 1 ? 'tab-slide-out-l' : 'tab-slide-out-r';
+  const inPrepClass = direction === 1 ? 'tab-slide-in-prep-l' : 'tab-slide-in-prep-r';
+
+  oldEl.classList.add(outClass);
+
+  setTimeout(() => {
+    try{
+      oldEl.classList.remove('active', outClass);
+      currentView = view;
+
+      newEl.classList.add(inPrepClass);
+      newEl.classList.add('active');
+      void newEl.offsetWidth;
+      newEl.classList.remove(inPrepClass);
+
+      if(view === 'calendar') renderCalendar();
+      if(view === 'chart'){ renderChart(); renderVomitChart(); }
+      if(view === 'profile') renderGrowthCharts();
+      $('fab-btn').classList.toggle('hidden', view === 'profile');
+    }finally{
+      setTimeout(() => { tabAnimating = false; }, 210);
+    }
+  }, 200);
+}
+
+function render(){
+  renderStats();
+  renderTodayTimeline();
+  if(currentView === 'calendar') renderCalendar();
+  if(currentView === 'chart'){ renderChart(); renderVomitChart(); }
+}
+
+function renderStats(){
+  const today = todayKey(new Date());
+  const todays = entries.filter(e => e.dayKey === today);
+  const bottlesToday = todays.filter(e => e.type !== 'vomit');
+  const totalMl = bottlesToday.reduce((s,e)=> s + (e.ml||0), 0);
+  const feedCount = bottlesToday.length;
+  const diaperCount = bottlesToday.filter(e => e.diaper !== 'none').length;
+  const vomitCount = todays.filter(e => e.type === 'vomit').length;
+
+  let lastAgo = '—';
+  const bottleEntries = entries.filter(e => e.type !== 'vomit');
+  if(bottleEntries.length){
+    const sorted = [...bottleEntries].sort((a,b)=> b.timestamp - a.timestamp);
+    const diffMin = Math.round((Date.now() - sorted[0].timestamp) / 60000);
+    if(diffMin < 60) lastAgo = diffMin + ' min';
+    else lastAgo = Math.floor(diffMin/60) + ' h ' + (diffMin%60) + ' min';
+  }
+
+  $('stats').innerHTML = `
+    <div class="stat-hero">
+      <div>
+        <div class="lbl">Dernier biberon</div>
+        <div class="num">${lastAgo}</div>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat"><div class="num">${totalMl} ml</div><div class="lbl">Aujourd'hui</div></div>
+      <div class="stat"><div class="num">${feedCount} / ${diaperCount}</div><div class="lbl">Bib. / Couches</div></div>
+      <div class="stat"><div class="num">${vomitCount}</div><div class="lbl">Vomissements</div></div>
+    </div>
+  `;
+}
+
+function authorInitials(email){
+  if(!email) return '?';
+  const namePart = email.split('@')[0];
+  return namePart.slice(0, 2).toUpperCase();
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function entryRowHtml(e){
+  if(e.type === 'vomit'){
+    return `
+    <div class="entry" data-id="${e.id}">
+      <div class="node vomit-node">🤮</div>
+      <div class="entry-card">
+        <div class="entry-main">
+          <div class="entry-time">${e.time}</div>
+          <div class="entry-details">
+            <div class="entry-vomit-label">Vomissement</div>
+          </div>
+        </div>
+        <div class="entry-actions">
+          ${e.authorEmail ? `<div class="entry-author" title="${e.authorEmail}">${authorInitials(e.authorEmail)}</div>` : ''}
+          <button class="entry-del" data-del="${e.id}">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }
+  return `
+    <div class="entry" data-id="${e.id}">
+      <div class="node">${diaperIcon(e.diaper)}</div>
+      <div class="entry-card entry-card-clickable" data-edit-row="${e.id}">
+        <div class="entry-main">
+          <div class="entry-time">${e.time}</div>
+          <div class="entry-details">
+            <div class="entry-ml">${e.ml} ml</div>
+            <div class="entry-diaper">${diaperLabel(e.diaper)}</div>
+            ${e.comment ? `<div class="entry-comment">💬 ${escapeHtml(e.comment)}</div>` : ''}
+          </div>
+        </div>
+        <div class="entry-actions">
+          ${e.authorEmail ? `<div class="entry-author" title="${e.authorEmail}">${authorInitials(e.authorEmail)}</div>` : ''}
+          <button class="entry-del" data-del="${e.id}">✕</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function bindEntryButtons(container){
+  container.querySelectorAll('[data-del]').forEach(btn => {
+    btn.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      if(btn.classList.contains('confirming')){
+        clearTimeout(btn._confirmTimeout);
+        deleteEntry(btn.getAttribute('data-del'));
+        return;
+      }
+      btn.classList.add('confirming');
+      btn.textContent = 'Confirmer';
+      btn._confirmTimeout = setTimeout(() => {
+        btn.classList.remove('confirming');
+        btn.textContent = '✕';
+      }, 3000);
+    });
+  });
+  container.querySelectorAll('[data-edit-row]').forEach(card => {
+    card.addEventListener('click', (ev) => {
+      if(ev.target.closest('.entry-del')) return;
+      startEdit(card.getAttribute('data-edit-row'));
+    });
+  });
+}
+
+function renderTodayTimeline(){
+  const container = $('timeline-container');
+  const today = todayKey(new Date());
+  const todays = entries.filter(e => e.dayKey === today).sort((a,b)=> a.timestamp - b.timestamp);
+
+  if(!todays.length){
+    container.innerHTML = `<div class="empty">Aucun biberon aujourd'hui pour le moment.<br>Ajoutez le premier ci-dessus.</div>`;
+    return;
+  }
+
+  container.innerHTML = `<div class="timeline">${todays.map(entryRowHtml).join('')}</div>`;
+  bindEntryButtons(container);
+}
+
+function renderCalendar(){
+  const year = calMonthDate.getFullYear();
+  const month = calMonthDate.getMonth();
+
+  $('cal-title').textContent = calMonthDate.toLocaleDateString('fr-FR', { month:'long', year:'numeric' });
+
+  const daysWithEntries = new Set(entries.map(e => e.dayKey));
+  const firstOfMonth = new Date(year, month, 1);
+  let startOffset = firstOfMonth.getDay() - 1; // lundi = 0
+  if(startOffset < 0) startOffset = 6;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const todayStr = todayKey(new Date());
+
+  const dowLabels = ['L','M','M','J','V','S','D'];
+  let html = dowLabels.map(d => `<div class="cal-dow">${d}</div>`).join('');
+
+  for(let i=0; i<startOffset; i++){
+    html += `<div class="cal-day empty-cell"></div>`;
+  }
+
+  for(let d=1; d<=daysInMonth; d++){
+    const dateObj = new Date(year, month, d);
+    const key = todayKey(dateObj);
+    const has = daysWithEntries.has(key);
+    const classes = ['cal-day'];
+    if(has) classes.push('has-entries');
+    if(key === todayStr) classes.push('is-today');
+    if(key === selectedCalDay) classes.push('selected');
+    html += `<div class="${classes.join(' ')}" data-day="${key}">${d}${has ? '<span class="dot"></span>' : ''}</div>`;
+  }
+
+  $('cal-grid').innerHTML = html;
+  $('cal-grid').querySelectorAll('[data-day]').forEach(el => {
+    el.addEventListener('click', () => {
+      selectedCalDay = el.getAttribute('data-day');
+      renderCalendar();
+      renderCalDayDetail();
+    });
+  });
+
+  if(selectedCalDay) renderCalDayDetail();
+  else $('cal-day-detail').innerHTML = `<div class="empty">Sélectionnez un jour pour voir ses biberons.</div>`;
+}
+
+function renderCalDayDetail(){
+  const container = $('cal-day-detail');
+  const dayEntries = entries.filter(e => e.dayKey === selectedCalDay).sort((a,b)=> a.timestamp - b.timestamp);
+  const label = formatDayLabel(selectedCalDay);
+
+  if(!dayEntries.length){
+    container.innerHTML = `<div class="cal-day-detail-label">${label}</div><div class="empty">Aucun biberon ce jour-là.</div>`;
+    return;
+  }
+
+  const bottleEntries = dayEntries.filter(e => e.type !== 'vomit');
+  const vomitCount = dayEntries.length - bottleEntries.length;
+  const totalMl = bottleEntries.reduce((s,e)=> s + (e.ml||0), 0);
+  container.innerHTML = `
+    <div class="cal-day-detail-label">${label} · ${bottleEntries.length} biberon${bottleEntries.length>1?'s':''} · ${totalMl} ml${vomitCount ? ` · ${vomitCount} vomissement${vomitCount>1?'s':''}` : ''}</div>
+    <div class="timeline">${dayEntries.map(entryRowHtml).join('')}</div>
+  `;
+  bindEntryButtons(container);
+}
+
+function addDays(date, n){
+  const d = new Date(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+
+function buildDayRange(){
+  if(!entries.length) return [];
+  const keys = [...new Set(entries.map(e => e.dayKey))].sort();
+  const [sy, smo, sd] = keys[0].split('-').map(Number);
+  const startDate = new Date(sy, smo - 1, sd);
+  const todayDate = new Date();
+  const todayStr = todayKey(todayDate);
+  const lastKey = keys[keys.length - 1] > todayStr ? keys[keys.length - 1] : todayStr;
+  const [ey, emo, ed] = lastKey.split('-').map(Number);
+  const endDate = new Date(ey, emo - 1, ed);
+
+  const days = [];
+  let cursor = new Date(startDate);
+  while(cursor <= endDate){
+    days.push({ dayKey: todayKey(cursor), date: new Date(cursor) });
+    cursor = addDays(cursor, 1);
+  }
+  return days;
+}
+
+function renderDayChartSVG(container, days, values, opts){
+  if(!days.length){
+    container.innerHTML = `<div class="chart-empty">${opts.emptyText}</div>`;
+    return;
+  }
+
+  const todayStr = todayKey(new Date());
+  const n = days.length;
+  const spacing = 46;
+  const leftPad = 32;
+  const rightPad = 20;
+  const topPad = 24;
+  const bottomPad = 28;
+  const chartH = 140;
+  const svgW = Math.max(320, leftPad + rightPad + (n - 1) * spacing);
+  const svgH = topPad + chartH + bottomPad;
+
+  const maxVal = Math.max(...values, opts.minScale || 1);
+  const step = opts.step || 50;
+  const niceMax = Math.ceil(maxVal / step) * step || step;
+
+  const xFor = i => leftPad + i * spacing;
+  const yFor = v => topPad + chartH - (v / niceMax) * chartH;
+
+  const gridLines = [0, 0.5, 1].map(f => {
+    const val = Math.round(niceMax * f);
+    const y = yFor(val);
+    return `<line x1="${leftPad}" y1="${y}" x2="${svgW - rightPad}" y2="${y}" stroke="var(--line)" stroke-width="1" stroke-dasharray="3,4"/><text x="2" y="${y + 3.5}" font-size="9" fill="var(--ink-faint)" font-family="Inter">${val}</text>`;
+  }).join('');
+
+  const pathD = 'M ' + days.map((d,i) => `${xFor(i)},${yFor(values[i])}`).join(' L ');
+  const areaD = `${pathD} L ${xFor(n-1)},${topPad+chartH} L ${xFor(0)},${topPad+chartH} Z`;
+
+  const labelInterval = Math.max(1, Math.ceil(n / 9));
+  const xLabels = days.map((d,i) => {
+    if(i % labelInterval !== 0 && i !== n - 1) return '';
+    const short = `${pad(d.date.getDate())}/${pad(d.date.getMonth()+1)}`;
+    return `<text x="${xFor(i)}" y="${topPad + chartH + 20}" font-size="9.5" fill="var(--ink-faint)" font-family="Inter" text-anchor="middle">${short}</text>`;
+  }).join('');
+
+  const dots = days.map((d,i) => {
+    const isToday = d.dayKey === todayStr;
+    const r = isToday ? 4.5 : 3;
+    const ring = isToday ? `stroke="var(--sage)" stroke-width="2"` : '';
+    return `<g class="chart-point" data-idx="${i}">
+      <circle cx="${xFor(i)}" cy="${yFor(values[i])}" r="13" fill="transparent"/>
+      <circle cx="${xFor(i)}" cy="${yFor(values[i])}" r="${r}" fill="var(--milk)" ${ring}/>
+    </g>`;
+  }).join('');
+
+  const todayIdx = days.findIndex(d => d.dayKey === todayStr);
+  let todayLabel = '';
+  if(todayIdx >= 0){
+    todayLabel = `<text x="${xFor(todayIdx)}" y="${yFor(values[todayIdx]) - 10}" font-size="10.5" font-weight="600" fill="var(--milk)" font-family="Inter" text-anchor="middle">${opts.formatValue(values[todayIdx])}</text>`;
+  }
+
+  container.innerHTML = `
+    <div class="chart-tooltip hidden" data-tooltip></div>
+    <svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">
+      ${gridLines}
+      <path d="${areaD}" fill="var(--milk-dim)" opacity="0.6"/>
+      <path d="${pathD}" fill="none" stroke="var(--milk)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      ${dots}
+      ${todayLabel}
+      ${xLabels}
+    </svg>
+  `;
+
+  const tooltip = container.querySelector('[data-tooltip]');
+  container.querySelectorAll('.chart-point').forEach(g => {
+    g.addEventListener('click', () => {
+      const idx = Number(g.getAttribute('data-idx'));
+      const d = days[idx];
+      const v = values[idx];
+      const isSameOpen = !tooltip.classList.contains('hidden') && tooltip.dataset.idx === String(idx);
+      if(isSameOpen){
+        tooltip.classList.add('hidden');
+        return;
+      }
+      tooltip.dataset.idx = idx;
+      tooltip.textContent = `${formatShortDateNoYear(d.dayKey)} · ${opts.formatValue(v)}`;
+      tooltip.style.left = xFor(idx) + 'px';
+      tooltip.style.top = (yFor(v) - 34) + 'px';
+      tooltip.classList.remove('hidden');
+    });
+  });
+
+  requestAnimationFrame(() => { container.scrollLeft = container.scrollWidth; });
+}
+
+function renderChart(){
+  const days = buildDayRange();
+  const scroll = $('chart-scroll');
+
+  if(!days.length){
+    scroll.innerHTML = `<div class="chart-empty">Pas encore de données à afficher.<br>Ajoute quelques biberons pour voir la courbe.</div>`;
+    $('chart-stats').innerHTML = '';
+    return;
+  }
+
+  const totalsMap = {};
+  entries.forEach(e => {
+    totalsMap[e.dayKey] = (totalsMap[e.dayKey] || 0) + (e.ml || 0);
+  });
+  const values = days.map(d => totalsMap[d.dayKey] || 0);
+
+  renderDayChartSVG(scroll, days, values, {
+    step: 50,
+    formatValue: v => `${v} ml`
+  });
+
+  const n = days.length;
+  const avg = Math.round(values.reduce((s,v) => s + v, 0) / n);
+  const max = Math.max(...values);
+  $('chart-stats').innerHTML = `
+    <div class="stat"><div class="num">${avg} ml</div><div class="lbl">Moyenne / jour</div></div>
+    <div class="stat"><div class="num">${max} ml</div><div class="lbl">Record</div></div>
+    <div class="stat"><div class="num">${n}</div><div class="lbl">Jours suivis</div></div>
+  `;
+}
+
+function renderVomitChart(){
+  const days = buildDayRange();
+  const scroll = $('vomit-chart-scroll');
+
+  if(!days.length){
+    scroll.innerHTML = `<div class="chart-empty">Pas encore de données à afficher.</div>`;
+    return;
+  }
+
+  const countMap = {};
+  entries.forEach(e => {
+    if(e.type === 'vomit') countMap[e.dayKey] = (countMap[e.dayKey] || 0) + 1;
+  });
+  const values = days.map(d => countMap[d.dayKey] || 0);
+  const maxCount = Math.max(...values, 0);
+  const step = maxCount <= 4 ? 1 : Math.ceil(maxCount / 4);
+
+  renderDayChartSVG(scroll, days, values, {
+    step,
+    minScale: 1,
+    formatValue: v => `${v} vomissement${v > 1 ? 's' : ''}`
+  });
+}
+
+async function deleteEntry(id){
+  await removeEntryFromDB(id);
+  showToast('Entrée supprimée');
+}
+
+function selectDiaper(val){
+  selectedDiaper = val;
+  document.querySelectorAll('.diaper-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-val') === val);
+  });
+}
+
+async function logVomit(){
+  const now = new Date();
+  const entry = {
+    id: Date.now(),
+    type: 'vomit',
+    time: nowTimeStr(),
+    timestamp: now.getTime(),
+    dayKey: todayKey(now),
+    authorEmail: auth.currentUser ? auth.currentUser.email : null
+  };
+  await addEntryToDB(entry);
+  showToast('Vomissement enregistré');
+}
+
+let editingId = null;
+let editingOriginalAuthor = null;
+
+function openAddModal(){
+  $('add-modal-overlay').classList.remove('hidden');
+  $('fab-btn').classList.add('is-open');
+}
+
+function closeAddModal(){
+  $('add-modal-overlay').classList.add('hidden');
+  $('fab-btn').classList.remove('is-open');
+}
+
+function startEdit(id){
+  const entry = entries.find(e => String(e.id) === String(id));
+  if(!entry) return;
+
+  editingId = id;
+  editingOriginalAuthor = entry.authorEmail || null;
+  $('date-input').value = entry.dayKey;
+  $('time-input').value = entry.time;
+  $('ml-input').value = entry.ml;
+  selectDiaper(entry.diaper);
+  $('comment-input').value = entry.comment || '';
+
+  $('form-title').textContent = 'Modifier ce biberon';
+  $('save-btn').textContent = 'Enregistrer les modifications';
+  $('cancel-edit-btn').classList.remove('hidden');
+
+  openAddModal();
+}
+
+function cancelEdit(){
+  editingId = null;
+  editingOriginalAuthor = null;
+  $('form-title').textContent = "Ajout d'un biberon";
+  $('save-btn').textContent = 'Enregistrer';
+  $('cancel-edit-btn').classList.add('hidden');
+  selectDiaper('none');
+  setDateOffset(0);
+  setNow();
+  $('comment-input').value = '';
+  closeAddModal();
+}
+
+async function saveEntry(){
+  const timeVal = $('time-input').value || nowTimeStr();
+  const dateVal = $('date-input').value || dateInputVal(new Date());
+  const ml = parseInt($('ml-input').value, 10) || 0;
+  const comment = $('comment-input').value.trim();
+  const [h,m] = timeVal.split(':').map(Number);
+  const [y,mo,d] = dateVal.split('-').map(Number);
+
+  const entryDate = new Date(y, mo-1, d, h, m);
+  const isEditing = editingId !== null;
+  const currentEmail = auth.currentUser ? auth.currentUser.email : null;
+
+  const entry = {
+    id: isEditing ? editingId : Date.now(),
+    type: 'biberon',
+    time: timeVal,
+    ml: ml,
+    diaper: selectedDiaper,
+    comment: comment,
+    timestamp: entryDate.getTime(),
+    dayKey: dateVal,
+    authorEmail: isEditing ? (editingOriginalAuthor || currentEmail) : currentEmail
+  };
+
+  await addEntryToDB(entry);
+  showToast(isEditing ? 'Biberon modifié' : (entry.dayKey === todayKey(new Date()) ? 'Biberon enregistré' : `Biberon ajouté pour le ${formatDayLabel(entry.dayKey)}`));
+
+  if(isEditing){
+    cancelEdit();
+  }else{
+    selectDiaper('none');
+    setDateOffset(0);
+    setNow();
+    $('comment-input').value = '';
+    closeAddModal();
+    $('comment-input').value = '';
+  }
+}
+
+// init
+$('now-btn').addEventListener('click', setNow);
+$('save-btn').addEventListener('click', saveEntry);
+$('cancel-edit-btn').addEventListener('click', cancelEdit);
+
+$('profile-save-btn').addEventListener('click', saveProfile);
+$('growth-save-btn').addEventListener('click', saveGrowthEntry);
+$('growth-cancel-btn').addEventListener('click', cancelEditGrowth);
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchView(btn.getAttribute('data-view')));
+});
+
+let calAnimating = false;
+
+function goToMonth(direction){
+  if(calAnimating) return;
+  calAnimating = true;
+
+  try{
+    const grid = $('cal-grid');
+    const title = $('cal-title');
+    const outClass = direction === 1 ? 'slide-out-l' : 'slide-out-r';
+    const inPrepClass = direction === 1 ? 'slide-in-prep-l' : 'slide-in-prep-r';
+
+    title.style.opacity = '0';
+    grid.classList.add(outClass);
+
+    setTimeout(() => {
+      try{
+        calMonthDate = new Date(calMonthDate.getFullYear(), calMonthDate.getMonth() + direction, 1);
+        renderCalendar();
+
+        const newGrid = $('cal-grid');
+        newGrid.classList.remove(outClass);
+        newGrid.classList.add(inPrepClass);
+        void newGrid.offsetWidth;
+        newGrid.classList.remove(inPrepClass);
+        $('cal-title').style.opacity = '1';
+      }finally{
+        setTimeout(() => { calAnimating = false; }, 220);
+      }
+    }, 220);
+  }catch(e){
+    calAnimating = false;
+  }
+}
+
+$('cal-prev').addEventListener('click', () => goToMonth(-1));
+$('cal-next').addEventListener('click', () => goToMonth(1));
+
+let swipeStartX = null;
+let swipeStartY = null;
+const swipeZone = $('view-calendar');
+swipeZone.addEventListener('touchstart', (e) => {
+  swipeStartX = e.touches[0].clientX;
+  swipeStartY = e.touches[0].clientY;
+}, { passive: true });
+swipeZone.addEventListener('touchend', (e) => {
+  if(swipeStartX === null) return;
+  const dx = e.changedTouches[0].clientX - swipeStartX;
+  const dy = e.changedTouches[0].clientY - swipeStartY;
+  swipeStartX = null;
+  if(Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.5){
+    goToMonth(dx < 0 ? 1 : -1);
+  }
+});
+
+document.querySelectorAll('.diaper-btn').forEach(btn => {
+  btn.addEventListener('click', () => selectDiaper(btn.getAttribute('data-val')));
+});
+
+$('vomit-log-btn').addEventListener('click', logVomit);
+
+document.querySelectorAll('#quick-ml button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    $('ml-input').value = btn.getAttribute('data-ml');
+  });
+});
+
+$('ml-minus').addEventListener('click', () => {
+  const cur = parseInt($('ml-input').value,10) || 0;
+  $('ml-input').value = Math.max(0, cur - 10);
+});
+$('ml-plus').addEventListener('click', () => {
+  const cur = parseInt($('ml-input').value,10) || 0;
+  $('ml-input').value = cur + 10;
+});
+
+$('login-btn').addEventListener('click', doLogin);
+$('login-password').addEventListener('keydown', (e) => { if(e.key === 'Enter') doLogin(); });
+$('logout-btn').addEventListener('click', doLogout);
+$('theme-toggle-btn').addEventListener('click', toggleTheme);
+
+$('fab-btn').addEventListener('click', () => {
+  const isOpen = !$('add-modal-overlay').classList.contains('hidden');
+  if(isOpen){
+    cancelEdit();
+    return;
+  }
+  if(editingId !== null){
+    editingId = null;
+    editingOriginalAuthor = null;
+    $('form-title').textContent = "Ajout d'un biberon";
+    $('save-btn').textContent = 'Enregistrer';
+    $('cancel-edit-btn').classList.add('hidden');
+    selectDiaper('none');
+    setDateOffset(0);
+    setNow();
+    $('comment-input').value = '';
+  }
+  openAddModal();
+});
+
+$('modal-close-btn').addEventListener('click', cancelEdit);
+$('add-modal-overlay').addEventListener('click', (e) => {
+  if(e.target.id === 'add-modal-overlay') cancelEdit();
+});
+
+$('same-as-last-btn').addEventListener('click', () => {
+  const bottleEntries = entries.filter(e => e.type !== 'vomit');
+  if(!bottleEntries.length){
+    showToast('Aucun biberon précédent trouvé');
+    return;
+  }
+  const last = [...bottleEntries].sort((a,b) => b.timestamp - a.timestamp)[0];
+  $('ml-input').value = last.ml;
+  selectDiaper(last.diaper);
+  showToast('Quantité et couche reprises');
+});
+
+$('import-toggle').addEventListener('click', () => {
+  $('import-box').classList.toggle('hidden');
+});
+
+$('import-btn').addEventListener('click', async () => {
+  const resultEl = $('import-result');
+  resultEl.textContent = '';
+  let list;
+  try{
+    list = JSON.parse($('import-textarea').value);
+    if(!Array.isArray(list)) throw new Error('not an array');
+  }catch(e){
+    resultEl.textContent = 'Format invalide : vérifie le JSON collé.';
+    return;
+  }
+
+  const updates = {};
+  let count = 0;
+  list.forEach((item, i) => {
+    if(!item.date || !item.time) return;
+    const [y, mo, d] = item.date.split('-').map(Number);
+    const [h, mi] = item.time.split(':').map(Number);
+    if(!y || !mo || !d || isNaN(h) || isNaN(mi)) return;
+    const entryDate = new Date(y, mo - 1, d, h, mi);
+    const id = 'imp_' + Date.now() + '_' + i;
+    updates[id] = {
+      id: id,
+      type: 'biberon',
+      time: pad(h) + ':' + pad(mi),
+      ml: Number(item.ml) || 0,
+      diaper: item.diaper || 'none',
+      timestamp: entryDate.getTime(),
+      dayKey: item.date
+    };
+    count++;
+  });
+
+  if(!count){
+    resultEl.textContent = 'Aucune entrée valide trouvée.';
+    return;
+  }
+
+  try{
+    await db.ref('entries').update(updates);
+    resultEl.textContent = `${count} biberon${count > 1 ? 's' : ''} importé${count > 1 ? 's' : ''} avec succès.`;
+    showToast(`${count} biberons importés`);
+  }catch(e){
+    resultEl.textContent = "Erreur lors de l'import.";
+  }
+});
+
+selectDiaper('none');
+setDateOffset(0);
+setNow();
+$('growth-date-input').value = dateInputVal(new Date());
+
+setInterval(() => {
+  if(auth.currentUser){
+    renderStats();
+    renderAgeHero();
+  }
+}, 30000);
+
+document.addEventListener('visibilitychange', () => {
+  if(!document.hidden && auth.currentUser){
+    renderStats();
+    renderAgeHero();
+  }
+});
+</script>
+</body>
+</html>
