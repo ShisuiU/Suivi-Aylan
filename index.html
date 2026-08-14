@@ -792,7 +792,7 @@
 
       <div class="settings-section">
         <div class="settings-section-title"><span class="icon">💾</span>Sauvegarde</div>
-        <p class="backup-hint">Télécharge une copie complète et brute des données d'Aylan (format JSON). Utile en cas de souci technique.</p>
+        <p class="backup-hint" id="backup-hint-text">Télécharge une copie complète et brute des données de Bébé (format JSON). Utile en cas de souci technique.</p>
         <button class="same-as-last-btn" id="export-json-btn" type="button">⬇ Exporter en JSON</button>
       </div>
     </div>
@@ -900,7 +900,7 @@
     </div>
 
     <div class="card">
-      <h2>Informations d'Aylan</h2>
+      <h2 id="profile-info-heading">Informations de Bébé</h2>
       <label class="field-label">Prénom(s)</label>
       <input class="login-field" type="text" id="profile-firstname" placeholder="Prénom(s)" autocomplete="off" autocapitalize="words">
       <label class="field-label">Nom</label>
@@ -1038,6 +1038,11 @@ function getChildFirstName(){
   return null;
 }
 
+function frenchDe(name){
+  // "d'Aylan" devant une voyelle, "de Bébé" devant une consonne
+  return /^[aeiouyâàäéèêëîïôöùûü]/i.test(name) ? "d'" + name : "de " + name;
+}
+
 function updateSiteTitle(){
   const displayName = getChildFirstName() || DEFAULT_SITE_NAME;
   document.title = 'Suivi ' + displayName;
@@ -1047,6 +1052,11 @@ function updateSiteTitle(){
   if(loginTitleEl) loginTitleEl.textContent = displayName;
   const appleTitleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
   if(appleTitleMeta) appleTitleMeta.setAttribute('content', 'Suivi ' + displayName);
+
+  const backupHintEl = document.getElementById('backup-hint-text');
+  if(backupHintEl) backupHintEl.textContent = `Télécharge une copie complète et brute des données ${frenchDe(displayName)} (format JSON). Utile en cas de souci technique.`;
+  const profileHeadingEl = document.getElementById('profile-info-heading');
+  if(profileHeadingEl) profileHeadingEl.textContent = `Informations ${frenchDe(displayName)}`;
 }
 
 function generateId(prefix){
@@ -1545,7 +1555,7 @@ function formatDateRangeLabel(startKey, endKey){
 }
 
 function exportPDF(){
-  const name = profileData && profileData.firstName ? profileData.firstName : 'Aylan';
+  const name = getChildFirstName() || DEFAULT_SITE_NAME;
   const age = profileData && profileData.birthDate ? computeAge(profileData.birthDate) : '—';
   const birth = profileData && profileData.birthDate ? formatShortDate(profileData.birthDate) : '—';
 
@@ -2023,7 +2033,7 @@ function checkReminderNotification(overdue, lastBottleTimestamp){
   if(lastNotifiedBottleTimestamp === lastBottleTimestamp) return;
 
   lastNotifiedBottleTimestamp = lastBottleTimestamp;
-  const title = 'Aylan a peut-être faim';
+  const title = `${getChildFirstName() || DEFAULT_SITE_NAME} a peut-être faim`;
   const body = `Ça fait plus de ${(reminderThresholdMinutes/60).toFixed(1).replace('.0','').replace('.', ',')} h depuis le dernier biberon.`;
 
   if(navigator.serviceWorker && navigator.serviceWorker.ready){
