@@ -108,6 +108,14 @@
   .stat .num{ font-family:'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight:600; }
   .stat .lbl{ font-size: 10.5px; color: var(--ink-faint); margin-top:2px; text-transform:uppercase; letter-spacing:.06em; }
 
+  .chart-hero-row{ display:flex; gap:10px; align-items:stretch; margin-bottom:22px; }
+  .chart-hero-row .stat-hero{
+    flex:1.2; flex-direction:column; align-items:flex-start; justify-content:center; gap:4px;
+  }
+  .chart-hero-row .stat-hero .num{ font-size: 30px; }
+  .chart-hero-side{ flex:1; display:flex; flex-direction:column; gap:10px; }
+  .chart-hero-side .stat{ flex:1; display:flex; flex-direction:column; justify-content:center; }
+
   .card{
     background: var(--card); border:1px solid var(--line); border-radius: var(--radius);
     padding: 20px; margin-bottom: 20px;
@@ -883,7 +891,7 @@
   </div>
 
   <div class="view" id="view-chart">
-    <div class="stats" id="chart-stats"></div>
+    <div class="chart-hero-row" id="chart-stats"></div>
     <div class="cal-day-detail-label">Quantité de lait par jour</div>
     <div class="chart-scroll" id="chart-scroll"></div>
 
@@ -2462,9 +2470,14 @@ function renderChart(){
   const avg = Math.round(values.reduce((s,v) => s + v, 0) / n);
   const max = Math.max(...values);
   $('chart-stats').innerHTML = `
-    <div class="stat"><div class="num">${avg} ml</div><div class="lbl">Moyenne / jour</div></div>
-    <div class="stat"><div class="num">${max} ml</div><div class="lbl">Record</div></div>
-    <div class="stat"><div class="num">${n}</div><div class="lbl">Jours suivis</div></div>
+    <div class="stat-hero">
+      <div class="lbl">Moyenne / jour</div>
+      <div class="num">${avg} ml</div>
+    </div>
+    <div class="chart-hero-side">
+      <div class="stat"><div class="num">${max} ml</div><div class="lbl">Record</div></div>
+      <div class="stat"><div class="num">${n}</div><div class="lbl">Jours suivis</div></div>
+    </div>
   `;
 }
 
