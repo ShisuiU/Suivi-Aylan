@@ -415,6 +415,11 @@
     color: var(--ink-faint); background: var(--card); border:1px dashed var(--line);
     border-radius:50%; cursor:pointer;
   }
+  .child-switcher-error{
+    background: var(--vomit-dim); border:1px solid var(--vomit); color: var(--vomit);
+    font-family:'Plus Jakarta Sans'; font-size:12.5px; font-weight:600; padding:10px 14px;
+    border-radius:14px; width:100%;
+  }
   .danger-link-btn{
     display:block; width:100%; background:none; border:none; color: var(--ink-faint);
     font-family:'Plus Jakarta Sans'; font-size:12.5px; margin-top:14px; cursor:pointer;
@@ -1194,6 +1199,11 @@ function renderChildSwitcher(){
   const container = $('child-switcher');
   if(!container) return;
 
+  if(!childrenList.length && lastMigrationError){
+    container.innerHTML = `<div class="child-switcher-error">⚠️ Erreur de chargement du suivi. Vérifie ta connexion et recharge la page.</div>`;
+    return;
+  }
+
   const chips = childrenList.map(c => {
     const label = (c.firstName && c.firstName.trim().split(/\s+/)[0]) || DEFAULT_SITE_NAME;
     const active = c.id === currentChildId ? ' active' : '';
@@ -1238,6 +1248,8 @@ async function deleteCurrentChild(){
   }
 }
 
+let lastMigrationError = null;
+
 function startSync(){
   db.ref('families/' + currentFamilyId + '/meta').once('value').then(snap => {
     const meta = snap.val() || {};
@@ -1245,7 +1257,13 @@ function startSync(){
     $('settings-invite-code').textContent = meta.inviteCode || '—';
   });
 
-  migrateFamilyToChildren(currentFamilyId).catch(() => {}).then(() => {
+  migrateFamilyToChildren(currentFamilyId).then(() => {
+    lastMigrationError = null;
+  }).catch((err) => {
+    console.error('Migration vers le schéma multi-enfants échouée :', err);
+    lastMigrationError = err;
+    showToast('Erreur : impossible de préparer le suivi (vérifie les règles Firebase)');
+  }).then(() => {
     childrenRef = db.ref('families/' + currentFamilyId + '/children');
     childrenRef.on('value', (snapshot) => {
       const val = snapshot.val() || {};
@@ -1264,6 +1282,9 @@ function startSync(){
         const fallback = (stored && childrenList.find(c => c.id === stored)) || childrenList[0];
         switchToChild(fallback.id);
       }
+    }, (err) => {
+      console.error('Erreur de lecture des enfants :', err);
+      showToast('Erreur de synchronisation');
     });
   });
 }
