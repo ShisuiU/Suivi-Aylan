@@ -397,31 +397,6 @@
   }
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
-  /* Sélecteur d'enfant */
-  .child-switcher{
-    display:flex; gap:8px; overflow-x:auto; margin-bottom:18px; padding-bottom:2px;
-    scrollbar-width:none;
-  }
-  .child-switcher::-webkit-scrollbar{ display:none; }
-  .child-chip{
-    flex-shrink:0; background: var(--card); border:1px solid var(--line); color: var(--ink-dim);
-    font-family:'Plus Jakarta Sans'; font-weight:600; font-size:13px; padding:8px 16px;
-    border-radius:20px; cursor:pointer; white-space:nowrap;
-    transition: background-color .15s ease, color .15s ease, border-color .15s ease;
-  }
-  .child-chip.active{ background: var(--milk); border-color: var(--milk); color:#ffffff; }
-  .child-chip-add{
-    flex-shrink:0; width:36px; padding:8px; text-align:center; font-size:16px; line-height:1.2;
-    color: var(--ink-faint); background: var(--card); border:1px dashed var(--line);
-    border-radius:50%; cursor:pointer;
-  }
-  .danger-link-btn{
-    display:block; width:100%; background:none; border:none; color: var(--ink-faint);
-    font-family:'Plus Jakarta Sans'; font-size:12.5px; margin-top:14px; cursor:pointer;
-    text-decoration:underline; text-align:center;
-  }
-  .danger-link-btn.confirming{ color:#c0526a; font-weight:600; text-decoration:none; }
-
   /* Tabs */
   .tabs{
     display:flex; gap:6px; background: var(--card); border:1px solid var(--line);
@@ -871,8 +846,6 @@
     </div>
   </header>
 
-  <div class="child-switcher" id="child-switcher"></div>
-
   <div class="tabs">
     <button class="tab-btn active" data-view="today">Aujourd'hui</button>
     <button class="tab-btn" data-view="calendar">Calendrier</button>
@@ -945,7 +918,6 @@
         <input type="date" id="profile-birthdate">
       </div>
       <button class="save-btn" id="profile-save-btn" type="button">Enregistrer les informations</button>
-      <button class="danger-link-btn hidden" id="profile-delete-child-btn" type="button">Supprimer cet enfant</button>
     </div>
 
     <div class="card">
@@ -1057,32 +1029,14 @@ function showToast(msg){
   setTimeout(()=> t.classList.remove('show'), 1800);
 }
 
-let childrenRef = null;
 let entriesRef = null;
 let profileRef = null;
 let growthRef = null;
 let profileData = null;
 let growthEntries = [];
 let currentFamilyId = null;
-let currentChildId = null;
-let childrenList = []; // [{id, firstName, lastName, birthDate, order, createdAt}]
 
 const DEFAULT_SITE_NAME = 'Bébé';
-
-function childRef(subpath){
-  const base = 'families/' + currentFamilyId + '/children/' + currentChildId;
-  return db.ref(subpath ? base + '/' + subpath : base);
-}
-
-function activeChildStorageKey(familyId){
-  return 'suiviAylan:activeChild:' + familyId;
-}
-function getStoredActiveChildId(familyId){
-  try{ return localStorage.getItem(activeChildStorageKey(familyId)); }catch(e){ return null; }
-}
-function setStoredActiveChildId(familyId, childId){
-  try{ localStorage.setItem(activeChildStorageKey(familyId), childId); }catch(e){}
-}
 
 function getChildFirstName(){
   if(profileData && profileData.firstName){
@@ -1124,54 +1078,17 @@ function generateInviteCode(){
   return code;
 }
 
-// Convertit une famille sur l'ancien schéma (profil/biberons/mesures directement
-// sous la famille) vers le nouveau schéma multi-enfants (families/{id}/children/{childId}/...).
-// Crée aussi le tout premier enfant (vide) pour une famille toute neuve.
-// Protégé par une transaction sur le nœud "children" pour éviter qu'un double
-// chargement simultané (deux appareils) crée deux enfants en double.
-async function migrateFamilyToChildren(familyId){
-  const childrenSnap = await db.ref('families/' + familyId + '/children').once('value');
-  if(childrenSnap.exists()) return;
-
-  const [profileSnap, entriesSnap, growthSnap] = await Promise.all([
-    db.ref('families/' + familyId + '/profile').once('value'),
-    db.ref('families/' + familyId + '/entries').once('value'),
-    db.ref('families/' + familyId + '/growth').once('value')
-  ]);
-
-  const childId = generateId('child');
-  const txResult = await db.ref('families/' + familyId + '/children').transaction(current => {
-    if(current) return; // un autre appareil a déjà créé/migré entre-temps : on abandonne
-    return { [childId]: { profile: profileSnap.val() || {}, meta: { order: 0, createdAt: Date.now() } } };
-  });
-  if(!txResult.committed) return;
-
-  const updates = {};
-  if(entriesSnap.exists()) updates['children/' + childId + '/entries'] = entriesSnap.val();
-  if(growthSnap.exists()) updates['children/' + childId + '/growth'] = growthSnap.val();
-  updates['profile'] = null;
-  updates['entries'] = null;
-  updates['growth'] = null;
-  await db.ref('families/' + familyId).update(updates);
-}
-
-function switchToChild(childId){
-  if(!childId || childId === currentChildId) return;
-  if(entriesRef) entriesRef.off();
-  if(profileRef) profileRef.off();
-  if(growthRef) growthRef.off();
-
-  currentChildId = childId;
-  setStoredActiveChildId(currentFamilyId, childId);
-
-  entriesRef = childRef('entries');
+function startSync(){
+  entriesRef = db.ref('families/' + currentFamilyId + '/entries');
   entriesRef.on('value', (snapshot) => {
     const val = snapshot.val();
     entries = val ? Object.values(val) : [];
     render();
-  }, () => showToast("Erreur de synchronisation"));
+  }, (err) => {
+    showToast("Erreur de synchronisation");
+  });
 
-  profileRef = childRef('profile');
+  profileRef = db.ref('families/' + currentFamilyId + '/profile');
   profileRef.on('value', (snapshot) => {
     profileData = snapshot.val() || null;
     renderProfileForm();
@@ -1179,7 +1096,7 @@ function switchToChild(childId){
     updateSiteTitle();
   });
 
-  growthRef = childRef('growth');
+  growthRef = db.ref('families/' + currentFamilyId + '/growth');
   growthRef.on('value', (snapshot) => {
     const val = snapshot.val();
     growthEntries = val ? Object.values(val) : [];
@@ -1187,105 +1104,26 @@ function switchToChild(childId){
     renderGrowthCharts();
   });
 
-  renderChildSwitcher();
-}
-
-function renderChildSwitcher(){
-  const container = $('child-switcher');
-  if(!container) return;
-
-  const chips = childrenList.map(c => {
-    const label = (c.firstName && c.firstName.trim().split(/\s+/)[0]) || DEFAULT_SITE_NAME;
-    const active = c.id === currentChildId ? ' active' : '';
-    return `<button class="child-chip${active}" data-child="${c.id}">${escapeHtml(label)}</button>`;
-  }).join('');
-
-  container.innerHTML = chips + `<button class="child-chip-add" id="child-add-btn" type="button" aria-label="Ajouter un enfant" title="Ajouter un enfant">+</button>`;
-
-  const deleteBtn = $('profile-delete-child-btn');
-  if(deleteBtn){
-    deleteBtn.classList.toggle('hidden', childrenList.length <= 1);
-    deleteBtn.textContent = 'Supprimer cet enfant';
-    deleteBtn.classList.remove('confirming');
-    deleteChildArmed = false;
-  }
-}
-
-async function addChild(){
-  const maxOrder = childrenList.reduce((m, c) => Math.max(m, c.order || 0), -1);
-  const childId = generateId('child');
-  try{
-    await db.ref('families/' + currentFamilyId + '/children/' + childId).set({
-      profile: {},
-      meta: { order: maxOrder + 1, createdAt: Date.now() }
-    });
-    switchToChild(childId);
-    switchView('profile');
-    showToast('Enfant ajouté — renseigne son prénom');
-  }catch(e){
-    showToast("Erreur lors de l'ajout");
-  }
-}
-
-let deleteChildArmed = false;
-async function deleteCurrentChild(){
-  if(childrenList.length <= 1) return;
-  try{
-    await db.ref('families/' + currentFamilyId + '/children/' + currentChildId).remove();
-    showToast('Enfant supprimé');
-  }catch(e){
-    showToast('Erreur de suppression');
-  }
-}
-
-function startSync(){
   db.ref('families/' + currentFamilyId + '/meta').once('value').then(snap => {
     const meta = snap.val() || {};
     $('settings-family-name').textContent = meta.name || 'Ma famille';
     $('settings-invite-code').textContent = meta.inviteCode || '—';
   });
-
-  migrateFamilyToChildren(currentFamilyId).catch(() => {}).then(() => {
-    childrenRef = db.ref('families/' + currentFamilyId + '/children');
-    childrenRef.on('value', (snapshot) => {
-      const val = snapshot.val() || {};
-      childrenList = Object.keys(val).map(id => {
-        const c = val[id] || {};
-        const meta = c.meta || {};
-        return { id, ...(c.profile || {}), order: meta.order || 0, createdAt: meta.createdAt || 0 };
-      }).sort((a, b) => a.order - b.order || a.createdAt - b.createdAt);
-
-      renderChildSwitcher();
-      if(!childrenList.length) return;
-
-      const stillExists = currentChildId && childrenList.some(c => c.id === currentChildId);
-      if(!stillExists){
-        const stored = getStoredActiveChildId(currentFamilyId);
-        const fallback = (stored && childrenList.find(c => c.id === stored)) || childrenList[0];
-        switchToChild(fallback.id);
-      }
-    });
-  });
 }
 
 function stopSync(){
-  if(childrenRef) childrenRef.off();
   if(entriesRef) entriesRef.off();
   if(profileRef) profileRef.off();
   if(growthRef) growthRef.off();
-  childrenRef = entriesRef = profileRef = growthRef = null;
   entries = [];
   profileData = null;
   growthEntries = [];
-  childrenList = [];
-  currentChildId = null;
   updateSiteTitle();
-  renderChildSwitcher();
 }
 
 async function addEntryToDB(entry){
   try{
-    await childRef('entries/' + entry.id).set(entry);
+    await db.ref('families/' + currentFamilyId + '/entries/' + entry.id).set(entry);
   }catch(e){
     showToast("Erreur d'enregistrement");
   }
@@ -1293,7 +1131,7 @@ async function addEntryToDB(entry){
 
 async function removeEntryFromDB(id){
   try{
-    await childRef('entries/' + id).remove();
+    await db.ref('families/' + currentFamilyId + '/entries/' + id).remove();
   }catch(e){
     showToast("Erreur de suppression");
   }
@@ -1353,7 +1191,7 @@ async function saveProfile(){
   }
 
   try{
-    await childRef('profile').set({ firstName, lastName, birthDate });
+    await db.ref('families/' + currentFamilyId + '/profile').set({ firstName, lastName, birthDate });
     showToast('Informations enregistrées');
   }catch(e){
     showToast("Erreur d'enregistrement");
@@ -1475,7 +1313,7 @@ async function saveGrowthEntry(){
   };
 
   try{
-    await childRef('growth/' + entry.id).set(entry);
+    await db.ref('families/' + currentFamilyId + '/growth/' + entry.id).set(entry);
     showToast(isEditing ? 'Mesure modifiée' : 'Mesure enregistrée');
   }catch(e){
     showToast("Erreur d'enregistrement");
@@ -1487,7 +1325,7 @@ async function saveGrowthEntry(){
 
 async function deleteGrowthEntry(id){
   try{
-    await childRef('growth/' + id).remove();
+    await db.ref('families/' + currentFamilyId + '/growth/' + id).remove();
     showToast('Mesure supprimée');
   }catch(e){
     showToast('Erreur de suppression');
@@ -2894,21 +2732,6 @@ $('save-btn').addEventListener('click', saveEntry);
 $('cancel-edit-btn').addEventListener('click', cancelEdit);
 
 $('profile-save-btn').addEventListener('click', saveProfile);
-$('profile-delete-child-btn').addEventListener('click', () => {
-  const btn = $('profile-delete-child-btn');
-  if(!deleteChildArmed){
-    deleteChildArmed = true;
-    btn.textContent = 'Confirmer la suppression ?';
-    btn.classList.add('confirming');
-    return;
-  }
-  deleteCurrentChild();
-});
-$('child-switcher').addEventListener('click', (ev) => {
-  if(ev.target.closest('#child-add-btn')){ addChild(); return; }
-  const chip = ev.target.closest('[data-child]');
-  if(chip) switchToChild(chip.getAttribute('data-child'));
-});
 $('growth-save-btn').addEventListener('click', saveGrowthEntry);
 $('growth-cancel-btn').addEventListener('click', cancelEditGrowth);
 $('export-json-btn').addEventListener('click', exportDataJSON);
@@ -3124,7 +2947,7 @@ $('import-btn').addEventListener('click', async () => {
   }
 
   try{
-    await childRef('entries').update(updates);
+    await db.ref('families/' + currentFamilyId + '/entries').update(updates);
     resultEl.textContent = `${count} biberon${count > 1 ? 's' : ''} importé${count > 1 ? 's' : ''} avec succès.`;
     showToast(`${count} biberons importés`);
   }catch(e){
