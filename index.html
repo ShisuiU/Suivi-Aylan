@@ -1166,6 +1166,13 @@ function switchToChild(childId){
   if(profileRef) profileRef.off();
   if(growthRef) growthRef.off();
 
+  // Annule toute édition en cours (le formulaire de mesure est affiché en
+  // permanence dans l'onglet Profil, hors modale) pour ne pas laisser des
+  // champs pré-remplis avec les infos de l'enfant précédent.
+  if(editingGrowthId !== null) cancelEditGrowth();
+  if(typeof editingId !== 'undefined' && editingId !== null) cancelEdit();
+  if(typeof editingDiaperId !== 'undefined' && editingDiaperId !== null) cancelEditDiaper();
+
   currentChildId = childId;
   setStoredActiveChildId(currentFamilyId, childId);
 
@@ -1346,10 +1353,9 @@ function computeAge(birthDateStr){
 }
 
 function renderProfileForm(){
-  if(!profileData) return;
-  $('profile-firstname').value = profileData.firstName || '';
-  $('profile-lastname').value = profileData.lastName || '';
-  $('profile-birthdate').value = profileData.birthDate || '';
+  $('profile-firstname').value = (profileData && profileData.firstName) || '';
+  $('profile-lastname').value = (profileData && profileData.lastName) || '';
+  $('profile-birthdate').value = (profileData && profileData.birthDate) || '';
 }
 
 function renderAgeHero(){
