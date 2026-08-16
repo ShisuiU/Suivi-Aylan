@@ -1354,22 +1354,29 @@
     <button class="milestone-add-btn" id="children-add-btn" type="button">+ Ajouter un enfant</button>
 
     <div class="card" style="margin-top:20px;">
-      <h2 id="profile-info-heading">Informations de Bébé</h2>
-      <label class="field-label">Prénom(s)</label>
-      <input class="login-field" type="text" id="profile-firstname" placeholder="Prénom(s)" autocomplete="off" autocapitalize="words">
-      <label class="field-label">Nom</label>
-      <input class="login-field" type="text" id="profile-lastname" placeholder="Nom" autocomplete="off" autocapitalize="words">
-      <label class="field-label">Date de naissance</label>
-      <div class="date-field" style="margin-bottom:16px;">
-        <input type="date" id="profile-birthdate">
+      <div class="settings-section" data-section="child-info">
+        <button class="settings-section-title" type="button" data-section-toggle>
+          <span class="icon">✏️</span><span id="profile-info-heading">Informations de Bébé</span>
+          <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="settings-section-content">
+          <label class="field-label">Prénom(s)</label>
+          <input class="login-field" type="text" id="profile-firstname" placeholder="Prénom(s)" autocomplete="off" autocapitalize="words">
+          <label class="field-label">Nom</label>
+          <input class="login-field" type="text" id="profile-lastname" placeholder="Nom" autocomplete="off" autocapitalize="words">
+          <label class="field-label">Date de naissance</label>
+          <div class="date-field" style="margin-bottom:16px;">
+            <input type="date" id="profile-birthdate">
+          </div>
+          <label class="field-label">Sexe <span style="text-transform:none; letter-spacing:normal; font-weight:400;">(pour comparer aux repères OMS)</span></label>
+          <div class="diaper-row" id="profile-gender-row" style="grid-template-columns: repeat(2,1fr); margin-bottom:16px;">
+            <button type="button" class="diaper-btn" data-val="F"><span class="ic">👧</span>Fille</button>
+            <button type="button" class="diaper-btn" data-val="M"><span class="ic">👦</span>Garçon</button>
+          </div>
+          <button class="save-btn" id="profile-save-btn" type="button">Enregistrer les informations</button>
+          <button class="danger-link-btn hidden" id="profile-delete-child-btn" type="button">Supprimer cet enfant</button>
+        </div>
       </div>
-      <label class="field-label">Sexe <span style="text-transform:none; letter-spacing:normal; font-weight:400;">(pour comparer aux repères OMS)</span></label>
-      <div class="diaper-row" id="profile-gender-row" style="grid-template-columns: repeat(2,1fr); margin-bottom:16px;">
-        <button type="button" class="diaper-btn" data-val="F"><span class="ic">👧</span>Fille</button>
-        <button type="button" class="diaper-btn" data-val="M"><span class="ic">👦</span>Garçon</button>
-      </div>
-      <button class="save-btn" id="profile-save-btn" type="button">Enregistrer les informations</button>
-      <button class="danger-link-btn hidden" id="profile-delete-child-btn" type="button">Supprimer cet enfant</button>
     </div>
   </div>
 
