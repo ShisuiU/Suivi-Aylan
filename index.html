@@ -649,6 +649,29 @@
     transition: background-color .15s ease, transform .12s ease;
   }
   .back-btn:active{ background: var(--card-hover); transform: scale(0.92); }
+  .settings-summary-card{
+    display:flex; align-items:center; gap:14px;
+    background: var(--glass-bg); border:1px solid var(--glass-border); border-radius: var(--radius);
+    padding:18px 20px; margin-bottom:20px;
+    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
+    box-shadow: var(--shadow-card);
+    animation: blockFadeIn .4s cubic-bezier(.22,1,.36,1) backwards;
+  }
+  .settings-summary-avatar{
+    flex-shrink:0; width:52px; height:52px; border-radius:50%;
+    background: linear-gradient(145deg, var(--milk-light), var(--milk-deep)); color: var(--on-accent);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: var(--shadow-gloss);
+  }
+  .settings-summary-info{ min-width:0; flex:1; }
+  .settings-summary-name{
+    font-size:15.5px; font-weight:700; color: var(--ink);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .settings-summary-email{
+    font-size:12.5px; color: var(--ink-dim); margin-top:2px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
   .settings-account{
     background: var(--bg-2); border:1px solid var(--line); border-radius:12px;
     padding:12px 16px; font-size:14px; color: var(--ink); word-break:break-all;
@@ -1559,6 +1582,15 @@
       <h2>Paramètres</h2>
     </div>
 
+    <div class="settings-summary-card">
+      <div class="settings-summary-avatar">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>
+      </div>
+      <div class="settings-summary-info">
+        <div class="settings-summary-name" id="settings-summary-name">Ma famille</div>
+        <div class="settings-summary-email" id="settings-summary-email">—</div>
+      </div>
+    </div>
 
       <div class="settings-group-label">Général</div>
       <div class="settings-section" data-section="account">
@@ -2232,6 +2264,7 @@ function startSync(){
     const meta = snapshot.val() || {};
     $('settings-family-name').textContent = meta.name || 'Ma famille';
     $('settings-invite-code').textContent = meta.inviteCode || '—';
+    $('settings-summary-name').textContent = meta.name || 'Ma famille';
     const val = meta.features || {};
     familyFeatures = { sleep: !!val.sleep, health: !!val.health, vaccines: !!val.vaccines };
     applyFeatureVisibility();
@@ -3418,7 +3451,11 @@ function switchView(view){
       if(view === 'calendar') renderCalendar();
       if(view === 'chart'){ renderChart(); renderVomitChart(); }
       if(view === 'profile') renderGrowthCharts();
-      if(view === 'settings') $('settings-account').textContent = auth.currentUser ? auth.currentUser.email : '—';
+      if(view === 'settings'){
+        const email = auth.currentUser ? auth.currentUser.email : '—';
+        $('settings-account').textContent = email;
+        $('settings-summary-email').textContent = email;
+      }
       $('fab-btn').classList.toggle('hidden', view === 'profile' || view === 'settings' || view === 'features' || view === 'children');
     }finally{
       setTimeout(() => { tabAnimating = false; }, 210);
