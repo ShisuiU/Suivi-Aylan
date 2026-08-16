@@ -505,6 +505,11 @@
   .settings-page-header{
     display:flex; align-items:center; gap:12px; margin-bottom:12px;
   }
+  .settings-group-label{
+    font-size:11px; color: var(--ink-faint); text-transform:uppercase; letter-spacing:.1em;
+    font-weight:700; margin: 22px 4px 8px;
+  }
+  .settings-group-label:first-of-type{ margin-top:4px; }
   .settings-page-header h2{
     font-family:'Plus Jakarta Sans', sans-serif; font-size:20px; font-weight:700;
     color: var(--ink); margin:0;
@@ -867,9 +872,14 @@
   }
   .cal-day.empty-cell{ background:none; cursor:default; }
   .cal-day.has-entries{ color: var(--ink); }
+  .cal-day .dots{ display:flex; align-items:center; gap:2px; }
   .cal-day .dot{
     width:5px; height:5px; border-radius:50%; background: var(--milk);
   }
+  .cal-day .dot.dot-diaper{ background: var(--diaper); }
+  .cal-day .dot.dot-vomit{ background: var(--vomit); }
+  .cal-day .dot.dot-sleep{ background: var(--sleep); }
+  .cal-day .dot.dot-health{ background: var(--danger); }
   .cal-day.selected{ border-color: var(--milk); background: var(--milk-dim); color: var(--ink); }
   .cal-day.is-today{ box-shadow: inset 0 0 0 1px var(--sage); }
 
@@ -1373,6 +1383,7 @@
     </div>
 
 
+      <div class="settings-group-label">Général</div>
       <div class="settings-section" data-section="account">
         <button class="settings-section-title" type="button" data-section-toggle>
           <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg></span>Compte
@@ -1407,6 +1418,7 @@
         </div>
       </div>
 
+      <div class="settings-group-label">Données</div>
       <div class="settings-section" data-section="reminder">
         <button class="settings-section-title" type="button" data-section-toggle>
           <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5a5 5 0 0 0-5 5c0 5.2-2 6.5-2 7.5h14c0-1-2-2.3-2-7.5a5 5 0 0 0-5-5z"/><path d="M10.3 19.5a1.8 1.8 0 0 0 3.4 0"/></svg></span>Rappel de biberon
@@ -3703,13 +3715,26 @@ function renderCommentSearch(){
   });
 }
 
+function dayDotClasses(dayEntries){
+  const order = [
+    { type:'biberon', cls:'dot-milk' },
+    { type:'diaper', cls:'dot-diaper' },
+    { type:'vomit', cls:'dot-vomit' },
+    { type:'sleep', cls:'dot-sleep' },
+    { type:'health', cls:'dot-health' },
+  ];
+  const present = new Set(dayEntries.map(e => e.type));
+  return order.filter(o => present.has(o.type)).map(o => o.cls).slice(0, 3);
+}
+
 function renderCalendar(){
   const year = calMonthDate.getFullYear();
   const month = calMonthDate.getMonth();
 
   $('cal-title').textContent = calMonthDate.toLocaleDateString('fr-FR', { month:'long', year:'numeric' });
 
-  const daysWithEntries = new Set(entries.map(e => e.dayKey));
+  const entriesByDay = {};
+  entries.forEach(e => { (entriesByDay[e.dayKey] || (entriesByDay[e.dayKey] = [])).push(e); });
   const firstOfMonth = new Date(year, month, 1);
   let startOffset = firstOfMonth.getDay() - 1; // lundi = 0
   if(startOffset < 0) startOffset = 6;
@@ -3726,12 +3751,14 @@ function renderCalendar(){
   for(let d=1; d<=daysInMonth; d++){
     const dateObj = new Date(year, month, d);
     const key = todayKey(dateObj);
-    const has = daysWithEntries.has(key);
+    const dayEntries = entriesByDay[key];
+    const has = !!dayEntries;
     const classes = ['cal-day'];
     if(has) classes.push('has-entries');
     if(key === todayStr) classes.push('is-today');
     if(key === selectedCalDay) classes.push('selected');
-    html += `<div class="${classes.join(' ')}" data-day="${key}">${d}${has ? '<span class="dot"></span>' : ''}</div>`;
+    const dotsHtml = has ? `<span class="dots">${dayDotClasses(dayEntries).map(c => `<span class="dot ${c}"></span>`).join('')}</span>` : '';
+    html += `<div class="${classes.join(' ')}" data-day="${key}">${d}${dotsHtml}</div>`;
   }
 
   $('cal-grid').innerHTML = html;
