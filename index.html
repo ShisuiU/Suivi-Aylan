@@ -90,9 +90,18 @@
     font-size: 10px; color: var(--ink-faint); margin-top: 1px;
     text-transform: uppercase; letter-spacing: .12em;
   }
-  .menu-btn, .app-header-spacer{
+  .menu-btn, .app-header-avatar{
     flex-shrink:0; width:38px; height:38px;
   }
+  .app-header-avatar{
+    border-radius:50%; background: var(--bg-2); color: var(--ink-dim);
+    border:none; cursor:pointer; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Plus Jakarta Sans'; font-weight:700; font-size:14px; text-transform:uppercase;
+    transition: transform .12s ease;
+  }
+  .app-header-avatar:active{ transform: scale(0.9); }
+  .app-header-avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
   .menu-btn{
     background:none; border:none; color: var(--ink);
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
@@ -475,8 +484,9 @@
   .child-page-avatar{
     flex-shrink:0; width:42px; height:42px; border-radius:50%; background: var(--bg-2); color: var(--ink-dim);
     display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px;
-    text-transform:uppercase; transition: background-color .15s ease, color .15s ease;
+    text-transform:uppercase; overflow:hidden; transition: background-color .15s ease, color .15s ease;
   }
+  .child-page-avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
   .child-page-card.active .child-page-avatar{ background: var(--milk); color:#ffffff; }
   .child-page-info{ flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
   .child-page-name{
@@ -487,6 +497,17 @@
   .child-page-badge{
     flex-shrink:0; font-size:10px; font-weight:700; color: var(--milk); text-transform:uppercase; letter-spacing:.05em;
   }
+
+  /* Photo de profil d'un enfant */
+  .avatar-edit-row{ display:flex; align-items:center; gap:14px; margin-bottom:18px; }
+  .avatar-edit-preview{
+    flex-shrink:0; width:64px; height:64px; border-radius:50%; background: var(--bg-2); color: var(--ink-dim);
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:22px;
+    text-transform:uppercase; overflow:hidden;
+  }
+  .avatar-edit-preview img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .avatar-edit-controls{ flex:1; min-width:0; }
+  .avatar-edit-controls .quick-ml-btn-toggle{ width:100%; }
   .danger-link-btn{
     display:block; width:100%; background:none; border:none; color: var(--ink-faint);
     font-family:'Plus Jakarta Sans'; font-size:12.5px; margin-top:14px; cursor:pointer;
@@ -1048,7 +1069,9 @@
       <h1 id="app-title">Bébé</h1>
       <div class="subtitle" id="current-view-label">Aujourd'hui</div>
     </div>
-    <div class="app-header-spacer" aria-hidden="true"></div>
+    <button class="app-header-avatar" id="header-avatar-btn" type="button" aria-label="Enfant suivi">
+      <span id="header-avatar-content">?</span>
+    </button>
   </header>
 
   <div class="modal-overlay menu-overlay hidden" id="menu-overlay">
@@ -1365,6 +1388,15 @@
         <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
       </button>
       <div class="settings-section-content">
+        <label class="field-label">Photo de profil</label>
+        <div class="avatar-edit-row">
+          <div class="avatar-edit-preview" id="profile-avatar-preview">?</div>
+          <div class="avatar-edit-controls">
+            <input type="file" accept="image/*" id="profile-avatar-input" style="display:none;">
+            <button type="button" class="quick-ml-btn-toggle" id="profile-avatar-pick-btn">Choisir une photo</button>
+            <button type="button" class="danger-link-btn hidden" id="profile-avatar-remove-btn" style="margin-top:8px;">Retirer la photo</button>
+          </div>
+        </div>
         <label class="field-label">Prénom(s)</label>
         <input class="login-field" type="text" id="profile-firstname" placeholder="Prénom(s)" autocomplete="off" autocapitalize="words">
         <label class="field-label">Nom</label>
@@ -1741,6 +1773,7 @@ function switchToChild(childId){
     renderProfileForm();
     renderAgeHero();
     updateSiteTitle();
+    renderHeaderAvatar();
   });
 
   growthRef = childRef('growth');
@@ -1791,12 +1824,13 @@ function renderChildrenPage(){
 
   list.innerHTML = childrenList.map(c => {
     const fullName = [c.firstName, c.lastName].filter(Boolean).join(' ').trim() || DEFAULT_SITE_NAME;
-    const initial = (c.firstName || c.lastName || '?').trim().charAt(0) || '?';
+    const initial = initialLetterFor(c.firstName, c.lastName);
     const active = c.id === currentChildId ? ' active' : '';
     const age = c.birthDate ? computeAge(c.birthDate) : 'Date de naissance non renseignée';
     const badge = c.id === currentChildId ? '<span class="child-page-badge">Suivi</span>' : '';
+    const avatarContent = c.avatar ? `<img src="${c.avatar}" alt="">` : escapeHtml(initial);
     return `<button type="button" class="child-page-card${active}" data-child="${c.id}">
-      <span class="child-page-avatar">${escapeHtml(initial)}</span>
+      <span class="child-page-avatar">${avatarContent}</span>
       <span class="child-page-info">
         <span class="child-page-name">${escapeHtml(fullName)}</span>
         <span class="child-page-age">${escapeHtml(age)}</span>
@@ -1922,6 +1956,7 @@ function stopSync(){
   currentChildId = null;
   familyFeatures = { sleep: false, health: false, vaccines: false };
   updateSiteTitle();
+  renderHeaderAvatar();
   refreshChildrenUI();
   applyFeatureVisibility();
 
@@ -1981,6 +2016,9 @@ function renderProfileForm(){
   $('profile-lastname').value = (profileData && profileData.lastName) || '';
   $('profile-birthdate').value = (profileData && profileData.birthDate) || '';
   selectGender((profileData && profileData.gender) || null);
+  profileAvatarDataUrl = (profileData && profileData.avatar) || null;
+  $('profile-avatar-input').value = '';
+  renderAvatarEditPreview();
 }
 
 let selectedGender = null;
@@ -1989,6 +2027,26 @@ function selectGender(val){
   document.querySelectorAll('#profile-gender-row .diaper-btn').forEach(b => {
     b.classList.toggle('active', b.getAttribute('data-val') === val);
   });
+}
+
+let profileAvatarDataUrl = null;
+function initialLetterFor(firstName, lastName){
+  return ((firstName || lastName || '?').trim().charAt(0) || '?').toUpperCase();
+}
+function renderAvatarEditPreview(){
+  const preview = $('profile-avatar-preview');
+  const initial = initialLetterFor($('profile-firstname').value, $('profile-lastname').value);
+  preview.innerHTML = profileAvatarDataUrl ? `<img src="${profileAvatarDataUrl}" alt="">` : escapeHtml(initial);
+  $('profile-avatar-remove-btn').classList.toggle('hidden', !profileAvatarDataUrl);
+}
+function renderHeaderAvatar(){
+  const content = $('header-avatar-content');
+  if(!content) return;
+  if(profileData && profileData.avatar){
+    content.innerHTML = `<img src="${profileData.avatar}" alt="">`;
+  }else{
+    content.textContent = initialLetterFor(profileData && profileData.firstName, profileData && profileData.lastName);
+  }
 }
 
 function renderAgeHero(){
@@ -2013,7 +2071,7 @@ async function saveProfile(){
   }
 
   try{
-    await childRef('profile').set({ firstName, lastName, birthDate, gender: selectedGender || null });
+    await childRef('profile').set({ firstName, lastName, birthDate, gender: selectedGender || null, avatar: profileAvatarDataUrl || null });
     showToast('Informations enregistrées');
   }catch(e){
     showToast("Erreur d'enregistrement");
@@ -4190,6 +4248,24 @@ $('milestone-photo-input').addEventListener('change', async () => {
     showToast('Impossible de charger cette photo');
   }
 });
+
+$('profile-avatar-pick-btn').addEventListener('click', () => $('profile-avatar-input').click());
+$('profile-avatar-input').addEventListener('change', async () => {
+  const file = $('profile-avatar-input').files[0];
+  if(!file) return;
+  try{
+    profileAvatarDataUrl = await compressImageFile(file, 320, 0.82);
+    renderAvatarEditPreview();
+  }catch(e){
+    showToast('Impossible de charger cette photo');
+  }
+});
+$('profile-avatar-remove-btn').addEventListener('click', () => {
+  profileAvatarDataUrl = null;
+  $('profile-avatar-input').value = '';
+  renderAvatarEditPreview();
+});
+$('header-avatar-btn').addEventListener('click', () => switchView('children'));
 
 document.querySelectorAll('#quick-ml button').forEach(btn => {
   btn.addEventListener('click', () => {
