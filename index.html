@@ -451,23 +451,6 @@
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
   /* Sélecteur d'enfant */
-  .child-switcher{
-    display:flex; gap:8px; overflow-x:auto; margin-bottom:18px; padding-bottom:2px;
-    scrollbar-width:none;
-  }
-  .child-switcher::-webkit-scrollbar{ display:none; }
-  .child-chip{
-    flex-shrink:0; background: var(--card); border:1px solid var(--line); color: var(--ink-dim);
-    font-family:'Plus Jakarta Sans'; font-weight:600; font-size:13px; padding:8px 16px;
-    border-radius:20px; cursor:pointer; white-space:nowrap;
-    transition: background-color .15s ease, color .15s ease, border-color .15s ease;
-  }
-  .child-chip.active{ background: var(--milk); border-color: var(--milk); color:#ffffff; }
-  .child-chip-add{
-    flex-shrink:0; width:36px; padding:8px; text-align:center; font-size:16px; line-height:1.2;
-    color: var(--ink-faint); background: var(--card); border:1px dashed var(--line);
-    border-radius:50%; cursor:pointer;
-  }
   .child-switcher-error{
     background: var(--vomit-dim); border:1px solid var(--vomit); color: var(--vomit);
     font-family:'Plus Jakarta Sans'; font-size:12.5px; font-weight:600; padding:10px 14px;
@@ -1061,8 +1044,6 @@
     </div>
     <div class="app-header-spacer" aria-hidden="true"></div>
   </header>
-
-  <div class="child-switcher" id="child-switcher"></div>
 
   <div class="modal-overlay menu-overlay hidden" id="menu-overlay">
     <div class="modal-panel menu-panel">
@@ -1773,26 +1754,10 @@ function switchToChild(childId){
     renderMilestones();
   });
 
-  renderChildSwitcher();
+  refreshChildrenUI();
 }
 
-function renderChildSwitcher(){
-  const container = $('child-switcher');
-  if(!container) return;
-
-  if(!childrenList.length && lastMigrationError){
-    container.innerHTML = `<div class="child-switcher-error">⚠️ Erreur de chargement du suivi. Vérifie ta connexion et recharge la page.</div>`;
-    return;
-  }
-
-  const chips = childrenList.map(c => {
-    const label = (c.firstName && c.firstName.trim().split(/\s+/)[0]) || DEFAULT_SITE_NAME;
-    const active = c.id === currentChildId ? ' active' : '';
-    return `<button class="child-chip${active}" data-child="${c.id}">${escapeHtml(label)}</button>`;
-  }).join('');
-
-  container.innerHTML = chips + `<button class="child-chip-add" id="child-add-btn" type="button" aria-label="Ajouter un enfant" title="Ajouter un enfant">+</button>`;
-
+function refreshChildrenUI(){
   const deleteBtn = $('profile-delete-child-btn');
   if(deleteBtn){
     deleteBtn.classList.toggle('hidden', childrenList.length <= 1);
@@ -1912,7 +1877,7 @@ function startSync(){
         return { id, ...(c.profile || {}), order: meta.order || 0, createdAt: meta.createdAt || 0 };
       }).sort((a, b) => a.order - b.order || a.createdAt - b.createdAt);
 
-      renderChildSwitcher();
+      refreshChildrenUI();
       if(!childrenList.length) return;
 
       const stillExists = currentChildId && childrenList.some(c => c.id === currentChildId);
@@ -1946,7 +1911,7 @@ function stopSync(){
   currentChildId = null;
   familyFeatures = { sleep: false, health: false, vaccines: false };
   updateSiteTitle();
-  renderChildSwitcher();
+  refreshChildrenUI();
   applyFeatureVisibility();
 
   // Repart sur "Aujourd'hui" à la prochaine connexion, même si on s'est
@@ -4022,11 +3987,6 @@ $('profile-delete-child-btn').addEventListener('click', () => {
     return;
   }
   deleteCurrentChild();
-});
-$('child-switcher').addEventListener('click', (ev) => {
-  if(ev.target.closest('#child-add-btn')){ openAddChildModal(); return; }
-  const chip = ev.target.closest('[data-child]');
-  if(chip) switchToChild(chip.getAttribute('data-child'));
 });
 $('children-list-page').addEventListener('click', (ev) => {
   const card = ev.target.closest('[data-child]');
