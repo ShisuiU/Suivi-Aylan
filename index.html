@@ -754,13 +754,6 @@
   .invite-code-display .label{
     font-size:10.5px; color: var(--ink-faint); text-transform:uppercase; letter-spacing:.1em; margin-bottom:6px;
   }
-  .theme-toggle-btn{
-    position:absolute; top: calc(18px + env(safe-area-inset-top)); left:18px;
-    background: var(--card); border:1px solid var(--line); color: var(--ink-faint);
-    width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-    cursor:pointer; z-index:10; transition: background-color .3s ease, border-color .3s ease, transform .3s cubic-bezier(.34,1.56,.64,1);
-  }
-  .theme-toggle-btn:active{ transform: scale(0.85) rotate(-20deg); }
   .hidden{ display:none !important; }
 
   .offline-banner{
@@ -808,10 +801,6 @@
 <div class="offline-banner off-hidden" id="offline-banner">
   📡 Hors connexion — les modifications seront synchronisées au retour du réseau
 </div>
-
-<button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Changer de thème" title="Changer de thème">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
-</button>
 
 <div class="login-screen" id="login-screen">
   <div class="login-card">
@@ -903,6 +892,17 @@
         </div>
         <p class="backup-hint">Partage ce code avec une personne pour qu'elle rejoigne votre espace famille (onglet "Rejoindre une famille" à l'inscription).</p>
         <button class="danger-link-btn" id="settings-logout-btn" type="button">🚪 Se déconnecter</button>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title"><span class="icon">🎨</span>Apparence</div>
+        <div class="feature-toggle-row">
+          <div class="feature-toggle-label">
+            <span class="name">🌙 Thème sombre</span>
+            <span class="desc">Propre à cet appareil</span>
+          </div>
+          <button class="switch" id="theme-toggle-switch" type="button" aria-label="Activer le thème sombre"></button>
+        </div>
       </div>
 
       <div class="settings-section">
@@ -1275,13 +1275,10 @@ let selectedCalDay = null;
 
 const $ = (id) => document.getElementById(id);
 
-const MOON_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>';
-const SUN_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
-
 function applyTheme(theme){
   document.documentElement.setAttribute('data-theme', theme);
-  const btn = $('theme-toggle-btn');
-  if(btn) btn.innerHTML = theme === 'dark' ? SUN_ICON : MOON_ICON;
+  const switchBtn = $('theme-toggle-switch');
+  if(switchBtn) switchBtn.classList.toggle('active', theme === 'dark');
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if(metaTheme) metaTheme.setAttribute('content', theme === 'dark' ? '#0e1826' : '#f6f9fd');
   try{ localStorage.setItem('aylan-theme', theme); }catch(e){}
@@ -3957,7 +3954,7 @@ $('login-password').addEventListener('keydown', (e) => { if(e.key === 'Enter') d
 $('login-password-confirm').addEventListener('keydown', (e) => { if(e.key === 'Enter') doAuthSubmit(); });
 $('auth-toggle-link').addEventListener('click', toggleAuthMode);
 $('settings-logout-btn').addEventListener('click', doLogout);
-$('theme-toggle-btn').addEventListener('click', toggleTheme);
+$('theme-toggle-switch').addEventListener('click', toggleTheme);
 
 $('fab-btn').addEventListener('click', () => {
   const isOpen = !$('add-modal-overlay').classList.contains('hidden');
