@@ -425,6 +425,111 @@
     font-family:'Plus Jakarta Sans'; font-size:12.5px; margin-top:14px; cursor:pointer;
     text-decoration:underline; text-align:center;
   }
+
+  /* Fonctionnalités optionnelles (paramètres) */
+  .feature-toggle-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:12px 0; border-top:1px solid var(--line);
+  }
+  .feature-toggle-row:first-of-type{ border-top:none; padding-top:2px; }
+  .feature-toggle-label{ display:flex; flex-direction:column; gap:2px; }
+  .feature-toggle-label .name{ font-size:13.5px; font-weight:600; color: var(--ink); }
+  .feature-toggle-label .desc{ font-size:11.5px; color: var(--ink-faint); }
+  .switch{
+    flex-shrink:0; position:relative; width:44px; height:26px; border-radius:20px;
+    background: var(--bg-2); border:1px solid var(--line); cursor:pointer;
+    transition: background-color .15s ease, border-color .15s ease;
+  }
+  .switch::after{
+    content:''; position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%;
+    background: var(--card); box-shadow:0 1px 3px rgba(0,0,0,.25);
+    transition: transform .18s cubic-bezier(.34,1.56,.64,1);
+  }
+  .switch.active{ background: var(--milk); border-color: var(--milk); }
+  .switch.active::after{ transform: translateX(18px); background:#ffffff; }
+
+  /* Actions secondaires (sommeil / santé) */
+  .secondary-actions-row{ display:flex; gap:8px; margin-bottom:14px; }
+  .secondary-actions-row:empty{ margin-bottom:0; }
+  .secondary-action-btn{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+    padding:12px; border-radius:12px; cursor:pointer; font-family:'Plus Jakarta Sans';
+    font-weight:600; font-size:12.5px; transition: transform .1s ease;
+  }
+  .secondary-action-btn:active{ transform: scale(0.97); }
+
+  /* Sommeil */
+  .sleep-log-btn{ background: var(--bg-2); border:1px solid var(--ink-faint); color: var(--ink-dim); }
+  .sleep-log-btn.sleeping{
+    background: #2c3a52; border-color:#2c3a52; color:#ffffff;
+    animation: heroPulse 1.8s ease-in-out infinite;
+  }
+  .entry-sleep-label{ font-size:14px; color:#5d6fae; font-weight:600; }
+  .entry .node.sleep-node{ background:#dfe3f6; }
+
+  /* Santé */
+  .health-log-btn{ background: var(--vomit-dim); border:1px solid var(--vomit); color: var(--vomit); }
+  .health-type-row{ display:grid; grid-template-columns: repeat(3,1fr); gap:8px; }
+  .entry-health-label{ font-size:14px; font-weight:600; color: var(--vomit); }
+  .entry .node.health-node{ background: var(--vomit-dim); }
+
+  /* Partage du résumé du jour */
+  .share-summary-btn{
+    width:100%; background: var(--bg-2); border:1px solid var(--line); color: var(--ink-dim);
+    font-family:'Plus Jakarta Sans'; font-weight:600; font-size:12.5px; padding:11px 14px;
+    border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;
+    margin-bottom:18px;
+  }
+  .share-summary-btn:active{ background: var(--card-hover); }
+
+  /* Filtres de recherche */
+  .filter-chip-row{ display:flex; gap:6px; overflow-x:auto; margin:10px 0 4px; scrollbar-width:none; }
+  .filter-chip-row::-webkit-scrollbar{ display:none; }
+  .filter-chip{
+    flex-shrink:0; background: var(--card); border:1px solid var(--line); color: var(--ink-dim);
+    font-family:'Plus Jakarta Sans'; font-weight:600; font-size:11.5px; padding:7px 13px;
+    border-radius:20px; cursor:pointer; white-space:nowrap;
+  }
+  .filter-chip.active{ background: var(--milk); border-color: var(--milk); color:#ffffff; }
+
+  /* Vaccins & rendez-vous */
+  .vaccine-row{
+    display:flex; align-items:center; gap:10px; padding:11px 0; border-top:1px solid var(--line);
+  }
+  .vaccine-row:first-of-type{ border-top:none; }
+  .vaccine-check{
+    flex-shrink:0; width:22px; height:22px; border-radius:50%; border:2px solid var(--line);
+    background:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    color:#ffffff; font-size:12px;
+  }
+  .vaccine-check.done{ background: var(--milk); border-color: var(--milk); }
+  .vaccine-info{ flex:1; min-width:0; }
+  .vaccine-name{ font-size:14px; color: var(--ink); font-weight:500; }
+  .vaccine-name.done{ text-decoration:line-through; color: var(--ink-faint); }
+  .vaccine-date{ font-size:11.5px; color: var(--ink-faint); }
+  .vaccine-add-row{ display:flex; gap:8px; margin-top:14px; }
+  .vaccine-add-row input[type="text"]{ flex:2; }
+  .vaccine-add-row input[type="date"]{ flex:1.4; }
+
+  /* Souvenirs / étapes clés */
+  .milestone-grid{ display:grid; grid-template-columns: repeat(2,1fr); gap:10px; margin-top:14px; }
+  .milestone-card{
+    background: var(--bg-2); border:1px solid var(--line); border-radius:14px; overflow:hidden; position:relative;
+  }
+  .milestone-photo{ width:100%; aspect-ratio:1; object-fit:cover; display:block; background: var(--card-hover); }
+  .milestone-info{ padding:8px 10px; }
+  .milestone-label{ font-size:12.5px; font-weight:600; color: var(--ink); }
+  .milestone-date{ font-size:10.5px; color: var(--ink-faint); }
+  .milestone-del{
+    position:absolute; top:6px; right:6px; width:24px; height:24px; border-radius:50%;
+    background:rgba(10,20,35,.55); color:#fff; border:none; cursor:pointer; font-size:12px;
+  }
+  .milestone-add-btn{
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    background: var(--bg-2); border:1px dashed var(--line); color: var(--ink-dim);
+    font-family:'Plus Jakarta Sans'; font-weight:600; font-size:13px; padding:14px; border-radius:14px;
+    cursor:pointer; margin-top:14px;
+  }
   .danger-link-btn.confirming{ color:#c0526a; font-weight:600; text-decoration:none; }
 
   /* Tabs */
@@ -793,6 +898,32 @@
       </div>
 
       <div class="settings-section">
+        <div class="settings-section-title"><span class="icon">🧩</span>Fonctionnalités</div>
+        <p class="backup-hint">Active seulement ce dont ta famille a besoin — le reste de l'app ne bouge pas.</p>
+        <div class="feature-toggle-row">
+          <div class="feature-toggle-label">
+            <span class="name">🌙 Suivi du sommeil</span>
+            <span class="desc">Minuteur de sieste/nuit</span>
+          </div>
+          <button class="switch" id="feature-toggle-sleep" type="button" aria-label="Activer le suivi du sommeil"></button>
+        </div>
+        <div class="feature-toggle-row">
+          <div class="feature-toggle-label">
+            <span class="name">🩺 Suivi santé</span>
+            <span class="desc">Température, dents, selles</span>
+          </div>
+          <button class="switch" id="feature-toggle-health" type="button" aria-label="Activer le suivi santé"></button>
+        </div>
+        <div class="feature-toggle-row">
+          <div class="feature-toggle-label">
+            <span class="name">💉 Vaccins &amp; rendez-vous</span>
+            <span class="desc">Liste à cocher dans Profil</span>
+          </div>
+          <button class="switch" id="feature-toggle-vaccines" type="button" aria-label="Activer le suivi des vaccins"></button>
+        </div>
+      </div>
+
+      <div class="settings-section">
         <div class="settings-section-title"><span class="icon">🔔</span>Rappel de biberon</div>
         <p class="backup-hint">Alerte visuelle (et notification si autorisée) quand ça fait longtemps. Ne fonctionne que pendant que l'app est ouverte à l'écran — iOS suspend les pages en arrière-plan.</p>
         <div class="reminder-row">
@@ -869,6 +1000,53 @@
     </div>
   </div>
 
+  <div class="modal-overlay hidden" id="health-modal-overlay">
+    <div class="modal-panel">
+      <button class="modal-close-btn" id="health-modal-close-btn" aria-label="Fermer">✕</button>
+      <h2>Suivi santé</h2>
+
+      <label class="field-label">Type</label>
+      <div class="health-type-row" id="health-type-row">
+        <button type="button" class="diaper-btn" data-val="temperature"><span class="ic">🌡️</span>Température</button>
+        <button type="button" class="diaper-btn" data-val="teething"><span class="ic">🦷</span>Dent</button>
+        <button type="button" class="diaper-btn" data-val="stool"><span class="ic">💩</span>Selles</button>
+      </div>
+
+      <div id="health-temperature-field">
+        <label class="field-label">Température (°C)</label>
+        <input class="login-field" type="number" inputmode="decimal" step="0.1" id="health-temperature-input" placeholder="ex : 37.8">
+      </div>
+
+      <div id="health-stool-field" class="hidden">
+        <label class="field-label">Consistance</label>
+        <div class="diaper-row" id="health-stool-row">
+          <button type="button" class="diaper-btn" data-val="dure">Dure</button>
+          <button type="button" class="diaper-btn" data-val="normale">Normale</button>
+          <button type="button" class="diaper-btn" data-val="molle">Molle</button>
+          <button type="button" class="diaper-btn" data-val="liquide">Liquide</button>
+        </div>
+      </div>
+
+      <label class="field-label">Jour</label>
+      <div class="date-field">
+        <input type="date" id="health-date-input">
+      </div>
+
+      <label class="field-label">Heure</label>
+      <div class="time-row">
+        <input type="time" id="health-time-input">
+        <button class="now-btn" id="health-now-btn" type="button" aria-label="Régler à maintenant">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+        </button>
+      </div>
+
+      <label class="field-label">Commentaire (optionnel)</label>
+      <textarea class="login-field comment-field" id="health-comment-input" placeholder="ex : après le vaccin, dent visible..." rows="2"></textarea>
+
+      <button class="save-btn" id="health-save-btn" type="button">Enregistrer</button>
+    </div>
+  </div>
+
   <header>
     <div>
       <h1 id="app-title">Bébé</h1>
@@ -899,6 +1077,17 @@
         </button>
       </div>
     </div>
+    <div class="secondary-actions-row">
+      <button class="secondary-action-btn sleep-log-btn hidden" id="sleep-log-btn" type="button">
+        <span>🌙</span>
+        <span id="sleep-log-btn-label">Sommeil</span>
+      </button>
+      <button class="secondary-action-btn health-log-btn hidden" id="health-log-btn" type="button">
+        <span>🩺</span>
+        <span>Santé</span>
+      </button>
+    </div>
+    <button class="share-summary-btn" id="share-summary-btn" type="button">📤 Partager le résumé du jour</button>
     <div class="stats-row" id="stats-row"></div>
 
     <div id="timeline-container"></div>
@@ -908,6 +1097,14 @@
     <div class="search-field-wrap">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
       <input type="text" id="comment-search-input" placeholder="Rechercher dans les commentaires...">
+    </div>
+    <div class="filter-chip-row" id="search-filter-row">
+      <button class="filter-chip active" data-filter-type="all" type="button">Tout</button>
+      <button class="filter-chip" data-filter-type="biberon" type="button">🍼 Biberon</button>
+      <button class="filter-chip" data-filter-type="diaper" type="button">💧 Couche</button>
+      <button class="filter-chip" data-filter-type="vomit" type="button">🤮 Vomi</button>
+      <button class="filter-chip hidden" data-filter-type="sleep" id="filter-chip-sleep" type="button">🌙 Sommeil</button>
+      <button class="filter-chip hidden" data-filter-type="health" id="filter-chip-health" type="button">🩺 Santé</button>
     </div>
     <div id="comment-search-results"></div>
 
@@ -949,6 +1146,11 @@
       <div class="date-field" style="margin-bottom:16px;">
         <input type="date" id="profile-birthdate">
       </div>
+      <label class="field-label">Sexe <span style="text-transform:none; letter-spacing:normal; font-weight:400;">(pour comparer aux repères OMS)</span></label>
+      <div class="diaper-row" id="profile-gender-row" style="grid-template-columns: repeat(2,1fr); margin-bottom:16px;">
+        <button type="button" class="diaper-btn" data-val="F"><span class="ic">👧</span>Fille</button>
+        <button type="button" class="diaper-btn" data-val="M"><span class="ic">👦</span>Garçon</button>
+      </div>
       <button class="save-btn" id="profile-save-btn" type="button">Enregistrer les informations</button>
       <button class="danger-link-btn hidden" id="profile-delete-child-btn" type="button">Supprimer cet enfant</button>
     </div>
@@ -973,6 +1175,44 @@
 
     <div class="cal-day-detail-label" style="margin-top:22px;">Historique des mesures</div>
     <div id="growth-list"></div>
+
+    <div class="card hidden" id="vaccines-card" style="margin-top:20px;">
+      <h2>💉 Vaccins &amp; rendez-vous</h2>
+      <div id="vaccines-list"></div>
+      <div class="vaccine-add-row">
+        <input class="login-field" type="text" id="vaccine-name-input" placeholder="ex : DTP 2 mois" style="margin-bottom:0;">
+        <input class="login-field" type="date" id="vaccine-date-input" style="margin-bottom:0;">
+      </div>
+      <button class="save-btn" id="vaccine-add-btn" type="button">Ajouter</button>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h2>📷 Souvenirs</h2>
+      <div class="milestone-grid" id="milestone-grid"></div>
+      <button class="milestone-add-btn" id="milestone-add-btn" type="button">+ Ajouter un souvenir</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="milestone-modal-overlay">
+    <div class="modal-panel">
+      <button class="modal-close-btn" id="milestone-modal-close-btn" aria-label="Fermer">✕</button>
+      <h2>Nouveau souvenir</h2>
+
+      <label class="field-label">Photo (optionnelle)</label>
+      <input class="login-field" type="file" accept="image/*" id="milestone-photo-input" style="padding:10px;">
+      <img id="milestone-photo-preview" class="hidden" style="width:100%; border-radius:14px; margin:10px 0; max-height:220px; object-fit:cover;">
+
+      <label class="field-label">Étape / souvenir</label>
+      <input class="login-field" type="text" id="milestone-label-input" placeholder="ex : Premier sourire">
+
+      <label class="field-label">Date</label>
+      <div class="date-field" style="margin-bottom:16px;"><input type="date" id="milestone-date-input"></div>
+
+      <label class="field-label">Note (optionnelle)</label>
+      <textarea class="login-field comment-field" id="milestone-note-input" placeholder="Un petit mot pour se souvenir..." rows="2"></textarea>
+
+      <button class="save-btn" id="milestone-save-btn" type="button">Enregistrer</button>
+    </div>
   </div>
 </div>
 
@@ -1041,6 +1281,73 @@ function nowTimeStr(){
   return pad(d.getHours()) + ':' + pad(d.getMinutes());
 }
 
+function formatTimeFromTimestamp(ts){
+  const d = new Date(ts);
+  return pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+
+function formatDuration(mins){
+  const m = Math.max(0, Math.round(mins));
+  if(m < 60) return m + ' min';
+  const h = Math.floor(m / 60);
+  const rest = m % 60;
+  return h + 'h' + (rest ? pad(rest) : '');
+}
+
+// --- Sommeil (fonctionnalité optionnelle) ---
+function getActiveSleepEntry(){
+  return entries.find(e => e.type === 'sleep' && e.end == null) || null;
+}
+
+async function toggleSleep(){
+  const active = getActiveSleepEntry();
+  if(active){
+    const now = Date.now();
+    const updated = Object.assign({}, active, {
+      end: now,
+      durationMin: Math.max(1, Math.round((now - active.start) / 60000))
+    });
+    await addEntryToDB(updated);
+    showToast('Sommeil enregistré');
+  }else{
+    const now = new Date();
+    const entry = {
+      id: Date.now(),
+      type: 'sleep',
+      start: now.getTime(),
+      end: null,
+      timestamp: now.getTime(),
+      dayKey: todayKey(now),
+      time: nowTimeStr(),
+      authorEmail: auth.currentUser ? auth.currentUser.email : null
+    };
+    await addEntryToDB(entry);
+    showToast('Sieste démarrée');
+  }
+  updateSleepButton();
+}
+
+let sleepTickInterval = null;
+function updateSleepButton(){
+  const btn = $('sleep-log-btn');
+  const label = $('sleep-log-btn-label');
+  if(!btn || !label) return;
+  if(btn.classList.contains('hidden') && !familyFeatures.sleep){
+    if(sleepTickInterval){ clearInterval(sleepTickInterval); sleepTickInterval = null; }
+    return;
+  }
+  const active = getActiveSleepEntry();
+  btn.classList.toggle('sleeping', !!active);
+  if(active){
+    const mins = Math.max(0, Math.round((Date.now() - active.start) / 60000));
+    label.textContent = 'En cours · ' + formatDuration(mins);
+    if(!sleepTickInterval) sleepTickInterval = setInterval(updateSleepButton, 30000);
+  }else{
+    label.textContent = 'Sommeil';
+    if(sleepTickInterval){ clearInterval(sleepTickInterval); sleepTickInterval = null; }
+  }
+}
+
 function setNow(){
   $('time-input').value = nowTimeStr();
 }
@@ -1066,11 +1373,17 @@ let childrenRef = null;
 let entriesRef = null;
 let profileRef = null;
 let growthRef = null;
+let settingsRef = null;
+let vaccinesRef = null;
+let milestonesRef = null;
 let profileData = null;
 let growthEntries = [];
+let vaccinesList = [];
+let milestonesList = [];
 let currentFamilyId = null;
 let currentChildId = null;
 let childrenList = []; // [{id, firstName, lastName, birthDate, order, createdAt}]
+let familyFeatures = { sleep: false, health: false, vaccines: false };
 
 const DEFAULT_SITE_NAME = 'Bébé';
 
@@ -1160,11 +1473,34 @@ async function migrateFamilyToChildren(familyId){
   await db.ref('families/' + familyId).update(updates);
 }
 
+function applyFeatureVisibility(){
+  $('sleep-log-btn').classList.toggle('hidden', !familyFeatures.sleep);
+  $('health-log-btn').classList.toggle('hidden', !familyFeatures.health);
+  $('vaccines-card').classList.toggle('hidden', !familyFeatures.vaccines);
+  $('filter-chip-sleep').classList.toggle('hidden', !familyFeatures.sleep);
+  $('filter-chip-health').classList.toggle('hidden', !familyFeatures.health);
+  $('feature-toggle-sleep').classList.toggle('active', familyFeatures.sleep);
+  $('feature-toggle-health').classList.toggle('active', familyFeatures.health);
+  $('feature-toggle-vaccines').classList.toggle('active', familyFeatures.vaccines);
+  updateSleepButton();
+}
+
+async function toggleFamilyFeature(key){
+  const newVal = !familyFeatures[key];
+  try{
+    await db.ref('families/' + currentFamilyId + '/settings/features/' + key).set(newVal);
+  }catch(e){
+    showToast('Erreur de sauvegarde du paramètre');
+  }
+}
+
 function switchToChild(childId){
   if(!childId || childId === currentChildId) return;
   if(entriesRef) entriesRef.off();
   if(profileRef) profileRef.off();
   if(growthRef) growthRef.off();
+  if(vaccinesRef) vaccinesRef.off();
+  if(milestonesRef) milestonesRef.off();
 
   // Annule toute édition en cours (le formulaire de mesure est affiché en
   // permanence dans l'onglet Profil, hors modale) pour ne pas laisser des
@@ -1197,6 +1533,20 @@ function switchToChild(childId){
     growthEntries = val ? Object.values(val) : [];
     renderGrowthList();
     renderGrowthCharts();
+  });
+
+  vaccinesRef = childRef('vaccines');
+  vaccinesRef.on('value', (snapshot) => {
+    const val = snapshot.val() || {};
+    vaccinesList = Object.values(val).sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+    renderVaccinesList();
+  });
+
+  milestonesRef = childRef('milestones');
+  milestonesRef.on('value', (snapshot) => {
+    const val = snapshot.val() || {};
+    milestonesList = Object.values(val).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    renderMilestones();
   });
 
   renderChildSwitcher();
@@ -1264,6 +1614,13 @@ function startSync(){
     $('settings-invite-code').textContent = meta.inviteCode || '—';
   });
 
+  settingsRef = db.ref('families/' + currentFamilyId + '/settings/features');
+  settingsRef.on('value', (snapshot) => {
+    const val = snapshot.val() || {};
+    familyFeatures = { sleep: !!val.sleep, health: !!val.health, vaccines: !!val.vaccines };
+    applyFeatureVisibility();
+  });
+
   migrateFamilyToChildren(currentFamilyId).then(() => {
     lastMigrationError = null;
   }).catch((err) => {
@@ -1301,14 +1658,21 @@ function stopSync(){
   if(entriesRef) entriesRef.off();
   if(profileRef) profileRef.off();
   if(growthRef) growthRef.off();
-  childrenRef = entriesRef = profileRef = growthRef = null;
+  if(settingsRef) settingsRef.off();
+  if(vaccinesRef) vaccinesRef.off();
+  if(milestonesRef) milestonesRef.off();
+  childrenRef = entriesRef = profileRef = growthRef = settingsRef = vaccinesRef = milestonesRef = null;
   entries = [];
   profileData = null;
   growthEntries = [];
+  vaccinesList = [];
+  milestonesList = [];
   childrenList = [];
   currentChildId = null;
+  familyFeatures = { sleep: false, health: false, vaccines: false };
   updateSiteTitle();
   renderChildSwitcher();
+  applyFeatureVisibility();
 }
 
 async function addEntryToDB(entry){
@@ -1356,6 +1720,15 @@ function renderProfileForm(){
   $('profile-firstname').value = (profileData && profileData.firstName) || '';
   $('profile-lastname').value = (profileData && profileData.lastName) || '';
   $('profile-birthdate').value = (profileData && profileData.birthDate) || '';
+  selectGender((profileData && profileData.gender) || null);
+}
+
+let selectedGender = null;
+function selectGender(val){
+  selectedGender = val;
+  document.querySelectorAll('#profile-gender-row .diaper-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-val') === val);
+  });
 }
 
 function renderAgeHero(){
@@ -1380,7 +1753,7 @@ async function saveProfile(){
   }
 
   try{
-    await childRef('profile').set({ firstName, lastName, birthDate });
+    await childRef('profile').set({ firstName, lastName, birthDate, gender: selectedGender || null });
     showToast('Informations enregistrées');
   }catch(e){
     showToast("Erreur d'enregistrement");
@@ -1521,6 +1894,188 @@ async function deleteGrowthEntry(id){
   }
 }
 
+// --- Vaccins & rendez-vous (fonctionnalité optionnelle) ---
+function renderVaccinesList(){
+  const container = $('vaccines-list');
+  if(!container) return;
+  if(!vaccinesList.length){
+    container.innerHTML = `<div class="empty">Aucun vaccin ou rendez-vous enregistré.</div>`;
+    return;
+  }
+  container.innerHTML = vaccinesList.map(v => `
+    <div class="vaccine-row" data-id="${v.id}">
+      <button class="vaccine-check${v.done ? ' done' : ''}" data-vaccine-toggle="${v.id}" aria-label="Marquer comme fait">${v.done ? '✓' : ''}</button>
+      <div class="vaccine-info">
+        <div class="vaccine-name${v.done ? ' done' : ''}">${escapeHtml(v.name)}</div>
+        <div class="vaccine-date">${v.date ? formatShortDate(v.date) : 'Sans date'}</div>
+      </div>
+      <button class="entry-del" data-vaccine-del="${v.id}">✕</button>
+    </div>`).join('');
+
+  container.querySelectorAll('[data-vaccine-toggle]').forEach(btn => {
+    btn.addEventListener('click', () => toggleVaccineDone(btn.getAttribute('data-vaccine-toggle')));
+  });
+  container.querySelectorAll('[data-vaccine-del]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if(btn.classList.contains('confirming')){
+        clearTimeout(btn._confirmTimeout);
+        deleteVaccine(btn.getAttribute('data-vaccine-del'));
+        return;
+      }
+      btn.classList.add('confirming');
+      btn.textContent = 'Confirmer';
+      btn._confirmTimeout = setTimeout(() => {
+        btn.classList.remove('confirming');
+        btn.textContent = '✕';
+      }, 3000);
+    });
+  });
+}
+
+async function addVaccine(){
+  const name = $('vaccine-name-input').value.trim();
+  const date = $('vaccine-date-input').value;
+  if(!name){
+    showToast('Merci de donner un nom (ex : DTP 2 mois)');
+    return;
+  }
+  const id = generateId('vax');
+  try{
+    await childRef('vaccines/' + id).set({ id, name, date: date || '', done: false });
+    $('vaccine-name-input').value = '';
+    $('vaccine-date-input').value = '';
+    showToast('Ajouté');
+  }catch(e){
+    showToast("Erreur d'enregistrement");
+  }
+}
+
+async function toggleVaccineDone(id){
+  const v = vaccinesList.find(x => x.id === id);
+  if(!v) return;
+  try{
+    await childRef('vaccines/' + id + '/done').set(!v.done);
+  }catch(e){
+    showToast('Erreur de mise à jour');
+  }
+}
+
+async function deleteVaccine(id){
+  try{
+    await childRef('vaccines/' + id).remove();
+    showToast('Supprimé');
+  }catch(e){
+    showToast('Erreur de suppression');
+  }
+}
+
+// --- Souvenirs & photos ---
+function renderMilestones(){
+  const grid = $('milestone-grid');
+  if(!grid) return;
+  if(!milestonesList.length){
+    grid.innerHTML = '';
+    return;
+  }
+  grid.innerHTML = milestonesList.map(m => `
+    <div class="milestone-card" data-id="${m.id}">
+      ${m.photo ? `<img class="milestone-photo" src="${m.photo}" alt="${escapeHtml(m.label || '')}">` : ''}
+      <div class="milestone-info">
+        <div class="milestone-label">${escapeHtml(m.label || 'Souvenir')}</div>
+        <div class="milestone-date">${m.date ? formatShortDate(m.date) : ''}</div>
+      </div>
+      <button class="milestone-del" data-milestone-del="${m.id}" aria-label="Supprimer">✕</button>
+    </div>`).join('');
+
+  grid.querySelectorAll('[data-milestone-del]').forEach(btn => {
+    btn.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      if(btn.classList.contains('confirming')){
+        clearTimeout(btn._confirmTimeout);
+        deleteMilestone(btn.getAttribute('data-milestone-del'));
+        return;
+      }
+      btn.classList.add('confirming');
+      btn.textContent = '?';
+      btn._confirmTimeout = setTimeout(() => {
+        btn.classList.remove('confirming');
+        btn.textContent = '✕';
+      }, 3000);
+    });
+  });
+}
+
+async function deleteMilestone(id){
+  try{
+    await childRef('milestones/' + id).remove();
+    showToast('Souvenir supprimé');
+  }catch(e){
+    showToast('Erreur de suppression');
+  }
+}
+
+let milestonePhotoDataUrl = null;
+
+function compressImageFile(file, maxDim, quality){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('read failed'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('decode failed'));
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if(w > h && w > maxDim){ h = Math.round(h * maxDim / w); w = maxDim; }
+        else if(h > maxDim){ w = Math.round(w * maxDim / h); h = maxDim; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function resetMilestoneForm(){
+  milestonePhotoDataUrl = null;
+  $('milestone-photo-input').value = '';
+  $('milestone-photo-preview').classList.add('hidden');
+  $('milestone-photo-preview').src = '';
+  $('milestone-label-input').value = '';
+  $('milestone-date-input').value = dateInputVal(new Date());
+  $('milestone-note-input').value = '';
+}
+
+function openMilestoneModal(){
+  resetMilestoneForm();
+  openModal('milestone-modal-overlay');
+}
+function closeMilestoneModal(){
+  closeModal('milestone-modal-overlay');
+}
+
+async function saveMilestone(){
+  const label = $('milestone-label-input').value.trim();
+  const date = $('milestone-date-input').value || dateInputVal(new Date());
+  const note = $('milestone-note-input').value.trim();
+  if(!label){
+    showToast('Donne un nom à ce souvenir');
+    return;
+  }
+  const id = generateId('mile');
+  const payload = { id, label, date, note };
+  if(milestonePhotoDataUrl) payload.photo = milestonePhotoDataUrl;
+  try{
+    await childRef('milestones/' + id).set(payload);
+    showToast('Souvenir enregistré');
+    closeMilestoneModal();
+  }catch(e){
+    showToast("Erreur d'enregistrement (photo peut-être trop lourde)");
+  }
+}
+
 // Repères de croissance approximatifs (garçons), à titre indicatif uniquement — ne remplace pas le carnet de santé officiel.
 const WHO_WEIGHT_BOYS = [
   {m:0, p3:2.5, p50:3.3, p97:4.4}, {m:1, p3:3.4, p50:4.5, p97:5.8},
@@ -1539,6 +2094,25 @@ const WHO_HEIGHT_BOYS = [
   {m:12, p3:71.0, p50:75.7, p97:80.5}, {m:15, p3:74.1, p50:79.1, p97:84.2},
   {m:18, p3:76.9, p50:82.3, p97:87.7}, {m:21, p3:79.4, p50:85.1, p97:90.9},
   {m:24, p3:81.7, p50:87.8, p97:93.9}
+];
+// Filles — mêmes repères approximatifs, à titre indicatif uniquement.
+const WHO_WEIGHT_GIRLS = [
+  {m:0, p3:2.4, p50:3.2, p97:4.3}, {m:1, p3:3.2, p50:4.2, p97:5.4},
+  {m:2, p3:3.9, p50:5.1, p97:6.5}, {m:3, p3:4.5, p50:5.8, p97:7.3},
+  {m:4, p3:5.1, p50:6.4, p97:8.0}, {m:5, p3:5.5, p50:6.9, p97:8.6},
+  {m:6, p3:5.9, p50:7.3, p97:9.1}, {m:9, p3:6.5, p50:8.2, p97:10.1},
+  {m:12, p3:7.1, p50:8.9, p97:10.9}, {m:15, p3:7.7, p50:9.6, p97:11.9},
+  {m:18, p3:8.2, p50:10.2, p97:12.8}, {m:21, p3:8.7, p50:10.9, p97:13.7},
+  {m:24, p3:9.1, p50:11.5, p97:14.4}
+];
+const WHO_HEIGHT_GIRLS = [
+  {m:0, p3:45.4, p50:49.1, p97:52.8}, {m:1, p3:49.9, p50:53.7, p97:57.5},
+  {m:2, p3:53.2, p50:57.1, p97:61.0}, {m:3, p3:55.8, p50:59.8, p97:63.8},
+  {m:4, p3:58.0, p50:62.1, p97:66.1}, {m:5, p3:59.9, p50:64.0, p97:68.1},
+  {m:6, p3:61.5, p50:65.7, p97:69.9}, {m:9, p3:65.7, p50:70.1, p97:74.5},
+  {m:12, p3:69.4, p50:74.0, p97:78.7}, {m:15, p3:72.6, p50:77.5, p97:82.5},
+  {m:18, p3:75.4, p50:80.7, p97:86.0}, {m:21, p3:78.1, p50:83.7, p97:89.4},
+  {m:24, p3:80.4, p50:86.4, p97:92.4}
 ];
 
 function ageInMonths(birthDateStr, dateStr){
@@ -1565,6 +2139,20 @@ function interpolateWHO(table, ageMonths){
     }
   }
   return last;
+}
+
+// Estimation approximative du percentile à partir des 3 repères P3/P50/P97
+// (interpolation linéaire en 2 segments) — indicatif uniquement.
+function estimatePercentile(table, ageMonths, value){
+  const ref = interpolateWHO(table, ageMonths);
+  if(value <= ref.p3) return 3;
+  if(value >= ref.p97) return 97;
+  if(value <= ref.p50){
+    const span = (ref.p50 - ref.p3) || 1;
+    return Math.round(3 + (value - ref.p3) / span * (50 - 3));
+  }
+  const span = (ref.p97 - ref.p50) || 1;
+  return Math.round(50 + (value - ref.p50) / span * (97 - 50));
 }
 
 function renderSimpleLineChart(container, points, opts){
@@ -1716,13 +2304,31 @@ function renderGrowthCharts(){
   const sorted = [...growthEntries].sort((a,b) => a.date.localeCompare(b.date));
   const weightPoints = sorted.filter(g => g.weight != null).map(g => ({ date: g.date, label: formatShortDateNoYear(g.date), value: g.weight }));
   const heightPoints = sorted.filter(g => g.height != null).map(g => ({ date: g.date, label: formatShortDateNoYear(g.date), value: g.height }));
-  renderSimpleLineChart($('weight-chart-scroll'), weightPoints, { suffix: ' kg', decimals: 2, whoTable: WHO_WEIGHT_BOYS });
-  renderSimpleLineChart($('height-chart-scroll'), heightPoints, { suffix: ' cm', decimals: 0, whoTable: WHO_HEIGHT_BOYS });
+  const isGirl = profileData && profileData.gender === 'F';
+  const weightTable = isGirl ? WHO_WEIGHT_GIRLS : WHO_WEIGHT_BOYS;
+  const heightTable = isGirl ? WHO_HEIGHT_GIRLS : WHO_HEIGHT_BOYS;
+  renderSimpleLineChart($('weight-chart-scroll'), weightPoints, { suffix: ' kg', decimals: 2, whoTable: weightTable });
+  renderSimpleLineChart($('height-chart-scroll'), heightPoints, { suffix: ' cm', decimals: 0, whoTable: heightTable });
 
   const weightAvg = avgRatePerDay(weightPoints, 'g');
   const heightAvg = avgRatePerDay(heightPoints, 'cm');
-  $('weight-chart-label').textContent = 'Courbe de poids' + (weightAvg ? ' · ' + weightAvg : '');
-  $('height-chart-label').textContent = 'Courbe de taille' + (heightAvg ? ' · ' + heightAvg : '');
+
+  let weightPercentileTxt = '', heightPercentileTxt = '';
+  if(profileData && profileData.birthDate){
+    if(weightPoints.length){
+      const last = weightPoints[weightPoints.length - 1];
+      const ageM = ageInMonths(profileData.birthDate, last.date);
+      weightPercentileTxt = ' · ~' + estimatePercentile(weightTable, ageM, last.value) + 'e percentile';
+    }
+    if(heightPoints.length){
+      const last = heightPoints[heightPoints.length - 1];
+      const ageM = ageInMonths(profileData.birthDate, last.date);
+      heightPercentileTxt = ' · ~' + estimatePercentile(heightTable, ageM, last.value) + 'e percentile';
+    }
+  }
+
+  $('weight-chart-label').textContent = 'Courbe de poids' + (weightAvg ? ' · ' + weightAvg : '') + weightPercentileTxt;
+  $('height-chart-label').textContent = 'Courbe de taille' + (heightAvg ? ' · ' + heightAvg : '') + heightPercentileTxt;
 }
 
 function exportDataJSON(){
@@ -2164,6 +2770,7 @@ function switchView(view){
 function render(){
   renderStats();
   renderTodayTimeline();
+  updateSleepButton();
   if(currentView === 'calendar') renderCalendar();
   if(currentView === 'chart'){ renderChart(); renderVomitChart(); }
 }
@@ -2283,6 +2890,53 @@ function renderStats(){
   checkReminderNotification(overdue, lastBottleTimestamp);
 }
 
+function buildDailySummaryText(){
+  const today = todayKey(new Date());
+  const todays = entries.filter(e => e.dayKey === today);
+  const bottlesToday = todays.filter(e => e.type === 'biberon');
+  const totalMl = bottlesToday.reduce((s,e)=> s + (e.ml||0), 0);
+  const feedCount = bottlesToday.length;
+  const bottleDiaperCount = bottlesToday.filter(e => e.diaper !== 'none').length;
+  const standaloneDiaperCount = todays.filter(e => e.type === 'diaper').length;
+  const diaperCount = bottleDiaperCount + standaloneDiaperCount;
+  const vomitCount = todays.filter(e => e.type === 'vomit').length;
+
+  const name = getChildFirstName() || DEFAULT_SITE_NAME;
+  const lines = [`Résumé du jour pour ${name} :`, `🍼 ${feedCount} biberon${feedCount > 1 ? 's' : ''} (${totalMl} ml)`, `💧 ${diaperCount} couche${diaperCount > 1 ? 's' : ''}`];
+  if(vomitCount) lines.push(`🤮 ${vomitCount} vomissement${vomitCount > 1 ? 's' : ''}`);
+
+  if(familyFeatures.sleep){
+    const sleepToday = todays.filter(e => e.type === 'sleep' && e.end != null);
+    const totalSleepMin = sleepToday.reduce((s,e) => s + (e.durationMin != null ? e.durationMin : (e.end - e.start) / 60000), 0);
+    if(totalSleepMin > 0) lines.push(`🌙 ${formatDuration(totalSleepMin)} de sommeil`);
+  }
+  if(familyFeatures.health){
+    const healthToday = todays.filter(e => e.type === 'health');
+    healthToday.forEach(e => lines.push(healthKindLabel(e)));
+  }
+
+  return lines.join('\n');
+}
+
+async function shareDailySummary(){
+  const text = buildDailySummaryText();
+  if(navigator.share){
+    try{
+      await navigator.share({ text });
+      return;
+    }catch(e){
+      if(e && e.name === 'AbortError') return;
+      // tombe en repli sur la copie presse-papier ci-dessous
+    }
+  }
+  try{
+    await navigator.clipboard.writeText(text);
+    showToast('Résumé copié dans le presse-papier');
+  }catch(e){
+    showToast('Impossible de partager ou copier le résumé');
+  }
+}
+
 function authorInitials(email){
   if(!email) return '?';
   const namePart = email.split('@')[0];
@@ -2295,7 +2949,55 @@ function escapeHtml(str){
   return div.innerHTML;
 }
 
+function healthKindLabel(e){
+  if(e.kind === 'temperature') return `🌡️ Température · ${e.value}°C`;
+  if(e.kind === 'teething') return `🦷 Poussée dentaire`;
+  if(e.kind === 'stool') return `💩 Selles · ${({dure:'Dure',normale:'Normale',molle:'Molle',liquide:'Liquide'})[e.value] || e.value}`;
+  return 'Santé';
+}
+
 function entryRowHtml(e){
+  if(e.type === 'sleep'){
+    const durationLabel = e.end != null
+      ? formatDuration(e.durationMin != null ? e.durationMin : (e.end - e.start) / 60000)
+      : 'En cours…';
+    const endLabel = e.end != null ? ' → ' + formatTimeFromTimestamp(e.end) : '';
+    return `
+    <div class="entry" data-id="${e.id}">
+      <div class="node sleep-node">🌙</div>
+      <div class="entry-card">
+        <div class="entry-main">
+          <div class="entry-time">${e.time}</div>
+          <div class="entry-details">
+            <div class="entry-sleep-label">Sommeil${endLabel} · ${durationLabel}</div>
+          </div>
+        </div>
+        <div class="entry-actions">
+          ${e.authorEmail ? `<div class="entry-author" title="${e.authorEmail}">${authorInitials(e.authorEmail)}</div>` : ''}
+          <button class="entry-del" data-del="${e.id}">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }
+  if(e.type === 'health'){
+    return `
+    <div class="entry" data-id="${e.id}">
+      <div class="node health-node">🩺</div>
+      <div class="entry-card">
+        <div class="entry-main">
+          <div class="entry-time">${e.time}</div>
+          <div class="entry-details">
+            <div class="entry-health-label">${healthKindLabel(e)}</div>
+            ${e.comment ? `<div class="entry-comment">💬 ${escapeHtml(e.comment)}</div>` : ''}
+          </div>
+        </div>
+        <div class="entry-actions">
+          ${e.authorEmail ? `<div class="entry-author" title="${e.authorEmail}">${authorInitials(e.authorEmail)}</div>` : ''}
+          <button class="entry-del" data-del="${e.id}">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }
   if(e.type === 'vomit'){
     return `
     <div class="entry" data-id="${e.id}">
@@ -2408,12 +3110,30 @@ function highlightMatch(text, query){
   return `${before}<mark>${match}</mark>${after}`;
 }
 
+let activeFilterType = 'all';
+function selectFilterType(type){
+  activeFilterType = type;
+  document.querySelectorAll('#search-filter-row .filter-chip').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-filter-type') === type);
+  });
+  renderCommentSearch();
+}
+
+function entrySearchSummaryLabel(e){
+  if(e.type === 'biberon') return `🍼 ${e.ml} ml` + (e.diaper !== 'none' ? ' · ' + diaperLabel(e.diaper) : '');
+  if(e.type === 'diaper') return `💧 ${diaperLabel(e.diaper)}`;
+  if(e.type === 'vomit') return '🤮 Vomissement';
+  if(e.type === 'sleep') return '🌙 Sommeil' + (e.end != null ? ' · ' + formatDuration(e.durationMin != null ? e.durationMin : (e.end - e.start) / 60000) : ' · en cours');
+  if(e.type === 'health') return healthKindLabel(e);
+  return '';
+}
+
 function renderCommentSearch(){
   const query = $('comment-search-input').value.trim();
   const resultsEl = $('comment-search-results');
   const mainBlock = $('calendar-main-block');
 
-  if(!query){
+  if(!query && activeFilterType === 'all'){
     resultsEl.innerHTML = '';
     mainBlock.classList.remove('hidden');
     return;
@@ -2422,19 +3142,20 @@ function renderCommentSearch(){
   mainBlock.classList.add('hidden');
 
   const matches = entries
-    .filter(e => e.comment && e.comment.toLowerCase().includes(query.toLowerCase()))
+    .filter(e => activeFilterType === 'all' || e.type === activeFilterType)
+    .filter(e => !query || (e.comment && e.comment.toLowerCase().includes(query.toLowerCase())))
     .sort((a,b) => b.timestamp - a.timestamp)
     .slice(0, 30);
 
   if(!matches.length){
-    resultsEl.innerHTML = `<div class="search-no-results">Aucun commentaire ne contient "${escapeHtml(query)}".</div>`;
+    resultsEl.innerHTML = `<div class="search-no-results">Aucun résultat.</div>`;
     return;
   }
 
   resultsEl.innerHTML = matches.map(e => `
     <div class="search-result-item" data-jump-day="${e.dayKey}">
       <div class="search-result-date">${formatShortDate(e.dayKey)} · ${e.time}</div>
-      <div class="search-result-comment">${highlightMatch(e.comment, query)}</div>
+      <div class="search-result-comment">${(e.comment && query) ? highlightMatch(e.comment, query) : escapeHtml(entrySearchSummaryLabel(e))}</div>
     </div>`).join('');
 
   resultsEl.querySelectorAll('[data-jump-day]').forEach(el => {
@@ -2444,6 +3165,10 @@ function renderCommentSearch(){
       calMonthDate = new Date(y, m-1, 1);
       selectedCalDay = dayKey;
       $('comment-search-input').value = '';
+      activeFilterType = 'all';
+      document.querySelectorAll('#search-filter-row .filter-chip').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-filter-type') === 'all');
+      });
       resultsEl.innerHTML = '';
       mainBlock.classList.remove('hidden');
       renderCalendar();
@@ -2726,6 +3451,81 @@ async function logVomit(){
   };
   await addEntryToDB(entry);
   showToast('Vomissement enregistré');
+}
+
+// --- Santé (fonctionnalité optionnelle) ---
+let selectedHealthKind = 'temperature';
+function selectHealthKind(val){
+  selectedHealthKind = val;
+  document.querySelectorAll('#health-type-row .diaper-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-val') === val);
+  });
+  $('health-temperature-field').classList.toggle('hidden', val !== 'temperature');
+  $('health-stool-field').classList.toggle('hidden', val !== 'stool');
+}
+
+let selectedStoolVal = 'normale';
+function selectStool(val){
+  selectedStoolVal = val;
+  document.querySelectorAll('#health-stool-row .diaper-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-val') === val);
+  });
+}
+
+function resetHealthForm(){
+  selectHealthKind('temperature');
+  selectStool('normale');
+  $('health-temperature-input').value = '';
+  $('health-date-input').value = dateInputVal(new Date());
+  $('health-time-input').value = nowTimeStr();
+  $('health-comment-input').value = '';
+}
+
+function openHealthModal(){
+  resetHealthForm();
+  openModal('health-modal-overlay');
+}
+function closeHealthModal(){
+  closeModal('health-modal-overlay');
+}
+
+async function saveHealthEntry(){
+  const dateVal = $('health-date-input').value;
+  const timeVal = $('health-time-input').value;
+  if(!dateVal || !timeVal){
+    showToast('Merci de renseigner le jour et l\'heure');
+    return;
+  }
+  const [y, mo, d] = dateVal.split('-').map(Number);
+  const [h, mi] = timeVal.split(':').map(Number);
+  const entryDate = new Date(y, mo - 1, d, h, mi);
+
+  let value = null;
+  if(selectedHealthKind === 'temperature'){
+    const t = parseFloat($('health-temperature-input').value);
+    if(isNaN(t)){
+      showToast('Merci de renseigner une température');
+      return;
+    }
+    value = t;
+  }else if(selectedHealthKind === 'stool'){
+    value = selectedStoolVal;
+  }
+
+  const entry = {
+    id: Date.now(),
+    type: 'health',
+    kind: selectedHealthKind,
+    value: value,
+    time: timeVal,
+    timestamp: entryDate.getTime(),
+    dayKey: dateVal,
+    comment: $('health-comment-input').value.trim(),
+    authorEmail: auth.currentUser ? auth.currentUser.email : null
+  };
+  await addEntryToDB(entry);
+  showToast('Entrée santé enregistrée');
+  closeHealthModal();
 }
 
 let editingDiaperId = null;
@@ -3039,6 +3839,65 @@ $('diaper-modal-overlay').addEventListener('click', (e) => {
   if(e.target.id === 'diaper-modal-overlay') cancelEditDiaper();
 });
 
+// --- Fonctionnalités optionnelles : toggles des paramètres ---
+$('feature-toggle-sleep').addEventListener('click', () => toggleFamilyFeature('sleep'));
+$('feature-toggle-health').addEventListener('click', () => toggleFamilyFeature('health'));
+$('feature-toggle-vaccines').addEventListener('click', () => toggleFamilyFeature('vaccines'));
+
+// --- Sommeil ---
+$('sleep-log-btn').addEventListener('click', toggleSleep);
+
+// --- Santé ---
+document.querySelectorAll('#health-type-row .diaper-btn').forEach(btn => {
+  btn.addEventListener('click', () => selectHealthKind(btn.getAttribute('data-val')));
+});
+document.querySelectorAll('#health-stool-row .diaper-btn').forEach(btn => {
+  btn.addEventListener('click', () => selectStool(btn.getAttribute('data-val')));
+});
+$('health-log-btn').addEventListener('click', openHealthModal);
+$('health-now-btn').addEventListener('click', () => { $('health-time-input').value = nowTimeStr(); });
+$('health-save-btn').addEventListener('click', saveHealthEntry);
+$('health-modal-close-btn').addEventListener('click', closeHealthModal);
+$('health-modal-overlay').addEventListener('click', (e) => {
+  if(e.target.id === 'health-modal-overlay') closeHealthModal();
+});
+
+// --- Résumé du jour ---
+$('share-summary-btn').addEventListener('click', shareDailySummary);
+
+// --- Filtres de recherche (Calendrier) ---
+document.querySelectorAll('#search-filter-row .filter-chip').forEach(btn => {
+  btn.addEventListener('click', () => selectFilterType(btn.getAttribute('data-filter-type')));
+});
+
+// --- Sexe (Profil, pour le percentile) ---
+document.querySelectorAll('#profile-gender-row .diaper-btn').forEach(btn => {
+  btn.addEventListener('click', () => selectGender(btn.getAttribute('data-val')));
+});
+
+// --- Vaccins & rendez-vous ---
+$('vaccine-add-btn').addEventListener('click', addVaccine);
+
+// --- Souvenirs & photos ---
+$('milestone-add-btn').addEventListener('click', openMilestoneModal);
+$('milestone-modal-close-btn').addEventListener('click', closeMilestoneModal);
+$('milestone-modal-overlay').addEventListener('click', (e) => {
+  if(e.target.id === 'milestone-modal-overlay') closeMilestoneModal();
+});
+$('milestone-save-btn').addEventListener('click', saveMilestone);
+$('milestone-photo-input').addEventListener('change', async () => {
+  const file = $('milestone-photo-input').files[0];
+  if(!file) return;
+  try{
+    milestonePhotoDataUrl = await compressImageFile(file, 900, 0.72);
+    const preview = $('milestone-photo-preview');
+    preview.src = milestonePhotoDataUrl;
+    preview.classList.remove('hidden');
+  }catch(e){
+    showToast('Impossible de charger cette photo');
+  }
+});
+
 document.querySelectorAll('#quick-ml button').forEach(btn => {
   btn.addEventListener('click', () => {
     $('ml-input').value = btn.getAttribute('data-ml');
@@ -3164,6 +4023,8 @@ setDateOffset(0);
 setNow();
 $('growth-date-input').value = dateInputVal(new Date());
 resetDiaperForm();
+resetHealthForm();
+resetMilestoneForm();
 loadReminderPrefs();
 
 setInterval(() => {
