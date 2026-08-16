@@ -26,15 +26,24 @@
     --ink-faint: #9db1c9;
     --milk: #4576ab;
     --milk-dim: #dce8f6;
+    --milk-light: #5f8fc7;
+    --milk-deep: #345d84;
     --diaper: #3d6a94;
     --diaper-dim: #d3e3f2;
+    --diaper-light: #5987ae;
     --vomit: #b54a3f;
     --vomit-dim: #f6e2de;
+    --vomit-light: #c66657;
     --sage: #7fa5c9;
+    --sage-light: #9bbdd9;
     --line: #e2eaf3;
-    --radius: 18px;
+    --radius: 20px;
     --bg-glow: #e4eefb;
+    --bg-glow-2: #eef0fb;
     --who-band: #a8c4de;
+    --shadow-card: 0 4px 16px -8px rgba(30,58,92,.14);
+    --shadow-lift: 0 10px 26px -10px rgba(30,58,92,.22);
+    --shadow-hero: 0 18px 36px -14px rgba(52,93,132,.4);
   }
   html[data-theme="dark"]{
     --bg: #0e1826;
@@ -46,19 +55,29 @@
     --ink-faint: #5d7291;
     --milk: #6fa3d8;
     --milk-dim: #203955;
+    --milk-light: #8cbae8;
+    --milk-deep: #4a7cae;
     --diaper: #4c7aab;
     --diaper-dim: #1c2f47;
+    --diaper-light: #6690b8;
     --vomit: #d9836f;
     --vomit-dim: #3a2018;
+    --vomit-light: #e29985;
     --sage: #6fa3d8;
+    --sage-light: #8cbae8;
     --line: #223752;
     --bg-glow: #16253a;
+    --bg-glow-2: #1a2540;
     --who-band: #2c4a68;
+    --shadow-card: 0 4px 16px -8px rgba(0,0,0,.4);
+    --shadow-lift: 0 10px 26px -10px rgba(0,0,0,.5);
+    --shadow-hero: 0 18px 36px -14px rgba(0,0,0,.55);
   }
   *{ box-sizing: border-box; }
   html,body{ margin:0; padding:0; }
   body{
     background:
+      radial-gradient(600px 400px at 88% -6%, var(--bg-glow-2) 0%, transparent 60%),
       radial-gradient(ellipse 900px 500px at 50% -10%, var(--bg-glow) 0%, var(--bg) 55%);
     color: var(--ink);
     font-family: 'Plus Jakarta Sans', sans-serif;
@@ -94,19 +113,21 @@
     flex-shrink:0; width:38px; height:38px;
   }
   .app-header-avatar{
-    border-radius:50%; background: var(--bg-2); color: var(--ink-dim);
+    border-radius:50%; background: linear-gradient(145deg, var(--milk-light), var(--milk-deep)); color:#ffffff;
     border:none; padding:0; cursor:pointer; overflow:hidden;
     display:flex; align-items:center; justify-content:center;
     font-family:'Plus Jakarta Sans'; font-weight:700; font-size:14px; text-transform:uppercase;
+    box-shadow: 0 4px 12px -3px rgba(52,93,132,.5);
     transition: transform .12s ease;
   }
   .app-header-avatar:active{ transform: scale(0.9); }
   .app-header-avatar span{ display:flex; align-items:center; justify-content:center; width:100%; height:100%; }
   .app-header-avatar img{ width:38px; height:38px; object-fit:cover; display:block; border-radius:50%; }
   .menu-btn{
-    background:none; border:none; padding:0; color: var(--ink);
+    background: var(--card); border:none; border-radius:12px; padding:0; color: var(--ink);
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
-    cursor:pointer; transition: color .15s ease, transform .12s ease;
+    cursor:pointer; box-shadow: var(--shadow-card);
+    transition: color .15s ease, transform .12s ease;
   }
   .menu-btn:active{ transform: scale(0.9); }
   .menu-btn-line{
@@ -121,24 +142,56 @@
   .stats{
     margin-bottom:22px;
   }
-  .hero-row{ display:flex; gap:10px; align-items:stretch; margin-bottom:10px; }
-  #stat-hero-container{ flex:1.6; display:flex; }
+  #stat-hero-container{ display:flex; margin-bottom:18px; }
   .stat-hero{
-    background: var(--milk); color:#ffffff; border-radius: var(--radius);
-    padding: 18px 20px; display:flex; align-items:baseline; justify-content:space-between;
+    position:relative; overflow:hidden;
+    background: linear-gradient(135deg, var(--milk-light) 0%, var(--milk) 60%, var(--milk-deep) 100%);
+    color:#ffffff; border-radius: var(--radius);
+    padding: 20px 20px 18px; display:flex; flex-direction:column; align-items:flex-start;
     flex:1;
+    box-shadow: var(--shadow-hero);
   }
-  .stat-hero .num{ font-family:'Plus Jakarta Sans', sans-serif; font-size: 34px; font-weight:600; }
+  .stat-hero::before{
+    content:''; position:absolute; width:150px; height:150px; border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, rgba(255,255,255,.35), rgba(255,255,255,0) 70%);
+    top:-60px; right:-40px; pointer-events:none;
+  }
+  .stat-hero::after{
+    content:''; position:absolute; width:90px; height:90px; border-radius:50%;
+    background:radial-gradient(circle at 40% 40%, rgba(255,255,255,.2), rgba(255,255,255,0) 70%);
+    bottom:-35px; left:-25px; pointer-events:none;
+  }
+  .stat-hero .num{ position:relative; font-family:'Plus Jakarta Sans', sans-serif; font-size: 34px; font-weight:700; letter-spacing:-.01em; }
   .stat-hero .lbl{
-    font-size: 11px; text-transform:uppercase; letter-spacing:.1em; opacity:.85;
+    position:relative; font-size: 11px; text-transform:uppercase; letter-spacing:.1em; opacity:.9; font-weight:600;
   }
   #age-hero{ justify-content:center; text-align:center; margin-bottom:10px; }
+  .today-hero-top{ position:relative; display:flex; align-items:center; gap:14px; width:100%; margin-bottom:20px; }
+  .today-hero-icon{
+    flex-shrink:0; width:46px; height:46px; border-radius:15px;
+    background:rgba(255,255,255,.18); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.3);
+  }
+  .bento-row{ position:relative; width:100%; display:grid; grid-template-columns:1.5fr 1fr; gap:9px; }
+  .bento-wide{
+    grid-row: span 2; background:rgba(255,255,255,.15); border-radius:15px; padding:13px 15px;
+    display:flex; flex-direction:column; justify-content:space-between;
+  }
+  .bento-wide .v{ font-size:20px; font-weight:800; }
+  .bento-wide .l{ font-size:9.5px; text-transform:uppercase; letter-spacing:.08em; opacity:.85; margin-top:2px; }
+  .bento-spark{ display:flex; align-items:flex-end; gap:3px; height:20px; margin-top:8px; }
+  .bento-spark i{ display:block; width:6px; min-height:4px; border-radius:2px; background:rgba(255,255,255,.55); }
+  .bento-small{ background:rgba(255,255,255,.15); border-radius:15px; padding:11px 13px; }
+  .bento-small .v{ font-size:17px; font-weight:800; }
+  .bento-small .l{ font-size:9px; text-transform:uppercase; letter-spacing:.05em; opacity:.85; margin-top:1px; }
   .stats-row{
     display:grid; grid-template-columns: repeat(3,1fr); gap:10px; margin-bottom:22px;
   }
   .stat{
     background: var(--card); border:1px solid var(--line); border-radius: var(--radius);
     padding: 14px 10px; text-align:center;
+    box-shadow: var(--shadow-card);
   }
   .stat .num{ font-family:'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight:600; }
   .stat .lbl{ font-size: 10.5px; color: var(--ink-faint); margin-top:2px; text-transform:uppercase; letter-spacing:.06em; }
@@ -154,6 +207,7 @@
   .card{
     background: var(--card); border:1px solid var(--line); border-radius: var(--radius);
     padding: 20px; margin-bottom: 20px;
+    box-shadow: var(--shadow-card);
   }
   .card h2{
     font-family:'Plus Jakarta Sans', sans-serif; font-size:16px; font-weight:600; margin:0 0 14px 0;
@@ -228,22 +282,30 @@
   .diaper-btn.active{ background: var(--diaper-dim); color: var(--diaper); border-color: var(--diaper); font-weight:700; }
   .diaper-btn.active .ic{ transform: scale(1.15); }
 
-  .quick-actions-col{ flex:1; display:flex; flex-direction:column; gap:8px; }
-  .quick-action-btn{
-    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
-    padding: 4px 6px; border-radius: var(--radius); cursor:pointer; font-family:'Plus Jakarta Sans';
-    font-size:10px; font-weight:700; text-align:center; line-height:1.2;
+  .quick-action-bar{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:20px; }
+  .quick-action-bar:empty{ display:none; margin-bottom:0; }
+  .qa-btn{
+    display:flex; flex-direction:column; align-items:center; gap:7px;
+    background: var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:13px 4px 10px; cursor:pointer; font-family:'Plus Jakarta Sans';
+    font-size:11px; font-weight:700; color: var(--ink-dim); text-align:center;
+    box-shadow: var(--shadow-card);
     transition: transform .1s ease;
   }
-  .quick-action-btn .action-ic{ font-size:18px; }
-  .quick-action-btn:active{ transform: scale(0.94); }
-  .vomit-log-btn{ background: var(--vomit-dim); border:1px solid var(--vomit); color: var(--vomit); }
-  .diaper-log-btn{ background: var(--milk-dim); border:1px solid var(--milk); color: var(--milk); }
+  .qa-btn:active{ transform: scale(0.95); }
+  .qa-ic{
+    width:36px; height:36px; border-radius:12px; color:#ffffff;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.3);
+  }
+  .diaper-log-btn .qa-ic{ background: linear-gradient(145deg, var(--milk-light), var(--milk-deep)); }
+  .vomit-log-btn .qa-ic{ background: linear-gradient(145deg, var(--vomit-light), var(--vomit)); }
 
   .save-btn{
-    width:100%; margin-top:20px; background: var(--milk); color: #ffffff;
+    width:100%; margin-top:20px; background: linear-gradient(135deg, var(--milk-light), var(--milk-deep)); color: #ffffff;
     border:none; padding:15px; border-radius:14px; font-family:'Plus Jakarta Sans'; font-weight:700;
     font-size:15px; cursor:pointer; letter-spacing:.01em;
+    box-shadow: 0 10px 22px -10px rgba(52,93,132,.55);
   }
   .save-btn:active{ transform: scale(0.99); }
 
@@ -252,6 +314,7 @@
     font-size:12px; color: var(--ink-faint); text-transform:uppercase; letter-spacing:.08em;
     margin: 26px 0 12px 4px;
   }
+  .today-timeline-head .day-label{ margin:0; }
   .timeline{ position:relative; padding-left: 26px; }
   .timeline::before{
     content:''; position:absolute; left:9px; top:6px; bottom:6px; width:1.5px;
@@ -264,8 +327,9 @@
     display:flex; align-items:center; justify-content:center;
   }
   .entry-card{
-    background: var(--card); border:1px solid var(--line); border-radius:14px;
+    background: var(--card); border:1px solid var(--line); border-radius:16px;
     padding: 12px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+    box-shadow: var(--shadow-card);
   }
   .entry-card-clickable{ cursor:pointer; transition: background-color .12s ease, transform .12s ease; }
   .entry-card-clickable:active{ background: var(--card-hover); transform: scale(0.985); }
@@ -298,8 +362,9 @@
 
   .fab{
     position:fixed; right:20px; bottom: calc(22px + env(safe-area-inset-bottom));
-    width:56px; height:56px; border-radius:50%; background: var(--milk); color:#ffffff;
-    border:none; box-shadow: 0 8px 20px rgba(0,0,0,.25); display:flex; align-items:center;
+    width:58px; height:58px; border-radius:19px;
+    background: linear-gradient(145deg, var(--milk-light), var(--milk-deep)); color:#ffffff;
+    border:none; box-shadow: var(--shadow-hero); display:flex; align-items:center;
     justify-content:center; cursor:pointer; z-index:20;
     transition: background-color .3s ease, transform .28s cubic-bezier(.34,1.56,.64,1);
   }
@@ -364,6 +429,7 @@
   .settings-section{
     background: var(--card); border:1px solid var(--line); border-radius: var(--radius);
     margin-bottom:12px; overflow:hidden;
+    box-shadow: var(--shadow-card);
     transition: border-color .15s ease;
   }
   .settings-section-title{
@@ -376,9 +442,13 @@
     flex-shrink:0; width:36px; height:36px; border-radius:11px;
     background: var(--bg-2); color: var(--ink-dim);
     display:flex; align-items:center; justify-content:center;
-    transition: background-color .15s ease, color .15s ease;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.4);
+    transition: background .15s ease, color .15s ease, box-shadow .15s ease;
   }
-  .settings-section.expanded .settings-section-title .icon{ background: var(--milk); color:#ffffff; }
+  .settings-section.expanded .settings-section-title .icon{
+    background: linear-gradient(145deg, var(--milk-light), var(--milk-deep)); color:#ffffff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 4px 10px -4px rgba(52,93,132,.5);
+  }
   .settings-section-title .chevron{
     margin-left:auto; flex-shrink:0; color: var(--ink-faint);
     display:flex; transition: transform .25s ease;
@@ -550,39 +620,29 @@
   .switch.active{ background: var(--milk); border-color: var(--milk); }
   .switch.active::after{ transform: translateX(18px); background:#ffffff; }
 
-  /* Actions secondaires (sommeil / santé) */
-  .secondary-actions-row{ display:flex; gap:8px; margin-bottom:14px; }
-  .secondary-actions-row:empty{ margin-bottom:0; }
-  .secondary-action-btn{
-    flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
-    padding:12px; border-radius:12px; cursor:pointer; font-family:'Plus Jakarta Sans';
-    font-weight:600; font-size:12.5px; transition: transform .1s ease;
-  }
-  .secondary-action-btn:active{ transform: scale(0.97); }
-
   /* Sommeil */
-  .sleep-log-btn{ background: var(--bg-2); border:1px solid var(--ink-faint); color: var(--ink-dim); }
-  .sleep-log-btn.sleeping{
-    background: #2c3a52; border-color:#2c3a52; color:#ffffff;
+  .sleep-log-btn .qa-ic{ background: linear-gradient(145deg, var(--sage-light), var(--sage)); }
+  .sleep-log-btn.sleeping{ color: var(--ink); }
+  .sleep-log-btn.sleeping .qa-ic{
+    background:#2c3a52; color:#ffffff;
     animation: heroPulse 1.8s ease-in-out infinite;
   }
   .entry-sleep-label{ font-size:14px; color:#5d6fae; font-weight:600; }
   .entry .node.sleep-node{ background:#dfe3f6; }
 
   /* Santé */
-  .health-log-btn{ background: var(--vomit-dim); border:1px solid var(--vomit); color: var(--vomit); }
+  .health-log-btn .qa-ic{ background: linear-gradient(145deg, var(--vomit-light), var(--vomit)); }
   .health-type-row{ display:grid; grid-template-columns: repeat(3,1fr); gap:8px; }
   .entry-health-label{ font-size:14px; font-weight:600; color: var(--vomit); }
   .entry .node.health-node{ background: var(--vomit-dim); }
 
   /* Partage du résumé du jour */
+  .today-timeline-head{ display:flex; align-items:baseline; justify-content:space-between; margin:4px 4px 12px; }
   .share-summary-btn{
-    width:100%; background: var(--bg-2); border:1px solid var(--line); color: var(--ink-dim);
-    font-family:'Plus Jakarta Sans'; font-weight:600; font-size:12.5px; padding:11px 14px;
-    border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;
-    margin-bottom:18px;
+    background:none; border:none; color: var(--ink-dim);
+    font-family:'Plus Jakarta Sans'; font-weight:700; font-size:11.5px;
+    cursor:pointer; display:flex; align-items:center; gap:4px; padding:0;
   }
-  .share-summary-btn:active{ background: var(--card-hover); }
 
   /* Filtres de recherche */
   .filter-chip-row{ display:flex; gap:6px; overflow-x:auto; margin:10px 0 4px; scrollbar-width:none; }
@@ -669,11 +729,15 @@
     flex-shrink:0; width:36px; height:36px; border-radius:11px;
     background: var(--bg-2); color: var(--ink-dim);
     display:flex; align-items:center; justify-content:center;
-    transition: background-color .15s ease, color .15s ease;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.4);
+    transition: background .15s ease, color .15s ease, box-shadow .15s ease;
   }
   .menu-item:active{ background: var(--bg-2); }
   .menu-item.active{ color: var(--milk); }
-  .menu-item.active .ic{ background: var(--milk); color:#ffffff; }
+  .menu-item.active .ic{
+    background: linear-gradient(145deg, var(--milk-light), var(--milk-deep)); color:#ffffff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 4px 10px -4px rgba(52,93,132,.5);
+  }
   .view{ display:none; }
   .view.active{ display:block; }
   .view{ transition: transform .2s ease, opacity .2s ease; }
@@ -1118,31 +1182,34 @@
   </div>
 
   <div class="view active" id="view-today">
-    <div class="hero-row">
-      <div id="stat-hero-container"></div>
-      <div class="quick-actions-col">
-        <button class="quick-action-btn vomit-log-btn" id="vomit-log-btn" type="button">
-          <span class="action-ic">🤮</span>
-          <span>Vomissement</span>
-        </button>
-        <button class="quick-action-btn diaper-log-btn" id="diaper-log-btn" type="button">
-          <span class="action-ic">💧</span>
-          <span>Couche seule</span>
-        </button>
-      </div>
-    </div>
-    <div class="secondary-actions-row">
-      <button class="secondary-action-btn sleep-log-btn hidden" id="sleep-log-btn" type="button">
-        <span>🌙</span>
+    <div id="stat-hero-container"></div>
+
+    <div class="quick-action-bar">
+      <button class="qa-btn diaper-log-btn" id="diaper-log-btn" type="button">
+        <span class="qa-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-3 4-6 8-6 11.5A6 6 0 0 0 12 21a6 6 0 0 0 6-6.5C18 11 15 7 12 3z"/></svg></span>
+        Couche
+      </button>
+      <button class="qa-btn vomit-log-btn" id="vomit-log-btn" type="button">
+        <span class="qa-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/><path d="M3 17c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/></svg></span>
+        Vomi
+      </button>
+      <button class="qa-btn sleep-log-btn hidden" id="sleep-log-btn" type="button">
+        <span class="qa-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></span>
         <span id="sleep-log-btn-label">Sommeil</span>
       </button>
-      <button class="secondary-action-btn health-log-btn hidden" id="health-log-btn" type="button">
-        <span>🩺</span>
-        <span>Santé</span>
+      <button class="qa-btn health-log-btn hidden" id="health-log-btn" type="button">
+        <span class="qa-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg></span>
+        Santé
       </button>
     </div>
-    <button class="share-summary-btn" id="share-summary-btn" type="button">📤 Partager le résumé du jour</button>
-    <div class="stats-row" id="stats-row"></div>
+
+    <div class="today-timeline-head">
+      <div class="day-label">Aujourd'hui</div>
+      <button class="share-summary-btn" id="share-summary-btn" type="button">
+        Partager
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>
+      </button>
+    </div>
 
     <div id="timeline-container"></div>
   </div>
@@ -3198,18 +3265,35 @@ function renderStats(){
 
   const overdue = reminderEnabled && minutesSinceLast !== null && minutesSinceLast >= reminderThresholdMinutes;
 
+  const sparkBars = bottlesToday.slice(-7);
+  const maxMl = Math.max(1, ...sparkBars.map(e => e.ml || 0));
+  const sparkHtml = sparkBars.length
+    ? `<div class="bento-spark">${sparkBars.map(e => `<i style="height:${Math.max(18, Math.round((e.ml || 0) / maxMl * 100))}%"></i>`).join('')}</div>`
+    : '';
+
   $('stat-hero-container').innerHTML = `
     <div class="stat-hero${overdue ? ' overdue' : ''}">
-      <div>
-        <div class="lbl">Dernier biberon</div>
-        <div class="num">${lastAgo}</div>
+      <div class="today-hero-top">
+        <div class="today-hero-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h4"/><path d="M10.5 2v3c0 .7-.4 1.1-.9 1.6-1 .9-1.6 1.9-1.6 3.4v9c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-9c0-1.5-.6-2.5-1.6-3.4-.5-.5-.9-.9-.9-1.6V2"/><line x1="8.5" y1="12.5" x2="15.5" y2="12.5"/></svg>
+        </div>
+        <div>
+          <div class="lbl">Dernier biberon</div>
+          <div class="num">${lastAgo}</div>
+        </div>
+      </div>
+      <div class="bento-row">
+        <div class="bento-wide">
+          <div>
+            <div class="v">${totalMl} ml</div>
+            <div class="l">Aujourd'hui</div>
+          </div>
+          ${sparkHtml}
+        </div>
+        <div class="bento-small"><div class="v">${feedCount} / ${diaperCount}</div><div class="l">Bib. / Couches</div></div>
+        <div class="bento-small"><div class="v">${vomitCount}</div><div class="l">Vomissements</div></div>
       </div>
     </div>
-  `;
-  $('stats-row').innerHTML = `
-    <div class="stat"><div class="num">${totalMl} ml</div><div class="lbl">Aujourd'hui</div></div>
-    <div class="stat"><div class="num">${feedCount} / ${diaperCount}</div><div class="lbl">Bib. / Couches</div></div>
-    <div class="stat"><div class="num">${vomitCount}</div><div class="lbl">Vomissements</div></div>
   `;
 
   checkReminderNotification(overdue, lastBottleTimestamp);
