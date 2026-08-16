@@ -512,8 +512,9 @@
   .same-as-last-btn:active{ background: var(--card-hover); transform: scale(0.96); }
   .backup-hint{ font-size:12.5px; color: var(--ink-dim); line-height:1.5; margin:0; }
   .settings-section{
-    background: var(--card); border:1px solid var(--line); border-radius: var(--radius);
+    background: var(--glass-bg); border:1px solid var(--glass-border); border-radius: var(--radius);
     margin-bottom:12px; overflow:hidden;
+    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
     box-shadow: var(--shadow-card);
     transition: border-color .15s ease;
   }
@@ -560,7 +561,8 @@
   }
   .back-btn{
     flex-shrink:0; width:36px; height:36px; border-radius:12px;
-    background: var(--card); border:1px solid var(--line); color: var(--ink);
+    background: var(--glass-bg); border:1px solid var(--glass-border); color: var(--ink);
+    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
     display:flex; align-items:center; justify-content:center; cursor:pointer;
     transition: background-color .15s ease, transform .12s ease;
   }
@@ -643,7 +645,8 @@
 
   .toast{
     position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
-    background: var(--card); border:1px solid var(--line); color: var(--ink);
+    background: var(--glass-bg-strong); border:1px solid var(--glass-border); color: var(--ink);
+    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
     padding:12px 20px; border-radius:30px; font-size:13px; opacity:0; pointer-events:none;
     transition: all .25s ease; box-shadow: 0 10px 30px rgba(0,0,0,.4);
   }
@@ -660,7 +663,8 @@
   .children-page-list{ display:flex; flex-direction:column; gap:10px; }
   .child-page-card{
     display:flex; align-items:center; gap:12px; width:100%; text-align:left;
-    background: var(--card); border:1px solid var(--line); border-radius: var(--radius);
+    background: var(--glass-bg); border:1px solid var(--glass-border); border-radius: var(--radius);
+    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
     padding:12px 16px; cursor:pointer; font-family:'Plus Jakarta Sans';
     transition: border-color .15s ease, background-color .15s ease;
   }
@@ -710,7 +714,8 @@
 
   /* Fonctionnalités — page dédiée depuis le menu */
   .feature-page-card{
-    background: var(--card); border:1px solid var(--line); border-radius: var(--radius);
+    background: var(--glass-bg); border:1px solid var(--glass-border); border-radius: var(--radius);
+    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
     padding:18px; margin-bottom:14px;
   }
   .feature-page-card-head{ display:flex; align-items:center; gap:12px; }
@@ -762,7 +767,8 @@
   .filter-chip-row::-webkit-scrollbar{ display:none; }
   .filter-chip{
     flex-shrink:0; display:inline-flex; align-items:center; gap:4px;
-    background: var(--card); border:1px solid var(--line); color: var(--ink-dim);
+    background: var(--glass-bg); border:1px solid var(--glass-border); color: var(--ink-dim);
+    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
     font-family:'Plus Jakarta Sans'; font-weight:600; font-size:11.5px; padding:7px 13px;
     border-radius:999px; cursor:pointer; white-space:nowrap;
   }
@@ -790,7 +796,8 @@
   /* Souvenirs / étapes clés */
   .milestone-grid{ display:grid; grid-template-columns: repeat(2,1fr); gap:10px; margin-top:14px; }
   .milestone-card{
-    background: var(--bg-2); border:1px solid var(--line); border-radius:14px; overflow:hidden; position:relative;
+    background: var(--glass-bg); border:1px solid var(--glass-border); border-radius:14px; overflow:hidden; position:relative;
+    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
   }
   .milestone-photo{ width:100%; aspect-ratio:1; object-fit:cover; display:block; background: var(--card-hover); }
   .milestone-info{ padding:8px 10px; }
@@ -871,7 +878,7 @@
   }
   .search-field-wrap input::placeholder{ color: var(--ink-faint); }
   .search-result-item{
-    background: var(--card); border:1px solid var(--line); border-radius:14px;
+    background: var(--glass-bg); border:1px solid var(--glass-border); border-radius:14px;
     padding:12px 14px; margin-bottom:10px; cursor:pointer;
     transition: background-color .12s ease, transform .12s ease;
   }
@@ -887,8 +894,9 @@
     display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;
   }
   .cal-nav-btn{
-    width:38px; height:38px; border-radius:50%; border:1px solid var(--line);
-    background: var(--card); color: var(--ink); font-size:16px; cursor:pointer;
+    width:38px; height:38px; border-radius:50%; border:1px solid var(--glass-border);
+    background: var(--glass-bg); color: var(--ink); font-size:16px; cursor:pointer;
+    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
     transition: background-color .15s ease, transform .1s ease;
   }
   .cal-nav-btn:active{ background: var(--card-hover); transform: scale(0.88); }
@@ -910,7 +918,7 @@
     padding-bottom:4px;
   }
   .cal-day{
-    aspect-ratio:1; border-radius:10px; border:1px solid transparent; background: var(--card);
+    aspect-ratio:1; border-radius:10px; border:1px solid transparent; background: var(--glass-bg);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     cursor:pointer; font-size:13px; color: var(--ink-dim); gap:3px; position:relative;
   }
@@ -935,7 +943,8 @@
   .chart-scroll{
     position:relative;
     overflow-x:auto; -webkit-overflow-scrolling:touch;
-    background: var(--card); border:1px solid var(--line); border-radius: var(--radius);
+    background: var(--glass-bg); border:1px solid var(--glass-border); border-radius: var(--radius);
+    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
     padding: 18px 6px 10px;
   }
   @keyframes chartFadeIn{
