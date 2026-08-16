@@ -1239,9 +1239,15 @@ db.ref('.info/connected').on('value', (snap) => {
   if(banner) banner.classList.toggle('off-hidden', connected);
 });
 
+// Aucun sw.js n'est fourni par cette app (pas de mode hors-ligne avec cache).
+// On désinscrit activement tout service worker resté enregistré depuis une
+// ancienne version, sinon il continue de servir une version de l'app figée
+// dans le temps à chaque visite, même après une mise à jour du site.
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    navigator.serviceWorker.getRegistrations()
+      .then(regs => regs.forEach(reg => reg.unregister()))
+      .catch(() => {});
   });
 }
 
@@ -2843,7 +2849,7 @@ function checkReminderNotification(overdue, lastBottleTimestamp){
   const title = `${getChildFirstName() || DEFAULT_SITE_NAME} a peut-être faim`;
   const body = `Ça fait plus de ${(reminderThresholdMinutes/60).toFixed(1).replace('.0','').replace('.', ',')} h depuis le dernier biberon.`;
 
-  if(navigator.serviceWorker && navigator.serviceWorker.ready){
+  if(navigator.serviceWorker && navigator.serviceWorker.controller){
     navigator.serviceWorker.ready.then(reg => reg.showNotification(title, { body, icon: undefined }));
   }else{
     try{ new Notification(title, { body }); }catch(e){}
