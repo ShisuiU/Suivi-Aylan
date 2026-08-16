@@ -1413,6 +1413,24 @@
       <button class="save-btn" id="milestone-save-btn" type="button">Enregistrer</button>
     </div>
   </div>
+
+  <div class="modal-overlay hidden" id="add-child-modal-overlay">
+    <div class="modal-panel">
+      <button class="modal-close-btn" id="add-child-modal-close-btn" aria-label="Fermer">✕</button>
+      <h2>Ajouter un enfant</h2>
+
+      <label class="field-label">Prénom(s)</label>
+      <input class="login-field" type="text" id="add-child-firstname-input" placeholder="Prénom(s)" autocomplete="off" autocapitalize="words">
+
+      <label class="field-label">Nom</label>
+      <input class="login-field" type="text" id="add-child-lastname-input" placeholder="Nom" autocomplete="off" autocapitalize="words">
+
+      <label class="field-label">Date de naissance</label>
+      <div class="date-field" style="margin-bottom:16px;"><input type="date" id="add-child-birthdate-input"></div>
+
+      <button class="save-btn" id="add-child-save-btn" type="button">Ajouter</button>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1812,20 +1830,44 @@ function renderChildrenPage(){
   }).join('');
 }
 
-async function addChild(){
+async function addChild(profile){
   const maxOrder = childrenList.reduce((m, c) => Math.max(m, c.order || 0), -1);
   const childId = generateId('child');
   try{
     await db.ref('families/' + currentFamilyId + '/children/' + childId).set({
-      profile: {},
+      profile: profile || {},
       meta: { order: maxOrder + 1, createdAt: Date.now() }
     });
     switchToChild(childId);
-    switchView('children');
-    showToast('Enfant ajouté — renseigne son prénom');
+    showToast('Enfant ajouté');
   }catch(e){
     showToast("Erreur lors de l'ajout");
   }
+}
+
+function openAddChildModal(){
+  $('add-child-firstname-input').value = '';
+  $('add-child-lastname-input').value = '';
+  $('add-child-birthdate-input').value = '';
+  openModal('add-child-modal-overlay');
+}
+
+function closeAddChildModal(){
+  closeModal('add-child-modal-overlay');
+}
+
+async function confirmAddChild(){
+  const firstName = $('add-child-firstname-input').value.trim();
+  const lastName = $('add-child-lastname-input').value.trim();
+  const birthDate = $('add-child-birthdate-input').value;
+
+  if(!firstName){
+    showToast('Le prénom est obligatoire');
+    return;
+  }
+
+  await addChild({ firstName, lastName, birthDate });
+  closeAddChildModal();
 }
 
 let deleteChildArmed = false;
@@ -3982,7 +4024,7 @@ $('profile-delete-child-btn').addEventListener('click', () => {
   deleteCurrentChild();
 });
 $('child-switcher').addEventListener('click', (ev) => {
-  if(ev.target.closest('#child-add-btn')){ addChild(); return; }
+  if(ev.target.closest('#child-add-btn')){ openAddChildModal(); return; }
   const chip = ev.target.closest('[data-child]');
   if(chip) switchToChild(chip.getAttribute('data-child'));
 });
@@ -3990,7 +4032,12 @@ $('children-list-page').addEventListener('click', (ev) => {
   const card = ev.target.closest('[data-child]');
   if(card) switchToChild(card.getAttribute('data-child'));
 });
-$('children-add-btn').addEventListener('click', addChild);
+$('children-add-btn').addEventListener('click', openAddChildModal);
+$('add-child-modal-close-btn').addEventListener('click', closeAddChildModal);
+$('add-child-modal-overlay').addEventListener('click', (e) => {
+  if(e.target.id === 'add-child-modal-overlay') closeAddChildModal();
+});
+$('add-child-save-btn').addEventListener('click', confirmAddChild);
 $('growth-save-btn').addEventListener('click', saveGrowthEntry);
 $('growth-cancel-btn').addEventListener('click', cancelEditGrowth);
 $('export-json-btn').addEventListener('click', exportDataJSON);
