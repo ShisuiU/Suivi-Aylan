@@ -166,7 +166,11 @@
     position:relative; font-size: 11px; text-transform:uppercase; letter-spacing:.1em; opacity:.9; font-weight:600;
   }
   #age-hero{ justify-content:center; text-align:center; margin-bottom:10px; }
-  .today-hero-top{ position:relative; display:flex; align-items:center; gap:14px; width:100%; margin-bottom:20px; }
+  .today-hero-top{
+    position:relative; display:flex; align-items:center; gap:14px; width:100%; margin-bottom:20px;
+    cursor:pointer; -webkit-tap-highlight-color:transparent; transition: transform .12s ease;
+  }
+  .today-hero-top:active{ transform: scale(0.985); }
   .today-hero-icon{
     flex-shrink:0; width:46px; height:46px; border-radius:15px;
     background:rgba(255,255,255,.18); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
@@ -181,7 +185,11 @@
   .bento-wide .v{ font-size:20px; font-weight:800; }
   .bento-wide .l{ font-size:9.5px; text-transform:uppercase; letter-spacing:.08em; opacity:.85; margin-top:2px; }
   .bento-spark{ display:flex; align-items:flex-end; gap:3px; height:20px; margin-top:8px; }
-  .bento-spark i{ display:block; width:6px; min-height:4px; border-radius:2px; background:rgba(255,255,255,.55); }
+  .bento-spark i{
+    display:block; width:6px; min-height:4px; border-radius:2px;
+    background:rgba(255,255,255,.4); transition: background-color .2s ease;
+  }
+  .bento-spark i:last-child{ background:rgba(255,255,255,.95); }
   .bento-small{ background:rgba(255,255,255,.15); border-radius:15px; padding:11px 13px; }
   .bento-small .v{ font-size:17px; font-weight:800; }
   .bento-small .l{ font-size:9px; text-transform:uppercase; letter-spacing:.05em; opacity:.85; margin-top:1px; }
@@ -294,12 +302,22 @@
   }
   .qa-btn:active{ transform: scale(0.95); }
   .qa-ic{
+    position:relative;
     width:36px; height:36px; border-radius:12px; color:#ffffff;
     display:flex; align-items:center; justify-content:center;
     box-shadow: inset 0 1px 0 rgba(255,255,255,.3);
   }
   .diaper-log-btn .qa-ic{ background: linear-gradient(145deg, var(--milk-light), var(--milk-deep)); }
   .vomit-log-btn .qa-ic{ background: linear-gradient(145deg, var(--vomit-light), var(--vomit)); }
+  .qa-badge{
+    position:absolute; top:-6px; right:-6px; min-width:17px; height:17px; padding:0 4px;
+    border-radius:999px; background: var(--card); color: var(--ink);
+    border:2px solid var(--bg);
+    font-size:9.5px; font-weight:800; display:flex; align-items:center; justify-content:center;
+    box-shadow: var(--shadow-card);
+    transition: transform .2s cubic-bezier(.34,1.56,.64,1);
+  }
+  .qa-badge.hidden{ display:none; }
 
   .save-btn{
     width:100%; margin-top:20px; background: linear-gradient(135deg, var(--milk-light), var(--milk-deep)); color: #ffffff;
@@ -497,11 +515,20 @@
     font-size:15px; font-weight:600; text-align:right; outline:none;
   }
   .stat-hero.overdue{
-    background: #b5872f; animation: heroPulse 1.8s ease-in-out infinite;
+    background: linear-gradient(135deg, #d3a355, #a06a24);
+    animation: heroPulse 1.8s ease-in-out infinite;
   }
   @keyframes heroPulse{
     0%, 100%{ box-shadow: 0 0 0 0 rgba(181,135,47,.5); }
     50%{ box-shadow: 0 0 0 8px rgba(181,135,47,0); }
+  }
+  .overdue-pill{
+    margin-left:auto; align-self:flex-start; flex-shrink:0;
+    background:rgba(255,255,255,.22); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+    color:#ffffff; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.05em;
+    padding:5px 9px; border-radius:999px; display:flex; align-items:center; gap:4px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.3);
+    white-space:nowrap;
   }
   .entry-del{
     background:none; border:none; color: var(--ink-faint); font-size:16px; cursor:pointer;
@@ -1186,11 +1213,11 @@
 
     <div class="quick-action-bar">
       <button class="qa-btn diaper-log-btn" id="diaper-log-btn" type="button">
-        <span class="qa-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-3 4-6 8-6 11.5A6 6 0 0 0 12 21a6 6 0 0 0 6-6.5C18 11 15 7 12 3z"/></svg></span>
+        <span class="qa-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-3 4-6 8-6 11.5A6 6 0 0 0 12 21a6 6 0 0 0 6-6.5C18 11 15 7 12 3z"/></svg><span class="qa-badge hidden" id="diaper-qa-badge">0</span></span>
         Couche
       </button>
       <button class="qa-btn vomit-log-btn" id="vomit-log-btn" type="button">
-        <span class="qa-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/><path d="M3 17c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/></svg></span>
+        <span class="qa-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/><path d="M3 17c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/></svg><span class="qa-badge hidden" id="vomit-qa-badge">0</span></span>
         Vomi
       </button>
       <button class="qa-btn sleep-log-btn hidden" id="sleep-log-btn" type="button">
@@ -3281,6 +3308,7 @@ function renderStats(){
           <div class="lbl">Dernier biberon</div>
           <div class="num">${lastAgo}</div>
         </div>
+        ${overdue ? `<span class="overdue-pill"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>En retard</span>` : ''}
       </div>
       <div class="bento-row">
         <div class="bento-wide">
@@ -3295,6 +3323,20 @@ function renderStats(){
       </div>
     </div>
   `;
+
+  const heroTopEl = document.querySelector('#stat-hero-container .today-hero-top');
+  if(heroTopEl) heroTopEl.addEventListener('click', openAddModal);
+
+  const diaperBadge = $('diaper-qa-badge');
+  if(diaperBadge){
+    diaperBadge.textContent = diaperCount;
+    diaperBadge.classList.toggle('hidden', diaperCount === 0);
+  }
+  const vomitBadge = $('vomit-qa-badge');
+  if(vomitBadge){
+    vomitBadge.textContent = vomitCount;
+    vomitBadge.classList.toggle('hidden', vomitCount === 0);
+  }
 
   checkReminderNotification(overdue, lastBottleTimestamp);
 }
