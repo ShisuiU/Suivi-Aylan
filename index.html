@@ -267,6 +267,23 @@
   .stat .num{ font-family:'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight:600; }
   .stat .lbl{ font-size: 10.5px; color: var(--ink-faint); margin-top:2px; text-transform:uppercase; letter-spacing:.06em; }
 
+  .tab-switch{
+    display:flex; gap:4px; background: var(--glass-bg); border:1px solid var(--glass-border);
+    border-radius:999px; padding:5px; margin-bottom:20px;
+    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
+  }
+  .tab-btn{
+    flex:1; background:none; border:none; color: var(--ink-dim);
+    font-family:'Plus Jakarta Sans'; font-weight:700; font-size:13px; padding:11px; border-radius:999px;
+    cursor:pointer; transition: color .2s ease;
+  }
+  .tab-btn.hidden{ display:none; }
+  .tab-btn.active{
+    color: var(--on-accent); background: linear-gradient(135deg, var(--milk-light), var(--milk-deep));
+    box-shadow: var(--shadow-gloss), 0 4px 10px -4px rgba(52,93,132,.5);
+  }
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; animation: blockFadeIn .35s cubic-bezier(.22,1,.36,1); }
   .chart-hero-row{ display:flex; gap:10px; align-items:stretch; margin-bottom:22px; }
   .chart-hero-row .stat-hero{
     flex:1.2; flex-direction:column; align-items:flex-start; justify-content:center; gap:4px;
@@ -1449,6 +1466,7 @@
     <div id="comment-search-results"></div>
 
     <div id="calendar-main-block">
+      <div class="stats-row" id="cal-month-stats"></div>
       <div class="cal-nav">
         <button class="cal-nav-btn" id="cal-prev" type="button">‹</button>
         <div class="cal-nav-title" id="cal-title"></div>
@@ -1460,12 +1478,19 @@
   </div>
 
   <div class="view" id="view-chart">
-    <div class="chart-hero-row" id="chart-stats"></div>
-    <div class="cal-day-detail-label">Quantité de lait par jour</div>
-    <div class="chart-scroll" id="chart-scroll"></div>
-
-    <div class="cal-day-detail-label" style="margin-top:22px;">Vomissements par jour</div>
-    <div class="chart-scroll" id="vomit-chart-scroll"></div>
+    <div class="tab-switch">
+      <button class="tab-btn active" data-tab-group="chart" data-tab="milk" type="button">Lait</button>
+      <button class="tab-btn" data-tab-group="chart" data-tab="vomit" type="button">Vomissements</button>
+    </div>
+    <div class="tab-panel active" data-tab-group="chart" data-tab="milk">
+      <div class="chart-hero-row" id="chart-stats"></div>
+      <div class="cal-day-detail-label">Quantité de lait par jour</div>
+      <div class="chart-scroll" id="chart-scroll"></div>
+    </div>
+    <div class="tab-panel" data-tab-group="chart" data-tab="vomit">
+      <div class="cal-day-detail-label">Vomissements par jour</div>
+      <div class="chart-scroll" id="vomit-chart-scroll"></div>
+    </div>
   </div>
 
   <div class="view" id="view-profile">
@@ -1476,41 +1501,53 @@
       </div>
     </div>
 
-    <div class="card">
-      <h2 id="growth-form-title">Ajouter une mesure</h2>
-      <label class="field-label">Date</label>
-      <div class="date-field"><input type="date" id="growth-date-input"></div>
-      <label class="field-label">Poids (kg)</label>
-      <div class="time-row"><input class="login-field" type="number" inputmode="decimal" step="0.01" id="growth-weight-input" placeholder="ex : 4.20" style="margin-bottom:0;"></div>
-      <label class="field-label">Taille (cm)</label>
-      <div class="time-row"><input class="login-field" type="number" inputmode="decimal" step="0.5" id="growth-height-input" placeholder="ex : 55" style="margin-bottom:0;"></div>
-      <button class="save-btn" id="growth-save-btn" type="button">Enregistrer la mesure</button>
-      <button class="cancel-edit-btn hidden" id="growth-cancel-btn" type="button">Annuler la modification</button>
+    <div class="tab-switch">
+      <button class="tab-btn active" data-tab-group="profile" data-tab="growth" type="button">Croissance</button>
+      <button class="tab-btn hidden" id="profile-tab-vaccines" data-tab-group="profile" data-tab="vaccines" type="button">Vaccins</button>
+      <button class="tab-btn" data-tab-group="profile" data-tab="milestones" type="button">Souvenirs</button>
     </div>
 
-    <div class="cal-day-detail-label" id="weight-chart-label">Courbe de poids</div>
-    <div class="chart-scroll" id="weight-chart-scroll"></div>
-
-    <div class="cal-day-detail-label" id="height-chart-label" style="margin-top:22px;">Courbe de taille</div>
-    <div class="chart-scroll" id="height-chart-scroll"></div>
-
-    <div class="cal-day-detail-label" style="margin-top:22px;">Historique des mesures</div>
-    <div id="growth-list"></div>
-
-    <div class="card hidden" id="vaccines-card" style="margin-top:20px;">
-      <h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="5"/><line x1="12" y1="8.5" x2="12" y2="15.5"/><line x1="8.5" y1="12" x2="15.5" y2="12"/></svg> Vaccins &amp; rendez-vous</h2>
-      <div id="vaccines-list"></div>
-      <div class="vaccine-add-row">
-        <input class="login-field" type="text" id="vaccine-name-input" placeholder="ex : DTP 2 mois" style="margin-bottom:0;">
-        <input class="login-field" type="date" id="vaccine-date-input" style="margin-bottom:0;">
+    <div class="tab-panel active" data-tab-group="profile" data-tab="growth">
+      <div class="card">
+        <h2 id="growth-form-title">Ajouter une mesure</h2>
+        <label class="field-label">Date</label>
+        <div class="date-field"><input type="date" id="growth-date-input"></div>
+        <label class="field-label">Poids (kg)</label>
+        <div class="time-row"><input class="login-field" type="number" inputmode="decimal" step="0.01" id="growth-weight-input" placeholder="ex : 4.20" style="margin-bottom:0;"></div>
+        <label class="field-label">Taille (cm)</label>
+        <div class="time-row"><input class="login-field" type="number" inputmode="decimal" step="0.5" id="growth-height-input" placeholder="ex : 55" style="margin-bottom:0;"></div>
+        <button class="save-btn" id="growth-save-btn" type="button">Enregistrer la mesure</button>
+        <button class="cancel-edit-btn hidden" id="growth-cancel-btn" type="button">Annuler la modification</button>
       </div>
-      <button class="save-btn" id="vaccine-add-btn" type="button">Ajouter</button>
+
+      <div class="cal-day-detail-label" id="weight-chart-label">Courbe de poids</div>
+      <div class="chart-scroll" id="weight-chart-scroll"></div>
+
+      <div class="cal-day-detail-label" id="height-chart-label" style="margin-top:22px;">Courbe de taille</div>
+      <div class="chart-scroll" id="height-chart-scroll"></div>
+
+      <div class="cal-day-detail-label" style="margin-top:22px;">Historique des mesures</div>
+      <div id="growth-list"></div>
     </div>
 
-    <div class="card" style="margin-top:20px;">
-      <h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M8 7l1.4-2.3h5.2L16 7"/><circle cx="12" cy="13.5" r="3.3"/></svg> Souvenirs</h2>
-      <div class="milestone-grid" id="milestone-grid"></div>
-      <button class="milestone-add-btn" id="milestone-add-btn" type="button">+ Ajouter un souvenir</button>
+    <div class="tab-panel" data-tab-group="profile" data-tab="vaccines">
+      <div class="card" id="vaccines-card">
+        <h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="5"/><line x1="12" y1="8.5" x2="12" y2="15.5"/><line x1="8.5" y1="12" x2="15.5" y2="12"/></svg> Vaccins &amp; rendez-vous</h2>
+        <div id="vaccines-list"></div>
+        <div class="vaccine-add-row">
+          <input class="login-field" type="text" id="vaccine-name-input" placeholder="ex : DTP 2 mois" style="margin-bottom:0;">
+          <input class="login-field" type="date" id="vaccine-date-input" style="margin-bottom:0;">
+        </div>
+        <button class="save-btn" id="vaccine-add-btn" type="button">Ajouter</button>
+      </div>
+    </div>
+
+    <div class="tab-panel" data-tab-group="profile" data-tab="milestones">
+      <div class="card">
+        <h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M8 7l1.4-2.3h5.2L16 7"/><circle cx="12" cy="13.5" r="3.3"/></svg> Souvenirs</h2>
+        <div class="milestone-grid" id="milestone-grid"></div>
+        <button class="milestone-add-btn" id="milestone-add-btn" type="button">+ Ajouter un souvenir</button>
+      </div>
     </div>
   </div>
 
@@ -2009,7 +2046,14 @@ async function migrateFamilyToChildren(familyId){
 function applyFeatureVisibility(){
   $('sleep-log-btn').classList.toggle('hidden', !familyFeatures.sleep);
   $('health-log-btn').classList.toggle('hidden', !familyFeatures.health);
-  $('vaccines-card').classList.toggle('hidden', !familyFeatures.vaccines);
+  const vaccinesTabBtn = $('profile-tab-vaccines');
+  vaccinesTabBtn.classList.toggle('hidden', !familyFeatures.vaccines);
+  if(!familyFeatures.vaccines && vaccinesTabBtn.classList.contains('active')){
+    // Le feature était actif sur cet onglet : on retombe sur "Croissance" plutôt que
+    // de laisser un onglet caché actif.
+    const growthTabBtn = document.querySelector('.tab-btn[data-tab-group="profile"][data-tab="growth"]');
+    if(growthTabBtn) growthTabBtn.click();
+  }
   $('filter-chip-sleep').classList.toggle('hidden', !familyFeatures.sleep);
   $('filter-chip-health').classList.toggle('hidden', !familyFeatures.health);
   $('feature-toggle-sleep').classList.toggle('active', familyFeatures.sleep);
@@ -3873,6 +3917,18 @@ function renderCalendar(){
 
   $('cal-title').textContent = calMonthDate.toLocaleDateString('fr-FR', { month:'long', year:'numeric' });
 
+  const monthPrefix = `${year}-${pad(month + 1)}`;
+  const monthEntries = entries.filter(e => e.dayKey.startsWith(monthPrefix));
+  const monthBottles = monthEntries.filter(e => e.type === 'biberon');
+  const monthMl = monthBottles.reduce((s, e) => s + (e.ml || 0), 0);
+  const monthDiaperCount = monthEntries.filter(e => e.type === 'diaper').length
+    + monthBottles.filter(e => e.diaper !== 'none').length;
+  $('cal-month-stats').innerHTML = monthEntries.length ? `
+    <div class="stat"><div class="num">${monthBottles.length}</div><div class="lbl">Biberons</div></div>
+    <div class="stat"><div class="num">${monthMl}</div><div class="lbl">ml au total</div></div>
+    <div class="stat"><div class="num">${monthDiaperCount}</div><div class="lbl">Couches</div></div>
+  ` : '';
+
   const entriesByDay = {};
   entries.forEach(e => { (entriesByDay[e.dayKey] || (entriesByDay[e.dayKey] = [])).push(e); });
   const firstOfMonth = new Date(year, month, 1);
@@ -4467,6 +4523,19 @@ document.querySelectorAll('.bottom-nav-btn[data-view]').forEach(btn => {
     switchView(btn.getAttribute('data-view'));
   });
 });
+function wireTabs(groupName){
+  const buttons = document.querySelectorAll(`.tab-btn[data-tab-group="${groupName}"]`);
+  const panels = document.querySelectorAll(`.tab-panel[data-tab-group="${groupName}"]`);
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.getAttribute('data-tab');
+      buttons.forEach(b => b.classList.toggle('active', b === btn));
+      panels.forEach(p => p.classList.toggle('active', p.getAttribute('data-tab') === tab));
+    });
+  });
+}
+wireTabs('chart');
+wireTabs('profile');
 $('menu-btn').addEventListener('click', () => {
   if($('menu-overlay').classList.contains('hidden')) openMenu();
   else closeMenu();
