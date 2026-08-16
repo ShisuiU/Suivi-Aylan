@@ -95,10 +95,18 @@
   }
   .menu-btn{
     background: var(--card); border:1px solid var(--line); color: var(--ink);
-    border-radius:12px; display:flex; align-items:center; justify-content:center;
-    cursor:pointer; transition: background-color .15s ease, transform .12s ease;
+    border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+    cursor:pointer; transition: background-color .15s ease, transform .12s ease, border-color .15s ease;
   }
   .menu-btn:active{ background: var(--card-hover); transform: scale(0.92); }
+  .menu-btn-line{
+    display:block; width:15px; height:1.8px; border-radius:2px; background: currentColor;
+    transition: transform .28s cubic-bezier(.4,0,.2,1), opacity .2s ease, width .2s ease;
+  }
+  .menu-btn.is-open{ border-color: var(--milk); color: var(--milk); }
+  .menu-btn.is-open .menu-btn-line:nth-child(1){ transform: translateY(5.8px) rotate(45deg); }
+  .menu-btn.is-open .menu-btn-line:nth-child(2){ opacity:0; width:0; }
+  .menu-btn.is-open .menu-btn-line:nth-child(3){ transform: translateY(-5.8px) rotate(-45deg); }
 
   .stats{
     margin-bottom:22px;
@@ -345,14 +353,28 @@
   .same-as-last-btn:active{ background: var(--card-hover); transform: scale(0.96); }
   .backup-hint{ font-size:12.5px; color: var(--ink-dim); line-height:1.5; margin:0; }
   .settings-section{
-    padding: 18px 0; border-top: 1px solid var(--line);
+    border-top: 1px solid var(--line);
   }
-  .settings-section:first-of-type{ border-top:none; padding-top:6px; }
+  .settings-section:first-of-type{ border-top:none; }
   .settings-section-title{
-    display:flex; align-items:center; gap:8px; font-family:'Plus Jakarta Sans', sans-serif;
-    font-size:15.5px; font-weight:600; color: var(--ink); margin-bottom:10px;
+    display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+    background:none; border:none; cursor:pointer; padding:15px 2px;
+    font-family:'Plus Jakarta Sans', sans-serif;
+    font-size:14.5px; font-weight:600; color: var(--ink);
   }
   .settings-section-title .icon{ font-size:16px; }
+  .settings-section-title .chevron{
+    margin-left:auto; flex-shrink:0; color: var(--ink-faint);
+    display:flex; transition: transform .25s ease;
+  }
+  .settings-section.expanded .settings-section-title .chevron{ transform: rotate(180deg); }
+  .settings-section-content{
+    max-height:0; overflow:hidden; opacity:0;
+    transition: max-height .3s ease, opacity .2s ease;
+  }
+  .settings-section.expanded .settings-section-content{
+    max-height:1600px; opacity:1; padding-bottom:18px;
+  }
   .settings-account{
     background: var(--bg-2); border:1px solid var(--line); border-radius:12px;
     padding:12px 16px; font-size:14px; color: var(--ink); word-break:break-all;
@@ -552,25 +574,31 @@
   /* Menu déroulant (remplace les onglets) */
   .menu-overlay{ align-items:flex-start; justify-content:center; padding: calc(64px + env(safe-area-inset-top)) 18px 18px; }
   .menu-panel{
-    width:100%; max-width:320px; max-height:80vh; border-radius:18px; padding:8px;
+    width:100%; max-width:300px; max-height:80vh; border-radius:20px; padding:10px;
+    border:1px solid var(--line); box-shadow: 0 24px 48px -12px rgba(10,20,35,.35);
   }
   .menu-overlay.hidden .menu-panel{ transform: translateY(-14px); }
   @keyframes menuPopIn{
-    0%{ transform: translateY(-24px) scale(.96); opacity:0; }
-    60%{ transform: translateY(3px) scale(1.008); opacity:1; }
+    0%{ transform: translateY(-18px) scale(.97); opacity:0; }
     100%{ transform: translateY(0) scale(1); opacity:1; }
   }
-  .menu-panel.modal-pop{ animation: menuPopIn .3s cubic-bezier(.25,.9,.4,1); }
+  .menu-panel.modal-pop{ animation: menuPopIn .26s cubic-bezier(.16,1,.3,1); }
   .menu-item{
     display:flex; align-items:center; gap:12px; width:100%; text-align:left;
-    background:none; border:none; padding:14px 14px; border-radius:12px;
-    font-family:'Plus Jakarta Sans'; font-size:14.5px; font-weight:600; color: var(--ink);
-    cursor:pointer; transition: background-color .12s ease;
+    background:none; border:none; padding:8px; border-radius:14px;
+    font-family:'Plus Jakarta Sans'; font-size:14px; font-weight:600; color: var(--ink);
+    cursor:pointer; transition: background-color .15s ease;
   }
-  .menu-item .ic{ font-size:17px; width:22px; text-align:center; flex-shrink:0; }
+  .menu-item .ic{
+    flex-shrink:0; width:34px; height:34px; border-radius:11px;
+    background: var(--bg-2); color: var(--ink-dim);
+    display:flex; align-items:center; justify-content:center;
+    transition: background-color .15s ease, color .15s ease;
+  }
   .menu-item:active{ background: var(--card-hover); }
-  .menu-item.active{ background: var(--milk-dim); color: var(--milk); }
-  .menu-divider{ height:1px; background: var(--line); margin:6px 4px; }
+  .menu-item.active{ color: var(--milk); }
+  .menu-item.active .ic{ background: var(--milk); color:#ffffff; }
+  .menu-divider{ height:1px; background: var(--line); margin:6px 10px; }
   .view{ display:none; }
   .view.active{ display:block; }
   .view{ transition: transform .2s ease, opacity .2s ease; }
@@ -881,96 +909,131 @@
       <button class="modal-close-btn" id="settings-close-btn" aria-label="Fermer">✕</button>
       <h2>Paramètres</h2>
 
-      <div class="settings-section">
-        <div class="settings-section-title"><span class="icon">👤</span>Compte</div>
-        <div class="settings-account" id="settings-account">—</div>
+      <div class="settings-section" data-section="account">
+        <button class="settings-section-title" type="button" data-section-toggle>
+          <span class="icon">👤</span>Compte
+          <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="settings-section-content">
+          <div class="settings-account" id="settings-account">—</div>
 
-        <label class="field-label" style="margin-top:16px;">Famille : <span id="settings-family-name">—</span></label>
-        <div class="invite-code-display">
-          <div class="label">Code d'invitation</div>
-          <div class="code" id="settings-invite-code">—</div>
-        </div>
-        <p class="backup-hint">Partage ce code avec une personne pour qu'elle rejoigne votre espace famille (onglet "Rejoindre une famille" à l'inscription).</p>
-        <button class="danger-link-btn" id="settings-logout-btn" type="button">🚪 Se déconnecter</button>
-      </div>
-
-      <div class="settings-section">
-        <div class="settings-section-title"><span class="icon">🎨</span>Apparence</div>
-        <div class="feature-toggle-row">
-          <div class="feature-toggle-label">
-            <span class="name">🌙 Thème sombre</span>
-            <span class="desc">Propre à cet appareil</span>
+          <label class="field-label" style="margin-top:16px;">Famille : <span id="settings-family-name">—</span></label>
+          <div class="invite-code-display">
+            <div class="label">Code d'invitation</div>
+            <div class="code" id="settings-invite-code">—</div>
           </div>
-          <button class="switch" id="theme-toggle-switch" type="button" aria-label="Activer le thème sombre"></button>
+          <p class="backup-hint">Partage ce code avec une personne pour qu'elle rejoigne votre espace famille (onglet "Rejoindre une famille" à l'inscription).</p>
+          <button class="danger-link-btn" id="settings-logout-btn" type="button">🚪 Se déconnecter</button>
         </div>
       </div>
 
-      <div class="settings-section">
-        <div class="settings-section-title"><span class="icon">🧩</span>Fonctionnalités</div>
-        <p class="backup-hint">Active seulement ce dont ta famille a besoin — le reste de l'app ne bouge pas.</p>
-        <div class="feature-toggle-row">
-          <div class="feature-toggle-label">
-            <span class="name">🌙 Suivi du sommeil</span>
-            <span class="desc">Minuteur de sieste/nuit</span>
-          </div>
-          <button class="switch" id="feature-toggle-sleep" type="button" aria-label="Activer le suivi du sommeil"></button>
-        </div>
-        <div class="feature-toggle-row">
-          <div class="feature-toggle-label">
-            <span class="name">🩺 Suivi santé</span>
-            <span class="desc">Température, dents, selles</span>
-          </div>
-          <button class="switch" id="feature-toggle-health" type="button" aria-label="Activer le suivi santé"></button>
-        </div>
-        <div class="feature-toggle-row">
-          <div class="feature-toggle-label">
-            <span class="name">💉 Vaccins &amp; rendez-vous</span>
-            <span class="desc">Liste à cocher dans Profil</span>
-          </div>
-          <button class="switch" id="feature-toggle-vaccines" type="button" aria-label="Activer le suivi des vaccins"></button>
-        </div>
-      </div>
-
-      <div class="settings-section">
-        <div class="settings-section-title"><span class="icon">🔔</span>Rappel de biberon</div>
-        <p class="backup-hint">Alerte visuelle (et notification si autorisée) quand ça fait longtemps. Ne fonctionne que pendant que l'app est ouverte à l'écran — iOS suspend les pages en arrière-plan.</p>
-        <div class="reminder-row">
-          <button class="quick-ml-btn-toggle" id="reminder-toggle-btn" type="button">Activer les rappels</button>
-          <div class="reminder-threshold-wrap">
-            <input type="number" id="reminder-hours-input" min="1" max="8" step="0.5" value="3.5">
-            <span class="ml-unit">h</span>
+      <div class="settings-section" data-section="appearance">
+        <button class="settings-section-title" type="button" data-section-toggle>
+          <span class="icon">🎨</span>Apparence
+          <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="settings-section-content">
+          <div class="feature-toggle-row">
+            <div class="feature-toggle-label">
+              <span class="name">🌙 Thème sombre</span>
+              <span class="desc">Propre à cet appareil</span>
+            </div>
+            <button class="switch" id="theme-toggle-switch" type="button" aria-label="Activer le thème sombre"></button>
           </div>
         </div>
-        <button class="same-as-last-btn" id="notif-permission-btn" type="button">🔔 Autoriser les notifications</button>
-        <div class="backup-hint" id="notif-permission-status" style="margin-top:6px;"></div>
       </div>
 
-      <div class="settings-section">
-        <div class="settings-section-title"><span class="icon">📥</span>Import en masse</div>
-        <p class="backup-hint">Pour ajouter d'un coup une liste de biberons passés (format JSON).</p>
-        <button class="import-toggle" id="import-toggle">Importer des biberons en liste</button>
-        <div class="import-box hidden" id="import-box">
-          <textarea id="import-textarea">[]</textarea>
-          <button class="save-btn" id="import-btn" type="button">Importer</button>
-          <div class="import-result" id="import-result"></div>
+      <div class="settings-section" data-section="features">
+        <button class="settings-section-title" type="button" data-section-toggle>
+          <span class="icon">🧩</span>Fonctionnalités
+          <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="settings-section-content">
+          <p class="backup-hint">Active seulement ce dont ta famille a besoin — le reste de l'app ne bouge pas.</p>
+          <div class="feature-toggle-row">
+            <div class="feature-toggle-label">
+              <span class="name">🌙 Suivi du sommeil</span>
+              <span class="desc">Minuteur de sieste/nuit</span>
+            </div>
+            <button class="switch" id="feature-toggle-sleep" type="button" aria-label="Activer le suivi du sommeil"></button>
+          </div>
+          <div class="feature-toggle-row">
+            <div class="feature-toggle-label">
+              <span class="name">🩺 Suivi santé</span>
+              <span class="desc">Température, dents, selles</span>
+            </div>
+            <button class="switch" id="feature-toggle-health" type="button" aria-label="Activer le suivi santé"></button>
+          </div>
+          <div class="feature-toggle-row">
+            <div class="feature-toggle-label">
+              <span class="name">💉 Vaccins &amp; rendez-vous</span>
+              <span class="desc">Liste à cocher dans Profil</span>
+            </div>
+            <button class="switch" id="feature-toggle-vaccines" type="button" aria-label="Activer le suivi des vaccins"></button>
+          </div>
         </div>
       </div>
 
-      <div class="settings-section">
-        <div class="settings-section-title"><span class="icon">🩺</span>Résumé pédiatre</div>
-        <p class="backup-hint">Tableau jour par jour (biberons, ml, couches, vomissements) + mesures de croissance, prêt à imprimer ou enregistrer en PDF pour le rendez-vous.</p>
-        <div class="period-row" id="pediatric-period-row">
-          <button class="quick-ml-btn-toggle period-btn" data-days="7" type="button">7 jours</button>
-          <button class="quick-ml-btn-toggle period-btn active" data-days="14" type="button">14 jours</button>
-          <button class="quick-ml-btn-toggle period-btn" data-days="30" type="button">30 jours</button>
+      <div class="settings-section" data-section="reminder">
+        <button class="settings-section-title" type="button" data-section-toggle>
+          <span class="icon">🔔</span>Rappel de biberon
+          <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="settings-section-content">
+          <p class="backup-hint">Alerte visuelle (et notification si autorisée) quand ça fait longtemps. Ne fonctionne que pendant que l'app est ouverte à l'écran — iOS suspend les pages en arrière-plan.</p>
+          <div class="reminder-row">
+            <button class="quick-ml-btn-toggle" id="reminder-toggle-btn" type="button">Activer les rappels</button>
+            <div class="reminder-threshold-wrap">
+              <input type="number" id="reminder-hours-input" min="1" max="8" step="0.5" value="3.5">
+              <span class="ml-unit">h</span>
+            </div>
+          </div>
+          <button class="same-as-last-btn" id="notif-permission-btn" type="button">🔔 Autoriser les notifications</button>
+          <div class="backup-hint" id="notif-permission-status" style="margin-top:6px;"></div>
         </div>
-        <button class="same-as-last-btn" id="export-pdf-btn" type="button" style="margin-top:12px;">🖨 Générer le résumé</button>
       </div>
 
-      <div class="settings-section">
-        <div class="settings-section-title"><span class="icon">💾</span>Sauvegarde</div>
-        <p class="backup-hint" id="backup-hint-text">Télécharge une copie complète et brute des données de Bébé (format JSON). Utile en cas de souci technique.</p>
-        <button class="same-as-last-btn" id="export-json-btn" type="button">⬇ Exporter en JSON</button>
+      <div class="settings-section" data-section="import">
+        <button class="settings-section-title" type="button" data-section-toggle>
+          <span class="icon">📥</span>Import en masse
+          <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="settings-section-content">
+          <p class="backup-hint">Pour ajouter d'un coup une liste de biberons passés (format JSON).</p>
+          <button class="import-toggle" id="import-toggle">Importer des biberons en liste</button>
+          <div class="import-box hidden" id="import-box">
+            <textarea id="import-textarea">[]</textarea>
+            <button class="save-btn" id="import-btn" type="button">Importer</button>
+            <div class="import-result" id="import-result"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section" data-section="pediatric">
+        <button class="settings-section-title" type="button" data-section-toggle>
+          <span class="icon">🩺</span>Résumé pédiatre
+          <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="settings-section-content">
+          <p class="backup-hint">Tableau jour par jour (biberons, ml, couches, vomissements) + mesures de croissance, prêt à imprimer ou enregistrer en PDF pour le rendez-vous.</p>
+          <div class="period-row" id="pediatric-period-row">
+            <button class="quick-ml-btn-toggle period-btn" data-days="7" type="button">7 jours</button>
+            <button class="quick-ml-btn-toggle period-btn active" data-days="14" type="button">14 jours</button>
+            <button class="quick-ml-btn-toggle period-btn" data-days="30" type="button">30 jours</button>
+          </div>
+          <button class="same-as-last-btn" id="export-pdf-btn" type="button" style="margin-top:12px;">🖨 Générer le résumé</button>
+        </div>
+      </div>
+
+      <div class="settings-section" data-section="backup">
+        <button class="settings-section-title" type="button" data-section-toggle>
+          <span class="icon">💾</span>Sauvegarde
+          <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="settings-section-content">
+          <p class="backup-hint" id="backup-hint-text">Télécharge une copie complète et brute des données de Bébé (format JSON). Utile en cas de souci technique.</p>
+          <button class="same-as-last-btn" id="export-json-btn" type="button">⬇ Exporter en JSON</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1057,7 +1120,9 @@
 
   <header class="app-header">
     <button class="menu-btn" id="menu-btn" aria-label="Menu" title="Menu">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      <span class="menu-btn-line"></span>
+      <span class="menu-btn-line"></span>
+      <span class="menu-btn-line"></span>
     </button>
     <div class="app-header-title">
       <h1 id="app-title">Bébé</h1>
@@ -1070,12 +1135,27 @@
 
   <div class="modal-overlay menu-overlay hidden" id="menu-overlay">
     <div class="modal-panel menu-panel">
-      <button class="menu-item active" data-view="today" type="button"><span class="ic">🏠</span>Aujourd'hui</button>
-      <button class="menu-item" data-view="calendar" type="button"><span class="ic">📅</span>Calendrier</button>
-      <button class="menu-item" data-view="chart" type="button"><span class="ic">📊</span>Infos</button>
-      <button class="menu-item" data-view="profile" type="button"><span class="ic">👤</span>Profil</button>
+      <button class="menu-item active" data-view="today" type="button">
+        <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg></span>
+        Aujourd'hui
+      </button>
+      <button class="menu-item" data-view="calendar" type="button">
+        <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><line x1="3" y1="9.5" x2="21" y2="9.5"/><line x1="8" y1="2.5" x2="8" y2="6.5"/><line x1="16" y1="2.5" x2="16" y2="6.5"/></svg></span>
+        Calendrier
+      </button>
+      <button class="menu-item" data-view="chart" type="button">
+        <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="13"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="10"/></svg></span>
+        Infos
+      </button>
+      <button class="menu-item" data-view="profile" type="button">
+        <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg></span>
+        Profil
+      </button>
       <div class="menu-divider"></div>
-      <button class="menu-item" id="menu-settings-item" type="button"><span class="ic">⚙️</span>Paramètres</button>
+      <button class="menu-item" id="menu-settings-item" type="button">
+        <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        Paramètres
+      </button>
     </div>
   </div>
 
@@ -3669,6 +3749,11 @@ function closeSettingsModal(){
   closeModal('settings-modal-overlay');
 }
 
+function toggleSettingsSection(titleBtn){
+  const section = titleBtn.closest('.settings-section');
+  if(section) section.classList.toggle('expanded');
+}
+
 function startEdit(id){
   const entry = entries.find(e => String(e.id) === String(id));
   if(!entry) return;
@@ -3774,18 +3859,30 @@ document.querySelectorAll('#pediatric-period-row .period-btn').forEach(btn => {
   });
 });
 
+function openMenu(){
+  openModal('menu-overlay');
+  $('menu-btn').classList.add('is-open');
+}
+function closeMenu(){
+  closeModal('menu-overlay');
+  $('menu-btn').classList.remove('is-open');
+}
+
 document.querySelectorAll('.menu-item[data-view]').forEach(btn => {
   btn.addEventListener('click', () => {
     switchView(btn.getAttribute('data-view'));
-    closeModal('menu-overlay');
+    closeMenu();
   });
 });
-$('menu-btn').addEventListener('click', () => openModal('menu-overlay'));
+$('menu-btn').addEventListener('click', () => {
+  if($('menu-overlay').classList.contains('hidden')) openMenu();
+  else closeMenu();
+});
 $('menu-overlay').addEventListener('click', (e) => {
-  if(e.target.id === 'menu-overlay') closeModal('menu-overlay');
+  if(e.target.id === 'menu-overlay') closeMenu();
 });
 $('menu-settings-item').addEventListener('click', () => {
-  closeModal('menu-overlay');
+  closeMenu();
   openSettingsModal();
 });
 
@@ -3984,6 +4081,9 @@ $('add-modal-overlay').addEventListener('click', (e) => {
 $('settings-close-btn').addEventListener('click', closeSettingsModal);
 $('settings-modal-overlay').addEventListener('click', (e) => {
   if(e.target.id === 'settings-modal-overlay') closeSettingsModal();
+});
+document.querySelectorAll('[data-section-toggle]').forEach(btn => {
+  btn.addEventListener('click', () => toggleSettingsSection(btn));
 });
 
 $('reminder-toggle-btn').addEventListener('click', toggleReminderEnabled);
