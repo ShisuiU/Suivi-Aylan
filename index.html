@@ -473,6 +473,31 @@
     font-family:'Plus Jakarta Sans'; font-size:12.5px; font-weight:600; padding:10px 14px;
     border-radius:14px; width:100%;
   }
+
+  /* Page « Enfant(s) » — liste complète avec sélection */
+  .children-page-list{ display:flex; flex-direction:column; gap:10px; }
+  .child-page-card{
+    display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+    background: var(--card); border:1px solid var(--line); border-radius: var(--radius);
+    padding:12px 16px; cursor:pointer; font-family:'Plus Jakarta Sans';
+    transition: border-color .15s ease, background-color .15s ease;
+  }
+  .child-page-card.active{ border-color: var(--milk); background: var(--milk-dim); }
+  .child-page-avatar{
+    flex-shrink:0; width:42px; height:42px; border-radius:50%; background: var(--bg-2); color: var(--ink-dim);
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px;
+    text-transform:uppercase; transition: background-color .15s ease, color .15s ease;
+  }
+  .child-page-card.active .child-page-avatar{ background: var(--milk); color:#ffffff; }
+  .child-page-info{ flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
+  .child-page-name{
+    font-size:14.5px; font-weight:600; color: var(--ink);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .child-page-age{ font-size:12px; color: var(--ink-faint); margin-top:1px; }
+  .child-page-badge{
+    flex-shrink:0; font-size:10px; font-weight:700; color: var(--milk); text-transform:uppercase; letter-spacing:.05em;
+  }
   .danger-link-btn{
     display:block; width:100%; background:none; border:none; color: var(--ink-faint);
     font-family:'Plus Jakarta Sans'; font-size:12.5px; margin-top:14px; cursor:pointer;
@@ -1063,6 +1088,10 @@
           <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
           Fonctionnalités
         </button>
+        <button class="menu-item" id="menu-children-item" data-view="children" type="button">
+          <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="7" r="3"/><path d="M3 20c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="17.5" cy="8.5" r="2.3"/><path d="M14.8 20c.3-2.2 1.6-3.8 3.6-3.8"/></svg></span>
+          Enfant(s)
+        </button>
         <button class="menu-item" data-view="profile" type="button">
           <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg></span>
           Profil
@@ -1148,25 +1177,6 @@
         <div class="lbl" id="age-name-lbl">Âge</div>
         <div class="num" id="age-value">—</div>
       </div>
-    </div>
-
-    <div class="card">
-      <h2 id="profile-info-heading">Informations de Bébé</h2>
-      <label class="field-label">Prénom(s)</label>
-      <input class="login-field" type="text" id="profile-firstname" placeholder="Prénom(s)" autocomplete="off" autocapitalize="words">
-      <label class="field-label">Nom</label>
-      <input class="login-field" type="text" id="profile-lastname" placeholder="Nom" autocomplete="off" autocapitalize="words">
-      <label class="field-label">Date de naissance</label>
-      <div class="date-field" style="margin-bottom:16px;">
-        <input type="date" id="profile-birthdate">
-      </div>
-      <label class="field-label">Sexe <span style="text-transform:none; letter-spacing:normal; font-weight:400;">(pour comparer aux repères OMS)</span></label>
-      <div class="diaper-row" id="profile-gender-row" style="grid-template-columns: repeat(2,1fr); margin-bottom:16px;">
-        <button type="button" class="diaper-btn" data-val="F"><span class="ic">👧</span>Fille</button>
-        <button type="button" class="diaper-btn" data-val="M"><span class="ic">👦</span>Garçon</button>
-      </div>
-      <button class="save-btn" id="profile-save-btn" type="button">Enregistrer les informations</button>
-      <button class="danger-link-btn hidden" id="profile-delete-child-btn" type="button">Supprimer cet enfant</button>
     </div>
 
     <div class="card">
@@ -1347,6 +1357,38 @@
         <button class="switch" id="feature-toggle-vaccines" type="button" aria-label="Activer le suivi des vaccins"></button>
       </div>
       <p class="feature-page-card-desc">Une liste à cocher des vaccins et rendez-vous médicaux à venir, directement accessible depuis l'onglet Profil.</p>
+    </div>
+  </div>
+
+  <div class="view" id="view-children">
+    <div class="settings-page-header">
+      <button class="back-btn" id="children-back-btn" type="button" aria-label="Retour">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      </button>
+      <h2>Enfant(s)</h2>
+    </div>
+    <p class="backup-hint" style="margin:2px 2px 18px;">Renseigne le ou les enfants à charge et choisis celui à suivre.</p>
+
+    <div class="children-page-list" id="children-list-page"></div>
+    <button class="milestone-add-btn" id="children-add-btn" type="button">+ Ajouter un enfant</button>
+
+    <div class="card" style="margin-top:20px;">
+      <h2 id="profile-info-heading">Informations de Bébé</h2>
+      <label class="field-label">Prénom(s)</label>
+      <input class="login-field" type="text" id="profile-firstname" placeholder="Prénom(s)" autocomplete="off" autocapitalize="words">
+      <label class="field-label">Nom</label>
+      <input class="login-field" type="text" id="profile-lastname" placeholder="Nom" autocomplete="off" autocapitalize="words">
+      <label class="field-label">Date de naissance</label>
+      <div class="date-field" style="margin-bottom:16px;">
+        <input type="date" id="profile-birthdate">
+      </div>
+      <label class="field-label">Sexe <span style="text-transform:none; letter-spacing:normal; font-weight:400;">(pour comparer aux repères OMS)</span></label>
+      <div class="diaper-row" id="profile-gender-row" style="grid-template-columns: repeat(2,1fr); margin-bottom:16px;">
+        <button type="button" class="diaper-btn" data-val="F"><span class="ic">👧</span>Fille</button>
+        <button type="button" class="diaper-btn" data-val="M"><span class="ic">👦</span>Garçon</button>
+      </div>
+      <button class="save-btn" id="profile-save-btn" type="button">Enregistrer les informations</button>
+      <button class="danger-link-btn hidden" id="profile-delete-child-btn" type="button">Supprimer cet enfant</button>
     </div>
   </div>
 
@@ -1740,6 +1782,34 @@ function renderChildSwitcher(){
     deleteBtn.classList.remove('confirming');
     deleteChildArmed = false;
   }
+
+  renderChildrenPage();
+}
+
+function renderChildrenPage(){
+  const list = $('children-list-page');
+  if(!list) return;
+
+  if(!childrenList.length && lastMigrationError){
+    list.innerHTML = `<div class="child-switcher-error">⚠️ Erreur de chargement du suivi. Vérifie ta connexion et recharge la page.</div>`;
+    return;
+  }
+
+  list.innerHTML = childrenList.map(c => {
+    const fullName = [c.firstName, c.lastName].filter(Boolean).join(' ').trim() || DEFAULT_SITE_NAME;
+    const initial = (c.firstName || c.lastName || '?').trim().charAt(0) || '?';
+    const active = c.id === currentChildId ? ' active' : '';
+    const age = c.birthDate ? computeAge(c.birthDate) : 'Date de naissance non renseignée';
+    const badge = c.id === currentChildId ? '<span class="child-page-badge">Suivi</span>' : '';
+    return `<button type="button" class="child-page-card${active}" data-child="${c.id}">
+      <span class="child-page-avatar">${escapeHtml(initial)}</span>
+      <span class="child-page-info">
+        <span class="child-page-name">${escapeHtml(fullName)}</span>
+        <span class="child-page-age">${escapeHtml(age)}</span>
+      </span>
+      ${badge}
+    </button>`;
+  }).join('');
 }
 
 async function addChild(){
@@ -1751,7 +1821,7 @@ async function addChild(){
       meta: { order: maxOrder + 1, createdAt: Date.now() }
     });
     switchToChild(childId);
-    switchView('profile');
+    switchView('children');
     showToast('Enfant ajouté — renseigne son prénom');
   }catch(e){
     showToast("Erreur lors de l'ajout");
@@ -2897,9 +2967,9 @@ function formatDayLabel(key){
 }
 
 let tabAnimating = false;
-const TAB_ORDER = ['today', 'calendar', 'chart', 'features', 'profile', 'settings'];
-const VIEW_LABELS = { today: "Aujourd'hui", calendar: 'Calendrier', chart: 'Infos', profile: 'Profil', features: 'Fonctionnalités', settings: 'Paramètres' };
-const SUBPAGES = ['settings', 'features'];
+const TAB_ORDER = ['today', 'calendar', 'chart', 'features', 'children', 'profile', 'settings'];
+const VIEW_LABELS = { today: "Aujourd'hui", calendar: 'Calendrier', chart: 'Infos', profile: 'Profil', features: 'Fonctionnalités', children: 'Enfant(s)', settings: 'Paramètres' };
+const SUBPAGES = ['settings', 'features', 'children'];
 
 function switchView(view){
   if(view === currentView || tabAnimating) return;
@@ -2938,7 +3008,7 @@ function switchView(view){
       if(view === 'chart'){ renderChart(); renderVomitChart(); }
       if(view === 'profile') renderGrowthCharts();
       if(view === 'settings') $('settings-account').textContent = auth.currentUser ? auth.currentUser.email : '—';
-      $('fab-btn').classList.toggle('hidden', view === 'profile' || view === 'settings' || view === 'features');
+      $('fab-btn').classList.toggle('hidden', view === 'profile' || view === 'settings' || view === 'features' || view === 'children');
     }finally{
       setTimeout(() => { tabAnimating = false; }, 210);
     }
@@ -3916,6 +3986,11 @@ $('child-switcher').addEventListener('click', (ev) => {
   const chip = ev.target.closest('[data-child]');
   if(chip) switchToChild(chip.getAttribute('data-child'));
 });
+$('children-list-page').addEventListener('click', (ev) => {
+  const card = ev.target.closest('[data-child]');
+  if(card) switchToChild(card.getAttribute('data-child'));
+});
+$('children-add-btn').addEventListener('click', addChild);
 $('growth-save-btn').addEventListener('click', saveGrowthEntry);
 $('growth-cancel-btn').addEventListener('click', cancelEditGrowth);
 $('export-json-btn').addEventListener('click', exportDataJSON);
@@ -4147,6 +4222,7 @@ $('add-modal-overlay').addEventListener('click', (e) => {
 
 $('settings-back-btn').addEventListener('click', closeSettingsModal);
 $('features-back-btn').addEventListener('click', closeSettingsModal);
+$('children-back-btn').addEventListener('click', closeSettingsModal);
 document.querySelectorAll('[data-section-toggle]').forEach(btn => {
   btn.addEventListener('click', () => toggleSettingsSection(btn));
 });
