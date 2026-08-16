@@ -186,7 +186,7 @@
   .bento-wide .l{ font-size:9.5px; text-transform:uppercase; letter-spacing:.08em; opacity:.85; margin-top:2px; }
   .bento-spark{ display:flex; align-items:flex-end; gap:3px; height:20px; margin-top:8px; }
   .bento-spark i{
-    display:block; width:6px; min-height:4px; border-radius:2px;
+    display:block; width:6px; min-height:4px; border-radius:3px;
     background:rgba(255,255,255,.4); transition: background-color .2s ease;
   }
   .bento-spark i:last-child{ background:rgba(255,255,255,.95); }
@@ -529,6 +529,20 @@
     padding:5px 9px; border-radius:999px; display:flex; align-items:center; gap:4px;
     box-shadow: inset 0 1px 0 rgba(255,255,255,.3);
     white-space:nowrap;
+  }
+  .hero-progress-track{
+    position:relative; margin-top:9px; width:112px; max-width:100%; height:4px; border-radius:999px;
+    background:rgba(255,255,255,.22); overflow:hidden;
+  }
+  .hero-progress-fill{
+    height:100%; border-radius:999px; background:rgba(255,255,255,.8);
+    transition: width .4s ease;
+  }
+  .ml-delta{
+    display:inline-flex; align-items:center; gap:2px; margin-left:5px;
+    font-size:8.5px; font-weight:800; letter-spacing:0; text-transform:none;
+    padding:1.5px 5px; border-radius:999px; background:rgba(255,255,255,.18);
+    vertical-align:middle;
   }
   .entry-del{
     background:none; border:none; color: var(--ink-faint); font-size:16px; cursor:pointer;
@@ -3292,6 +3306,34 @@ function renderStats(){
 
   const overdue = reminderEnabled && minutesSinceLast !== null && minutesSinceLast >= reminderThresholdMinutes;
 
+  const progressPct = (reminderEnabled && minutesSinceLast !== null)
+    ? Math.max(4, Math.min(100, Math.round(minutesSinceLast / reminderThresholdMinutes * 100)))
+    : null;
+  const progressHtml = progressPct !== null
+    ? `<div class="hero-progress-track"><div class="hero-progress-fill" style="width:${progressPct}%"></div></div>`
+    : '';
+
+  // Moyenne des ml/jour sur les 7 jours précédents (jours réellement suivis uniquement),
+  // pour situer le total du jour par rapport aux habitudes récentes.
+  let pastMlTotal = 0, pastDaysTracked = 0;
+  for(let i = 1; i <= 7; i++){
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = todayKey(d);
+    const dayEntries = entries.filter(e => e.dayKey === key);
+    if(dayEntries.length){
+      pastDaysTracked++;
+      pastMlTotal += dayEntries.filter(e => e.type === 'biberon').reduce((s,e)=> s + (e.ml||0), 0);
+    }
+  }
+  const avgPastMl = pastDaysTracked >= 3 ? Math.round(pastMlTotal / pastDaysTracked) : null;
+  let mlDeltaHtml = '';
+  if(avgPastMl){
+    const pct = Math.round(Math.abs(totalMl - avgPastMl) / avgPastMl * 100);
+    const up = totalMl >= avgPastMl;
+    mlDeltaHtml = `<span class="ml-delta">${up ? '↑' : '↓'} ${pct}% vs 7j</span>`;
+  }
+
   const sparkBars = bottlesToday.slice(-7);
   const maxMl = Math.max(1, ...sparkBars.map(e => e.ml || 0));
   const sparkHtml = sparkBars.length
@@ -3307,6 +3349,7 @@ function renderStats(){
         <div>
           <div class="lbl">Dernier biberon</div>
           <div class="num">${lastAgo}</div>
+          ${progressHtml}
         </div>
         ${overdue ? `<span class="overdue-pill"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>En retard</span>` : ''}
       </div>
@@ -3314,7 +3357,7 @@ function renderStats(){
         <div class="bento-wide">
           <div>
             <div class="v">${totalMl} ml</div>
-            <div class="l">Aujourd'hui</div>
+            <div class="l">Aujourd'hui${mlDeltaHtml}</div>
           </div>
           ${sparkHtml}
         </div>
