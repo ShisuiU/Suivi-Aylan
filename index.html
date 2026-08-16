@@ -69,19 +69,36 @@
   }
   .wrap{
     max-width: 560px; margin: 0 auto;
-    padding: calc(40px + env(safe-area-inset-top)) 18px calc(20px + env(safe-area-inset-bottom));
+    padding: 0 18px calc(20px + env(safe-area-inset-bottom));
   }
 
-  header{ display:flex; flex-direction:column; align-items:center; text-align:center; margin-bottom: 26px; }
+  .app-header{
+    position: sticky; top:0; z-index:15;
+    display:flex; align-items:center; gap:10px;
+    margin: 0 0 18px; padding: calc(12px + env(safe-area-inset-top)) 0 12px;
+    background: var(--bg);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  }
+  .app-header-title{ flex:1; min-width:0; text-align:center; }
   header h1{
     font-family:'Cormorant Garamond', serif; font-weight:600; font-style:italic;
-    font-size: 44px; margin:0; letter-spacing: 0.01em; color: var(--ink);
+    font-size: 22px; margin:0; letter-spacing: 0.01em; color: var(--ink);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   header h1 .dot{ color: var(--milk); }
   header .subtitle{
-    font-size: 11px; color: var(--ink-faint); margin-top: 4px;
-    text-transform: uppercase; letter-spacing: .14em;
+    font-size: 10px; color: var(--ink-faint); margin-top: 1px;
+    text-transform: uppercase; letter-spacing: .12em;
   }
+  .menu-btn, .app-header-spacer{
+    flex-shrink:0; width:38px; height:38px;
+  }
+  .menu-btn{
+    background: var(--card); border:1px solid var(--line); color: var(--ink);
+    border-radius:12px; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition: background-color .15s ease, transform .12s ease;
+  }
+  .menu-btn:active{ background: var(--card-hover); transform: scale(0.92); }
 
   .stats{
     margin-bottom:22px;
@@ -532,16 +549,28 @@
   }
   .danger-link-btn.confirming{ color:#c0526a; font-weight:600; text-decoration:none; }
 
-  /* Tabs */
-  .tabs{
-    display:flex; gap:6px; background: var(--card); border:1px solid var(--line);
-    border-radius:14px; padding:4px; margin-bottom:22px;
+  /* Menu déroulant (remplace les onglets) */
+  .menu-overlay{ align-items:flex-start; justify-content:center; padding: calc(64px + env(safe-area-inset-top)) 18px 18px; }
+  .menu-panel{
+    width:100%; max-width:320px; max-height:80vh; border-radius:18px; padding:8px;
   }
-  .tab-btn{
-    flex:1; background:none; border:none; color: var(--ink-faint); font-family:'Plus Jakarta Sans';
-    font-size:12px; font-weight:600; padding:10px 4px; border-radius:10px; cursor:pointer;
+  .menu-overlay.hidden .menu-panel{ transform: translateY(-14px); }
+  @keyframes menuPopIn{
+    0%{ transform: translateY(-24px) scale(.96); opacity:0; }
+    60%{ transform: translateY(3px) scale(1.008); opacity:1; }
+    100%{ transform: translateY(0) scale(1); opacity:1; }
   }
-  .tab-btn.active{ background: var(--bg-2); color: var(--ink); }
+  .menu-panel.modal-pop{ animation: menuPopIn .3s cubic-bezier(.25,.9,.4,1); }
+  .menu-item{
+    display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+    background:none; border:none; padding:14px 14px; border-radius:12px;
+    font-family:'Plus Jakarta Sans'; font-size:14.5px; font-weight:600; color: var(--ink);
+    cursor:pointer; transition: background-color .12s ease;
+  }
+  .menu-item .ic{ font-size:17px; width:22px; text-align:center; flex-shrink:0; }
+  .menu-item:active{ background: var(--card-hover); }
+  .menu-item.active{ background: var(--milk-dim); color: var(--milk); }
+  .menu-divider{ height:1px; background: var(--line); margin:6px 4px; }
   .view{ display:none; }
   .view.active{ display:block; }
   .view{ transition: transform .2s ease, opacity .2s ease; }
@@ -725,20 +754,6 @@
   .invite-code-display .label{
     font-size:10.5px; color: var(--ink-faint); text-transform:uppercase; letter-spacing:.1em; margin-bottom:6px;
   }
-  .logout-btn{
-    position:absolute; top: calc(18px + env(safe-area-inset-top)); right:18px;
-    background: var(--card); border:1px solid var(--line); color: var(--ink-faint);
-    width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-    cursor:pointer; transition: background-color .15s ease, transform .1s ease;
-  }
-  .logout-btn:active{ background: var(--card-hover); transform: scale(0.88); }
-  .settings-btn{
-    position:absolute; top: calc(18px + env(safe-area-inset-top)); right:62px;
-    background: var(--card); border:1px solid var(--line); color: var(--ink-faint);
-    width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-    cursor:pointer; transition: background-color .15s ease, transform .3s cubic-bezier(.34,1.56,.64,1);
-  }
-  .settings-btn:active{ background: var(--card-hover); transform: scale(0.85) rotate(45deg); }
   .theme-toggle-btn{
     position:absolute; top: calc(18px + env(safe-area-inset-top)); left:18px;
     background: var(--card); border:1px solid var(--line); color: var(--ink-faint);
@@ -746,7 +761,6 @@
     cursor:pointer; z-index:10; transition: background-color .3s ease, border-color .3s ease, transform .3s cubic-bezier(.34,1.56,.64,1);
   }
   .theme-toggle-btn:active{ transform: scale(0.85) rotate(-20deg); }
-  header{ position:relative; }
   .hidden{ display:none !important; }
 
   .offline-banner{
@@ -817,13 +831,6 @@
 </div>
 
 <div class="wrap hidden" id="app-wrap">
-  <button class="settings-btn" id="settings-btn" aria-label="Paramètres" title="Paramètres">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-  </button>
-  <button class="logout-btn" id="logout-btn" aria-label="Se déconnecter" title="Se déconnecter">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
-  </button>
-
   <button class="fab" id="fab-btn" aria-label="Ajouter un biberon" title="Ajouter un biberon">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
   </button>
@@ -895,6 +902,7 @@
           <div class="code" id="settings-invite-code">—</div>
         </div>
         <p class="backup-hint">Partage ce code avec une personne pour qu'elle rejoigne votre espace famille (onglet "Rejoindre une famille" à l'inscription).</p>
+        <button class="danger-link-btn" id="settings-logout-btn" type="button">🚪 Se déconnecter</button>
       </div>
 
       <div class="settings-section">
@@ -1047,20 +1055,28 @@
     </div>
   </div>
 
-  <header>
-    <div>
+  <header class="app-header">
+    <button class="menu-btn" id="menu-btn" aria-label="Menu" title="Menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    </button>
+    <div class="app-header-title">
       <h1 id="app-title">Bébé</h1>
-      <div class="subtitle">biberons &amp; couches</div>
+      <div class="subtitle" id="current-view-label">Aujourd'hui</div>
     </div>
+    <div class="app-header-spacer" aria-hidden="true"></div>
   </header>
 
   <div class="child-switcher" id="child-switcher"></div>
 
-  <div class="tabs">
-    <button class="tab-btn active" data-view="today">Aujourd'hui</button>
-    <button class="tab-btn" data-view="calendar">Calendrier</button>
-    <button class="tab-btn" data-view="chart">Infos</button>
-    <button class="tab-btn" data-view="profile">Profil</button>
+  <div class="modal-overlay menu-overlay hidden" id="menu-overlay">
+    <div class="modal-panel menu-panel">
+      <button class="menu-item active" data-view="today" type="button"><span class="ic">🏠</span>Aujourd'hui</button>
+      <button class="menu-item" data-view="calendar" type="button"><span class="ic">📅</span>Calendrier</button>
+      <button class="menu-item" data-view="chart" type="button"><span class="ic">📊</span>Infos</button>
+      <button class="menu-item" data-view="profile" type="button"><span class="ic">👤</span>Profil</button>
+      <div class="menu-divider"></div>
+      <button class="menu-item" id="menu-settings-item" type="button"><span class="ic">⚙️</span>Paramètres</button>
+    </div>
   </div>
 
   <div class="view active" id="view-today">
@@ -2735,6 +2751,7 @@ function formatDayLabel(key){
 
 let tabAnimating = false;
 const TAB_ORDER = ['today', 'calendar', 'chart', 'profile'];
+const VIEW_LABELS = { today: "Aujourd'hui", calendar: 'Calendrier', chart: 'Infos', profile: 'Profil' };
 
 function switchView(view){
   if(view === currentView || tabAnimating) return;
@@ -2745,9 +2762,11 @@ function switchView(view){
   const newIndex = TAB_ORDER.indexOf(view);
   const direction = newIndex > oldIndex ? 1 : -1;
 
-  document.querySelectorAll('.tab-btn').forEach(b => {
+  document.querySelectorAll('.menu-item[data-view]').forEach(b => {
     b.classList.toggle('active', b.getAttribute('data-view') === view);
   });
+  const viewLabelEl = $('current-view-label');
+  if(viewLabelEl) viewLabelEl.textContent = VIEW_LABELS[view] || '';
 
   const oldEl = $('view-' + oldView);
   const newEl = $('view-' + view);
@@ -3758,8 +3777,19 @@ document.querySelectorAll('#pediatric-period-row .period-btn').forEach(btn => {
   });
 });
 
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => switchView(btn.getAttribute('data-view')));
+document.querySelectorAll('.menu-item[data-view]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    switchView(btn.getAttribute('data-view'));
+    closeModal('menu-overlay');
+  });
+});
+$('menu-btn').addEventListener('click', () => openModal('menu-overlay'));
+$('menu-overlay').addEventListener('click', (e) => {
+  if(e.target.id === 'menu-overlay') closeModal('menu-overlay');
+});
+$('menu-settings-item').addEventListener('click', () => {
+  closeModal('menu-overlay');
+  openSettingsModal();
 });
 
 let calAnimating = false;
@@ -3926,7 +3956,7 @@ $('login-btn').addEventListener('click', doAuthSubmit);
 $('login-password').addEventListener('keydown', (e) => { if(e.key === 'Enter') doAuthSubmit(); });
 $('login-password-confirm').addEventListener('keydown', (e) => { if(e.key === 'Enter') doAuthSubmit(); });
 $('auth-toggle-link').addEventListener('click', toggleAuthMode);
-$('logout-btn').addEventListener('click', doLogout);
+$('settings-logout-btn').addEventListener('click', doLogout);
 $('theme-toggle-btn').addEventListener('click', toggleTheme);
 
 $('fab-btn').addEventListener('click', () => {
@@ -3954,7 +3984,6 @@ $('add-modal-overlay').addEventListener('click', (e) => {
   if(e.target.id === 'add-modal-overlay') cancelEdit();
 });
 
-$('settings-btn').addEventListener('click', openSettingsModal);
 $('settings-close-btn').addEventListener('click', closeSettingsModal);
 $('settings-modal-overlay').addEventListener('click', (e) => {
   if(e.target.id === 'settings-modal-overlay') closeSettingsModal();
