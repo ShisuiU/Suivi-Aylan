@@ -352,27 +352,34 @@
   .same-as-last-btn:active{ background: var(--card-hover); transform: scale(0.96); }
   .backup-hint{ font-size:12.5px; color: var(--ink-dim); line-height:1.5; margin:0; }
   .settings-section{
-    border-top: 1px solid var(--line);
+    background: var(--card); border:1px solid var(--line); border-radius: var(--radius);
+    margin-bottom:12px; overflow:hidden;
+    transition: border-color .15s ease;
   }
-  .settings-section:first-of-type{ border-top:none; }
   .settings-section-title{
-    display:flex; align-items:center; gap:10px; width:100%; text-align:left;
-    background:none; border:none; cursor:pointer; padding:15px 2px;
+    display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+    background:none; border:none; cursor:pointer; padding:15px 18px;
     font-family:'Plus Jakarta Sans', sans-serif;
     font-size:14.5px; font-weight:600; color: var(--ink);
   }
-  .settings-section-title .icon{ font-size:16px; }
+  .settings-section-title .icon{
+    flex-shrink:0; width:36px; height:36px; border-radius:11px;
+    background: var(--bg-2); color: var(--ink-dim);
+    display:flex; align-items:center; justify-content:center;
+    transition: background-color .15s ease, color .15s ease;
+  }
+  .settings-section.expanded .settings-section-title .icon{ background: var(--milk); color:#ffffff; }
   .settings-section-title .chevron{
     margin-left:auto; flex-shrink:0; color: var(--ink-faint);
     display:flex; transition: transform .25s ease;
   }
   .settings-section.expanded .settings-section-title .chevron{ transform: rotate(180deg); }
   .settings-section-content{
-    max-height:0; overflow:hidden; opacity:0;
+    max-height:0; overflow:hidden; opacity:0; padding:0 18px;
     transition: max-height .3s ease, opacity .2s ease;
   }
   .settings-section.expanded .settings-section-content{
-    max-height:1600px; opacity:1; padding-bottom:18px; overflow:visible;
+    max-height:1600px; opacity:1; padding:0 18px 18px; overflow:visible;
   }
   .settings-page-header{
     display:flex; align-items:center; gap:12px; margin-bottom:12px;
@@ -1208,7 +1215,7 @@
 
       <div class="settings-section" data-section="account">
         <button class="settings-section-title" type="button" data-section-toggle>
-          <span class="icon">👤</span>Compte
+          <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg></span>Compte
           <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
         <div class="settings-section-content">
@@ -1220,13 +1227,13 @@
             <div class="code" id="settings-invite-code">—</div>
           </div>
           <p class="backup-hint">Partage ce code avec une personne pour qu'elle rejoigne votre espace famille (onglet "Rejoindre une famille" à l'inscription).</p>
-          <button class="danger-link-btn" id="settings-logout-btn" type="button">🚪 Se déconnecter</button>
+          <button class="danger-link-btn" id="settings-logout-btn" type="button">Se déconnecter</button>
         </div>
       </div>
 
       <div class="settings-section" data-section="appearance">
         <button class="settings-section-title" type="button" data-section-toggle>
-          <span class="icon">🎨</span>Apparence
+          <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2.2M12 18.8V21M4.9 4.9l1.5 1.5M17.6 17.6l1.5 1.5M3 12h2.2M18.8 12H21M4.9 19.1l1.5-1.5M17.6 6.4l1.5-1.5"/></svg></span>Apparence
           <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
         <div class="settings-section-content">
@@ -1242,7 +1249,7 @@
 
       <div class="settings-section" data-section="reminder">
         <button class="settings-section-title" type="button" data-section-toggle>
-          <span class="icon">🔔</span>Rappel de biberon
+          <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5a5 5 0 0 0-5 5c0 5.2-2 6.5-2 7.5h14c0-1-2-2.3-2-7.5a5 5 0 0 0-5-5z"/><path d="M10.3 19.5a1.8 1.8 0 0 0 3.4 0"/></svg></span>Rappel de biberon
           <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
         <div class="settings-section-content">
@@ -1254,14 +1261,14 @@
               <span class="ml-unit">h</span>
             </div>
           </div>
-          <button class="same-as-last-btn" id="notif-permission-btn" type="button">🔔 Autoriser les notifications</button>
+          <button class="same-as-last-btn" id="notif-permission-btn" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5a5 5 0 0 0-5 5c0 5.2-2 6.5-2 7.5h14c0-1-2-2.3-2-7.5a5 5 0 0 0-5-5z"/><path d="M10.3 19.5a1.8 1.8 0 0 0 3.4 0"/></svg> Autoriser les notifications</button>
           <div class="backup-hint" id="notif-permission-status" style="margin-top:6px;"></div>
         </div>
       </div>
 
       <div class="settings-section" data-section="import">
         <button class="settings-section-title" type="button" data-section-toggle>
-          <span class="icon">📥</span>Import en masse
+          <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.5h-5l-1.7 2.5h-4.6L8 12.5H3"/><path d="M5.3 5.5h13.4l2.3 7v6a1.2 1.2 0 0 1-1.2 1.2H4.2A1.2 1.2 0 0 1 3 18.5v-6l2.3-7z"/></svg></span>Import en masse
           <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
         <div class="settings-section-content">
@@ -1277,7 +1284,7 @@
 
       <div class="settings-section" data-section="pediatric">
         <button class="settings-section-title" type="button" data-section-toggle>
-          <span class="icon">🩺</span>Résumé pédiatre
+          <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3.5h5l5 5v11a1.8 1.8 0 0 1-1.8 1.8H8A1.8 1.8 0 0 1 6.2 19.5v-14A1.8 1.8 0 0 1 8 3.5z"/><path d="M13 3.5v5h5"/><line x1="9" y1="13.5" x2="15" y2="13.5"/><line x1="9" y1="17" x2="15" y2="17"/></svg></span>Résumé pédiatre
           <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
         <div class="settings-section-content">
@@ -1287,18 +1294,18 @@
             <button class="quick-ml-btn-toggle period-btn active" data-days="14" type="button">14 jours</button>
             <button class="quick-ml-btn-toggle period-btn" data-days="30" type="button">30 jours</button>
           </div>
-          <button class="same-as-last-btn" id="export-pdf-btn" type="button" style="margin-top:12px;">🖨 Générer le résumé</button>
+          <button class="same-as-last-btn" id="export-pdf-btn" type="button" style="margin-top:12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3.5h12V9"/><rect x="4" y="9" width="16" height="8" rx="1.5"/><path d="M6 14.5h12V20.5H6z"/></svg> Générer le résumé</button>
         </div>
       </div>
 
       <div class="settings-section" data-section="backup">
         <button class="settings-section-title" type="button" data-section-toggle>
-          <span class="icon">💾</span>Sauvegarde
+          <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5v11"/><path d="M7.2 10.2 12 15l4.8-4.8"/><path d="M5 19.5h14"/></svg></span>Sauvegarde
           <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
         <div class="settings-section-content">
           <p class="backup-hint" id="backup-hint-text">Télécharge une copie complète et brute des données de Bébé (format JSON). Utile en cas de souci technique.</p>
-          <button class="same-as-last-btn" id="export-json-btn" type="button">⬇ Exporter en JSON</button>
+          <button class="same-as-last-btn" id="export-json-btn" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5v11"/><path d="M7.2 10.2 12 15l4.8-4.8"/><path d="M5 19.5h14"/></svg> Exporter en JSON</button>
         </div>
       </div>
   </div>
@@ -1352,29 +1359,27 @@
     <div class="children-page-list" id="children-list-page"></div>
     <button class="milestone-add-btn" id="children-add-btn" type="button">+ Ajouter un enfant</button>
 
-    <div class="card" style="margin-top:20px;">
-      <div class="settings-section" data-section="child-info">
-        <button class="settings-section-title" type="button" data-section-toggle>
-          <span class="icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span><span id="profile-info-heading">Informations de Bébé</span>
-          <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="settings-section-content">
-          <label class="field-label">Prénom(s)</label>
-          <input class="login-field" type="text" id="profile-firstname" placeholder="Prénom(s)" autocomplete="off" autocapitalize="words">
-          <label class="field-label">Nom</label>
-          <input class="login-field" type="text" id="profile-lastname" placeholder="Nom" autocomplete="off" autocapitalize="words">
-          <label class="field-label">Date de naissance</label>
-          <div class="date-field" style="margin-bottom:16px;">
-            <input type="date" id="profile-birthdate">
-          </div>
-          <label class="field-label">Sexe <span style="text-transform:none; letter-spacing:normal; font-weight:400;">(pour comparer aux repères OMS)</span></label>
-          <div class="diaper-row" id="profile-gender-row" style="grid-template-columns: repeat(2,1fr); margin-bottom:16px;">
-            <button type="button" class="diaper-btn" data-val="F"><span class="ic">👧</span>Fille</button>
-            <button type="button" class="diaper-btn" data-val="M"><span class="ic">👦</span>Garçon</button>
-          </div>
-          <button class="save-btn" id="profile-save-btn" type="button">Enregistrer les informations</button>
-          <button class="danger-link-btn hidden" id="profile-delete-child-btn" type="button">Supprimer cet enfant</button>
+    <div class="settings-section" data-section="child-info" style="margin-top:20px;">
+      <button class="settings-section-title" type="button" data-section-toggle>
+        <span class="icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span><span id="profile-info-heading">Informations de Bébé</span>
+        <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+      </button>
+      <div class="settings-section-content">
+        <label class="field-label">Prénom(s)</label>
+        <input class="login-field" type="text" id="profile-firstname" placeholder="Prénom(s)" autocomplete="off" autocapitalize="words">
+        <label class="field-label">Nom</label>
+        <input class="login-field" type="text" id="profile-lastname" placeholder="Nom" autocomplete="off" autocapitalize="words">
+        <label class="field-label">Date de naissance</label>
+        <div class="date-field" style="margin-bottom:16px;">
+          <input type="date" id="profile-birthdate">
         </div>
+        <label class="field-label">Sexe <span style="text-transform:none; letter-spacing:normal; font-weight:400;">(pour comparer aux repères OMS)</span></label>
+        <div class="diaper-row" id="profile-gender-row" style="grid-template-columns: repeat(2,1fr); margin-bottom:16px;">
+          <button type="button" class="diaper-btn" data-val="F"><span class="ic">👧</span>Fille</button>
+          <button type="button" class="diaper-btn" data-val="M"><span class="ic">👦</span>Garçon</button>
+        </div>
+        <button class="save-btn" id="profile-save-btn" type="button">Enregistrer les informations</button>
+        <button class="danger-link-btn hidden" id="profile-delete-child-btn" type="button">Supprimer cet enfant</button>
       </div>
     </div>
   </div>
