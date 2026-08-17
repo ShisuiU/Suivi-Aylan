@@ -59,6 +59,7 @@
     --warning-dim: #f5e6cf;
     --sleep: #5d6fae;
     --sleep-dim: #dfe3f6;
+    --dot-ring: rgba(20,34,58,.3);
     --glass-bg: rgba(255,255,255,.55);
     --glass-bg-strong: rgba(255,255,255,.7);
     --glass-border: rgba(255,255,255,.8);
@@ -104,6 +105,7 @@
     --warning-dim: #3d3018;
     --sleep: #8992d4;
     --sleep-dim: #262a4a;
+    --dot-ring: rgba(255,255,255,.28);
     --glass-bg: rgba(22,37,58,.5);
     --glass-bg-strong: rgba(22,37,58,.62);
     --glass-border: rgba(255,255,255,.14);
@@ -956,9 +958,10 @@
   }
   .cal-day.empty-cell{ background:none; cursor:default; }
   .cal-day.has-entries{ color: var(--ink); }
-  .cal-day .dots{ display:flex; align-items:center; gap:2px; }
+  .cal-day .dots{ display:flex; align-items:center; gap:3px; }
   .cal-day .dot{
-    width:5px; height:5px; border-radius:50%; background: var(--milk);
+    width:6px; height:6px; border-radius:50%; background: var(--milk);
+    box-shadow: 0 0 0 1px var(--dot-ring);
   }
   .cal-day .dot.dot-diaper{ background: var(--diaper); }
   .cal-day .dot.dot-vomit{ background: var(--vomit); }
