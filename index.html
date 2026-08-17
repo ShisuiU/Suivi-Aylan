@@ -1010,14 +1010,14 @@
     border:5px solid transparent; border-top-color: var(--ink);
   }
 
-  /* Login — bandeau dégradé plein cadre + feuille vitrée qui remonte
-     par-dessus (bottom-sheet), au lieu d'une carte centrée classique. */
+  /* Login — bandeau dégradé à bord organique (vague) + champs "claymorphism"
+     (bordure épaisse, ombre portée basse façon relief pressable). */
   .login-screen{
     min-height:100vh; display:flex; flex-direction:column;
   }
   .auth-hero{
     position:relative; flex-shrink:0; overflow:hidden; text-align:center;
-    padding: calc(56px + env(safe-area-inset-top)) 30px 76px;
+    padding: calc(56px + env(safe-area-inset-top)) 30px 54px;
     background: linear-gradient(155deg, var(--milk-light), var(--milk-deep) 70%);
     color: var(--on-accent);
   }
@@ -1026,43 +1026,47 @@
     pointer-events:none;
   }
   .auth-hero::before{ width:200px; height:200px; top:-90px; right:-60px; }
-  .auth-hero::after{ width:130px; height:130px; bottom:20px; left:-50px; background: rgba(255,255,255,.08); }
+  .auth-hero::after{ width:130px; height:130px; bottom:34px; left:-50px; background: rgba(255,255,255,.08); }
+  .auth-hero-wave{
+    position:absolute; left:0; right:0; bottom:-1px; width:100%; height:44px; z-index:1;
+    display:block;
+  }
+  .auth-hero-wave path{ fill: var(--bg); }
   .auth-hero-badge{
-    position:relative; z-index:1; width:64px; height:64px; margin:0 auto 16px; border-radius:50%;
-    background: rgba(255,255,255,.16); border:1.5px solid rgba(255,255,255,.4);
+    position:relative; z-index:2; width:64px; height:64px; margin:0 auto 16px; border-radius:50%;
+    background: rgba(255,255,255,.2); border:2.5px solid rgba(255,255,255,.55);
     display:flex; align-items:center; justify-content:center;
     -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
   }
   .auth-hero-title{
-    position:relative; z-index:1;
+    position:relative; z-index:2;
     font-family:'Cormorant Garamond', serif; font-weight:600; font-style:italic;
     font-size: 38px; margin:0 0 4px 0; color: var(--on-accent);
   }
   .auth-hero-sub{
-    position:relative; z-index:1;
+    position:relative; z-index:2;
     font-size: 11px; color: var(--on-accent); opacity:.85; text-transform:uppercase; letter-spacing:.16em;
   }
   .auth-sheet{
-    flex:1; position:relative; z-index:2; margin-top:-34px;
-    background: var(--glass-bg-strong); border:1px solid var(--glass-border); border-bottom:none;
-    border-radius: 32px 32px 0 0; text-align:center;
-    padding: 40px 28px calc(40px + env(safe-area-inset-bottom));
-    box-shadow: 0 -14px 30px -18px rgba(20,34,58,.25);
-    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
+    flex:1; position:relative; background: var(--bg); text-align:center;
+    padding: 30px 28px calc(40px + env(safe-area-inset-bottom));
   }
-  .auth-field-wrap{ position:relative; margin-bottom:10px; }
+  .auth-field-wrap{ position:relative; margin-bottom:16px; }
   .auth-field-wrap .auth-field-ic{
-    position:absolute; left:19px; top:50%; transform:translateY(-50%);
+    position:absolute; left:20px; top:50%; transform:translateY(-50%);
     color: var(--ink-faint); display:flex; pointer-events:none; transition: color .15s ease;
   }
   .auth-field-wrap:focus-within .auth-field-ic{ color: var(--milk); }
   .auth-field{
-    width:100%; background: var(--bg-2); border:1px solid var(--line); color: var(--ink);
-    font-family:'Plus Jakarta Sans'; font-size:16px; padding:15px 18px 15px 48px; border-radius:999px;
-    text-align:left;
-    transition: border-color .15s ease, box-shadow .15s ease;
+    width:100%; background: var(--bg-2); border:2.5px solid var(--milk-dim); color: var(--ink);
+    font-family:'Plus Jakarta Sans'; font-size:16px; padding:14px 18px 14px 50px; border-radius:22px;
+    text-align:left; box-shadow: 0 5px 0 -1px var(--milk-dim), 0 8px 14px -8px rgba(52,93,132,.3);
+    transition: border-color .15s ease, box-shadow .15s ease, transform .1s ease;
   }
-  .auth-field:focus{ outline:none; border-color: var(--milk); box-shadow: var(--focus-ring); }
+  .auth-field:focus{
+    outline:none; border-color: var(--milk);
+    box-shadow: 0 5px 0 -1px var(--milk), 0 8px 14px -8px rgba(52,93,132,.35);
+  }
   .login-field{
     width:100%; background: var(--bg-2); border:1px solid var(--line); color: var(--ink);
     font-family:'Plus Jakarta Sans'; font-size:16px; padding:15px 18px; border-radius:var(--radius-input);
@@ -1089,13 +1093,13 @@
     transition: background-color 5000s ease-in-out 0s;
   }
   .login-btn{
-    width:100%; margin-top:10px; background: linear-gradient(135deg, var(--milk-light), var(--milk-deep));
-    color: var(--on-accent); border:none;
-    padding:16px; border-radius:999px; font-family:'Plus Jakarta Sans'; font-weight:700; font-size:15px;
-    cursor:pointer; box-shadow: 0 10px 22px -10px rgba(52,93,132,.55);
-    transition: transform .1s ease;
+    width:100%; margin-top:6px; background: linear-gradient(135deg, var(--milk-light), var(--milk-deep));
+    color: var(--on-accent); border:2.5px solid var(--milk-deep);
+    padding:14px; border-radius:22px; font-family:'Plus Jakarta Sans'; font-weight:700; font-size:15px;
+    cursor:pointer; box-shadow: 0 5px 0 var(--milk-deep);
+    transition: transform .1s ease, box-shadow .1s ease;
   }
-  .login-btn:active{ transform: scale(0.99); }
+  .login-btn:active{ transform: translateY(3px); box-shadow: 0 2px 0 var(--milk-deep); }
   .login-btn:disabled{ opacity:.6; box-shadow:none; }
   .auth-toggle-link{
     display:block; width:100%; background:none; border:none; color: var(--ink-faint);
@@ -1105,11 +1109,12 @@
     color: var(--danger); font-size:12.5px; margin-top:12px; min-height:16px;
   }
   .family-choice-btn{
-    width:100%; background: var(--bg-2); border:1px solid var(--line); color: var(--ink);
-    padding:14px 16px; border-radius:20px; font-family:'Plus Jakarta Sans';
-    cursor:pointer; margin-bottom:12px; text-align:left;
+    width:100%; background: var(--bg-2); border:2.5px solid var(--milk-dim); color: var(--ink);
+    padding:13px 15px; border-radius:22px; font-family:'Plus Jakarta Sans';
+    cursor:pointer; margin-bottom:14px; text-align:left;
     display:flex; align-items:center; gap:13px;
-    transition: border-color .15s ease, background .15s ease, transform .1s ease;
+    box-shadow: 0 5px 0 -1px var(--milk-dim), 0 8px 14px -8px rgba(52,93,132,.3);
+    transition: border-color .15s ease, background .15s ease, transform .1s ease, box-shadow .1s ease;
   }
   .family-choice-btn .fc-ic{
     flex-shrink:0; width:40px; height:40px; border-radius:14px;
@@ -1119,7 +1124,7 @@
   .family-choice-btn .fc-text{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; font-weight:600; font-size:14.5px; }
   .family-choice-btn .fc-arrow{ flex-shrink:0; color: var(--ink-faint); }
   .family-choice-btn .sub{ font-size:11.5px; color: var(--ink-faint); font-weight:400; }
-  .family-choice-btn:active{ background: var(--card-hover); transform: scale(0.98); }
+  .family-choice-btn:active{ transform: translateY(3px); box-shadow: 0 2px 0 -1px var(--milk-dim); }
   .family-back-link{
     display:block; background:none; border:none; color: var(--ink-faint);
     font-family:'Plus Jakarta Sans'; font-size:12.5px; margin-top:14px; cursor:pointer; text-decoration:underline;
@@ -1190,6 +1195,7 @@
     <div class="auth-hero-badge"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h4"/><path d="M10.5 2v3c0 .7-.4 1.1-.9 1.6-1 .9-1.6 1.9-1.6 3.4v9c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-9c0-1.5-.6-2.5-1.6-3.4-.5-.5-.9-.9-.9-1.6V2"/><line x1="8.5" y1="12.5" x2="15.5" y2="12.5"/></svg></div>
     <h1 class="auth-hero-title" id="login-title">Bébé</h1>
     <div class="auth-hero-sub" id="auth-mode-label">Connexion</div>
+    <svg class="auth-hero-wave" viewBox="0 0 390 46" preserveAspectRatio="none"><path d="M0,0 C85,46 140,0 195,18 C250,36 305,4 390,20 L390,46 L0,46 Z"/></svg>
   </div>
   <div class="auth-sheet">
     <div class="auth-field-wrap">
@@ -3196,6 +3202,7 @@ function renderFamilySetup(mode, data){
     <div class="auth-hero-badge">${icon}</div>
     <h1 class="auth-hero-title">${childName}</h1>
     <div class="auth-hero-sub">${sub}</div>
+    <svg class="auth-hero-wave" viewBox="0 0 390 46" preserveAspectRatio="none"><path d="M0,0 C85,46 140,0 195,18 C250,36 305,4 390,20 L390,46 L0,46 Z"/></svg>
   `;
 
   if(mode === 'choice'){
