@@ -1537,7 +1537,12 @@
         <div class="settings-section-content">
           <div class="settings-account" id="settings-account">—</div>
 
-          <label class="field-label" style="margin-top:16px;">Famille : <span id="settings-family-name">—</span></label>
+          <label class="field-label" style="margin-top:16px;">Nom de la famille</label>
+          <div class="time-row">
+            <input class="login-field" type="text" id="settings-family-name-input" placeholder="ex : Famille Dupont" maxlength="60" style="margin-bottom:0;">
+          </div>
+          <button class="save-btn" id="settings-family-name-save-btn" type="button" style="margin-top:10px;">Enregistrer le nom</button>
+
           <div class="invite-code-display">
             <div class="label">Code d'invitation</div>
             <div class="code" id="settings-invite-code">—</div>
@@ -2014,6 +2019,17 @@ async function toggleFamilyFeature(key){
   }
 }
 
+async function saveFamilyName(){
+  const name = $('settings-family-name-input').value.trim() || 'Ma famille';
+  $('settings-family-name-input').value = name;
+  try{
+    await db.ref('families/' + currentFamilyId + '/meta/name').set(name);
+    showToast('Nom de la famille enregistré');
+  }catch(e){
+    showToast("Erreur d'enregistrement du nom");
+  }
+}
+
 function switchToChild(childId){
   if(!childId || childId === currentChildId) return;
   if(entriesRef) entriesRef.off();
@@ -2168,7 +2184,7 @@ function startSync(){
   settingsRef = db.ref('families/' + currentFamilyId + '/meta');
   settingsRef.on('value', (snapshot) => {
     const meta = snapshot.val() || {};
-    $('settings-family-name').textContent = meta.name || 'Ma famille';
+    $('settings-family-name-input').value = meta.name || 'Ma famille';
     $('settings-invite-code').textContent = meta.inviteCode || '—';
     $('settings-summary-name').textContent = meta.name || 'Ma famille';
     const val = meta.features || {};
@@ -4641,6 +4657,8 @@ $('login-password').addEventListener('keydown', (e) => { if(e.key === 'Enter') d
 $('login-password-confirm').addEventListener('keydown', (e) => { if(e.key === 'Enter') doAuthSubmit(); });
 $('auth-toggle-link').addEventListener('click', toggleAuthMode);
 $('settings-logout-btn').addEventListener('click', doLogout);
+$('settings-family-name-save-btn').addEventListener('click', saveFamilyName);
+$('settings-family-name-input').addEventListener('keydown', (e) => { if(e.key === 'Enter') saveFamilyName(); });
 $('theme-toggle-switch').addEventListener('click', toggleTheme);
 
 $('fab-btn').addEventListener('click', () => {
