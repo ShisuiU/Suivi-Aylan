@@ -262,13 +262,18 @@
   }
   .tab-panel{ display:none; }
   .tab-panel.active{ display:block; animation: blockFadeIn .35s cubic-bezier(.22,1,.36,1); }
-  .chart-hero-row{ display:flex; gap:10px; align-items:stretch; margin-bottom:22px; }
-  .chart-hero-row .stat-hero{
-    flex:1.2; flex-direction:column; align-items:flex-start; justify-content:center; gap:4px;
+  .chart-stats-strip{
+    display:flex; justify-content:space-around; gap:6px; margin-top:2px; padding:14px 16px 0;
+    border-top: 1.5px solid var(--milk-dim);
   }
-  .chart-hero-row .stat-hero .num{ font-size: 30px; }
-  .chart-hero-side{ flex:1; display:flex; flex-direction:column; gap:10px; }
-  .chart-hero-side .stat{ flex:1; display:flex; flex-direction:column; justify-content:center; }
+  .chart-stats-strip.hidden{ display:none; }
+  .cs-stat{ display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .cs-stat .v{ font-family:'Plus Jakarta Sans', sans-serif; font-size:16px; font-weight:800; color: var(--ink); }
+  .cs-stat .l{ font-size:9.5px; color: var(--ink-faint); text-transform:uppercase; letter-spacing:.05em; }
+  .chart-card-caption{
+    font-family:'Plus Jakarta Sans', sans-serif; font-size:13px; font-weight:600; color: var(--ink-dim);
+    text-align:center; margin: 10px 4px 20px;
+  }
 
   .card{
     background: var(--glass-bg); border:1px solid var(--glass-border); border-radius: var(--radius);
@@ -999,13 +1004,18 @@
     font-family:'Plus Jakarta Sans', sans-serif; font-size:16px; font-weight:600; margin: 4px 0 12px 2px;
   }
 
-  /* Chart */
+  /* Chart — carte Relief mise en avant : le graphique domine l'écran, les
+     chiffres-clés associés (moyenne/record/jours suivis) se réduisent à une
+     bande compacte sous la courbe plutôt qu'à un hero + tuiles séparés. */
+  .chart-card{
+    background: var(--bg-2); border: 2.5px solid var(--milk-dim); border-radius: 20px;
+    box-shadow: 0 5px 0 -1px var(--milk-dim), 0 8px 14px -8px rgba(52,93,132,.28);
+    padding: 16px 0 14px;
+  }
   .chart-scroll{
     position:relative;
     overflow-x:auto; -webkit-overflow-scrolling:touch;
-    background: var(--glass-bg); border:1px solid var(--glass-border); border-radius: var(--radius);
-    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
-    padding: 18px 6px 10px;
+    padding: 2px 6px 4px;
   }
   @keyframes chartFadeIn{
     from{ opacity:0; transform: translateY(10px); }
@@ -1484,13 +1494,17 @@
       <button class="tab-btn" data-tab-group="chart" data-tab="growth" type="button">Croissance</button>
     </div>
     <div class="tab-panel active" data-tab-group="chart" data-tab="milk">
-      <div class="chart-hero-row" id="chart-stats"></div>
-      <div class="cal-day-detail-label">Quantité de lait par jour</div>
-      <div class="chart-scroll" id="chart-scroll"></div>
+      <div class="chart-card">
+        <div class="chart-scroll" id="chart-scroll"></div>
+        <div class="chart-stats-strip" id="chart-stats"></div>
+      </div>
+      <div class="chart-card-caption">Quantité de lait par jour</div>
     </div>
     <div class="tab-panel" data-tab-group="chart" data-tab="vomit">
-      <div class="cal-day-detail-label">Vomissements par jour</div>
-      <div class="chart-scroll" id="vomit-chart-scroll"></div>
+      <div class="chart-card">
+        <div class="chart-scroll" id="vomit-chart-scroll"></div>
+      </div>
+      <div class="chart-card-caption">Vomissements par jour</div>
     </div>
     <div class="tab-panel" data-tab-group="chart" data-tab="growth">
       <div class="settings-section" data-section="growth-form" id="growth-form-section">
@@ -1516,12 +1530,16 @@
         <button class="tab-btn" data-tab-group="growth-chart" data-tab="height" type="button">Taille</button>
       </div>
       <div class="tab-panel active" data-tab-group="growth-chart" data-tab="weight">
-        <div class="cal-day-detail-label" id="weight-chart-label">Courbe de poids</div>
-        <div class="chart-scroll" id="weight-chart-scroll"></div>
+        <div class="chart-card">
+          <div class="chart-scroll" id="weight-chart-scroll"></div>
+        </div>
+        <div class="chart-card-caption" id="weight-chart-label">Courbe de poids</div>
       </div>
       <div class="tab-panel" data-tab-group="growth-chart" data-tab="height">
-        <div class="cal-day-detail-label" id="height-chart-label">Courbe de taille</div>
-        <div class="chart-scroll" id="height-chart-scroll"></div>
+        <div class="chart-card">
+          <div class="chart-scroll" id="height-chart-scroll"></div>
+        </div>
+        <div class="chart-card-caption" id="height-chart-label">Courbe de taille</div>
       </div>
 
       <div class="settings-section" data-section="growth-history" id="growth-history-section" style="margin-top:22px;">
@@ -4200,6 +4218,7 @@ function renderChart(){
   if(!days.length){
     scroll.innerHTML = `<div class="chart-empty">Pas encore de données à afficher.<br>Ajoute quelques biberons pour voir la courbe.</div>`;
     $('chart-stats').innerHTML = '';
+    $('chart-stats').classList.add('hidden');
     return;
   }
 
@@ -4217,15 +4236,11 @@ function renderChart(){
   const n = days.length;
   const avg = Math.round(values.reduce((s,v) => s + v, 0) / n);
   const max = Math.max(...values);
+  $('chart-stats').classList.remove('hidden');
   $('chart-stats').innerHTML = `
-    <div class="stat-hero">
-      <div class="lbl">Moyenne / jour</div>
-      <div class="num">${avg} ml</div>
-    </div>
-    <div class="chart-hero-side">
-      <div class="stat"><div class="num">${max} ml</div><div class="lbl">Record</div></div>
-      <div class="stat"><div class="num">${n}</div><div class="lbl">Jours suivis</div></div>
-    </div>
+    <div class="cs-stat"><span class="v">${avg} ml</span><span class="l">Moyenne / jour</span></div>
+    <div class="cs-stat"><span class="v">${max} ml</span><span class="l">Record</span></div>
+    <div class="cs-stat"><span class="v">${n}</span><span class="l">Jours suivis</span></div>
   `;
 }
 
