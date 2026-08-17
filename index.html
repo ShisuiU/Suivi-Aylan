@@ -817,7 +817,7 @@
   .feature-toggle-label .name{ font-size:13.5px; font-weight:600; color: var(--ink); }
   .feature-toggle-label .desc{ font-size:11.5px; color: var(--ink-faint); }
 
-  /* Fonctionnalités — page dédiée depuis le menu */
+  /* Fonctionnalités — cartes dans la section Paramètres > Fonctionnalités */
   .feature-page-card{
     background: var(--glass-bg); border:1px solid var(--glass-border); border-radius: var(--radius);
     -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
@@ -1421,10 +1421,6 @@
           <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="13"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="10"/></svg></span>
           Infos
         </button>
-        <button class="menu-item" id="menu-features-item" data-view="features" type="button">
-          <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
-          Fonctionnalités
-        </button>
         <button class="menu-item" data-view="profile" type="button">
           <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg></span>
           Enfant(s)
@@ -1681,6 +1677,43 @@
         </div>
       </div>
 
+      <div class="settings-section" data-section="features">
+        <button class="settings-section-title" type="button" data-section-toggle>
+          <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Fonctionnalités
+          <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="settings-section-content">
+          <p class="backup-hint">Active seulement ce dont ta famille a besoin — le reste de l'app ne bouge pas.</p>
+
+          <div class="feature-page-card">
+            <div class="feature-page-card-head">
+              <span class="feature-page-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></span>
+              <span class="feature-page-card-name">Suivi du sommeil</span>
+              <button class="switch" id="feature-toggle-sleep" type="button" aria-label="Activer le suivi du sommeil"></button>
+            </div>
+            <p class="feature-page-card-desc">Un minuteur pour chronométrer les siestes et les nuits de bébé d'un simple geste. Chaque session s'ajoute à la chronologie du jour et vient nourrir les statistiques de sommeil.</p>
+          </div>
+
+          <div class="feature-page-card">
+            <div class="feature-page-card-head">
+              <span class="feature-page-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg></span>
+              <span class="feature-page-card-name">Suivi santé</span>
+              <button class="switch" id="feature-toggle-health" type="button" aria-label="Activer le suivi santé"></button>
+            </div>
+            <p class="feature-page-card-desc">Note la température, l'apparition des dents et l'aspect des selles au fil des jours — pratique pour repérer une poussée dentaire ou préparer une visite chez le pédiatre.</p>
+          </div>
+
+          <div class="feature-page-card" style="margin-bottom:0;">
+            <div class="feature-page-card-head">
+              <span class="feature-page-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="5"/><line x1="12" y1="8.5" x2="12" y2="15.5"/><line x1="8.5" y1="12" x2="15.5" y2="12"/></svg></span>
+              <span class="feature-page-card-name">Vaccins &amp; rendez-vous</span>
+              <button class="switch" id="feature-toggle-vaccines" type="button" aria-label="Activer le suivi des vaccins"></button>
+            </div>
+            <p class="feature-page-card-desc">Une liste à cocher des vaccins et rendez-vous médicaux à venir, directement accessible depuis l'onglet Enfant(s).</p>
+          </div>
+        </div>
+      </div>
+
       <div class="settings-group-label">Données</div>
       <div class="settings-section" data-section="reminder">
         <button class="settings-section-title" type="button" data-section-toggle>
@@ -1743,43 +1776,6 @@
           <button class="same-as-last-btn" id="export-json-btn" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5v11"/><path d="M7.2 10.2 12 15l4.8-4.8"/><path d="M5 19.5h14"/></svg> Exporter en JSON</button>
         </div>
       </div>
-  </div>
-
-  <div class="view" id="view-features">
-    <div class="settings-page-header">
-      <button class="back-btn" id="features-back-btn" type="button" aria-label="Retour">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-      </button>
-      <h2>Fonctionnalités</h2>
-    </div>
-    <p class="backup-hint" style="margin:2px 2px 18px;">Active seulement ce dont ta famille a besoin — le reste de l'app ne bouge pas.</p>
-
-    <div class="feature-page-card">
-      <div class="feature-page-card-head">
-        <span class="feature-page-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></span>
-        <span class="feature-page-card-name">Suivi du sommeil</span>
-        <button class="switch" id="feature-toggle-sleep" type="button" aria-label="Activer le suivi du sommeil"></button>
-      </div>
-      <p class="feature-page-card-desc">Un minuteur pour chronométrer les siestes et les nuits de bébé d'un simple geste. Chaque session s'ajoute à la chronologie du jour et vient nourrir les statistiques de sommeil.</p>
-    </div>
-
-    <div class="feature-page-card">
-      <div class="feature-page-card-head">
-        <span class="feature-page-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg></span>
-        <span class="feature-page-card-name">Suivi santé</span>
-        <button class="switch" id="feature-toggle-health" type="button" aria-label="Activer le suivi santé"></button>
-      </div>
-      <p class="feature-page-card-desc">Note la température, l'apparition des dents et l'aspect des selles au fil des jours — pratique pour repérer une poussée dentaire ou préparer une visite chez le pédiatre.</p>
-    </div>
-
-    <div class="feature-page-card">
-      <div class="feature-page-card-head">
-        <span class="feature-page-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="5"/><line x1="12" y1="8.5" x2="12" y2="15.5"/><line x1="8.5" y1="12" x2="15.5" y2="12"/></svg></span>
-        <span class="feature-page-card-name">Vaccins &amp; rendez-vous</span>
-        <button class="switch" id="feature-toggle-vaccines" type="button" aria-label="Activer le suivi des vaccins"></button>
-      </div>
-      <p class="feature-page-card-desc">Une liste à cocher des vaccins et rendez-vous médicaux à venir, directement accessible depuis l'onglet Enfant(s).</p>
-    </div>
   </div>
 
   <div class="modal-overlay hidden" id="milestone-modal-overlay">
@@ -3423,9 +3419,9 @@ function formatDayLabel(key){
 }
 
 let tabAnimating = false;
-const TAB_ORDER = ['today', 'calendar', 'chart', 'features', 'profile', 'settings'];
-const VIEW_LABELS = { today: "Aujourd'hui", calendar: 'Calendrier', chart: 'Infos', profile: 'Enfant(s)', features: 'Fonctionnalités', settings: 'Paramètres' };
-const SUBPAGES = ['settings', 'features'];
+const TAB_ORDER = ['today', 'calendar', 'chart', 'profile', 'settings'];
+const VIEW_LABELS = { today: "Aujourd'hui", calendar: 'Calendrier', chart: 'Infos', profile: 'Enfant(s)', settings: 'Paramètres' };
+const SUBPAGES = ['settings'];
 
 function switchView(view){
   if(view === currentView || tabAnimating) return;
@@ -3467,7 +3463,7 @@ function switchView(view){
         $('settings-account').textContent = email;
         $('settings-summary-email').textContent = email;
       }
-      $('fab-btn').classList.toggle('hidden', view === 'profile' || view === 'settings' || view === 'features');
+      $('fab-btn').classList.toggle('hidden', view === 'profile' || view === 'settings');
     }finally{
       setTimeout(() => { tabAnimating = false; }, 210);
     }
@@ -4805,7 +4801,6 @@ $('add-modal-overlay').addEventListener('click', (e) => {
 });
 
 $('settings-back-btn').addEventListener('click', closeSettingsModal);
-$('features-back-btn').addEventListener('click', closeSettingsModal);
 document.querySelectorAll('[data-section-toggle]').forEach(btn => {
   btn.addEventListener('click', () => toggleSettingsSection(btn));
 });
