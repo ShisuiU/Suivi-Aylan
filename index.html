@@ -1245,7 +1245,7 @@
     <button class="bottom-nav-btn" data-view="chart" type="button" aria-label="Infos">
       <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="13"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="10"/></svg>
     </button>
-    <button class="bottom-nav-btn" data-view="profile" type="button" aria-label="Profil">
+    <button class="bottom-nav-btn" data-view="profile" type="button" aria-label="Enfant(s)">
       <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>
     </button>
     <button class="bottom-nav-btn" data-view="settings" type="button" aria-label="Paramètres">
@@ -1425,13 +1425,9 @@
           <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
           Fonctionnalités
         </button>
-        <button class="menu-item" id="menu-children-item" data-view="children" type="button">
-          <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="7" r="3"/><path d="M3 20c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="17.5" cy="8.5" r="2.3"/><path d="M14.8 20c.3-2.2 1.6-3.8 3.6-3.8"/></svg></span>
-          Enfant(s)
-        </button>
         <button class="menu-item" data-view="profile" type="button">
           <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg></span>
-          Profil
+          Enfant(s)
         </button>
       </nav>
       <nav class="menu-nav menu-nav--secondary">
@@ -1571,8 +1567,13 @@
       </div>
     </div>
 
-    <div class="tab-switch">
+    <p class="backup-hint" style="margin:2px 2px 12px;">Renseigne le ou les enfants à charge et choisis celui à suivre.</p>
+    <div class="children-page-list" id="children-list-page"></div>
+    <button class="milestone-add-btn" id="children-add-btn" type="button">+ Ajouter un enfant</button>
+
+    <div class="tab-switch" style="margin-top:18px;">
       <button class="tab-btn active" data-tab-group="profile" data-tab="milestones" type="button">Souvenirs</button>
+      <button class="tab-btn" data-tab-group="profile" data-tab="info" type="button">Infos</button>
       <button class="tab-btn hidden" id="profile-tab-vaccines" data-tab-group="profile" data-tab="vaccines" type="button">Vaccins</button>
     </div>
 
@@ -1585,6 +1586,36 @@
           <input class="login-field" type="date" id="vaccine-date-input" style="margin-bottom:0;">
         </div>
         <button class="save-btn" id="vaccine-add-btn" type="button">Ajouter</button>
+      </div>
+    </div>
+
+    <div class="tab-panel" data-tab-group="profile" data-tab="info">
+      <div class="card">
+        <h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> <span id="profile-info-heading">Informations de Bébé</span></h2>
+        <label class="field-label">Photo de profil</label>
+        <div class="avatar-edit-row">
+          <div class="avatar-edit-preview" id="profile-avatar-preview">?</div>
+          <div class="avatar-edit-controls">
+            <input type="file" accept="image/*" id="profile-avatar-input" style="display:none;">
+            <button type="button" class="quick-ml-btn-toggle" id="profile-avatar-pick-btn">Choisir une photo</button>
+            <button type="button" class="danger-link-btn hidden" id="profile-avatar-remove-btn" style="margin-top:8px;">Retirer la photo</button>
+          </div>
+        </div>
+        <label class="field-label">Prénom(s)</label>
+        <input class="login-field" type="text" id="profile-firstname" placeholder="Prénom(s)" autocomplete="off" autocapitalize="words">
+        <label class="field-label">Nom</label>
+        <input class="login-field" type="text" id="profile-lastname" placeholder="Nom" autocomplete="off" autocapitalize="words">
+        <label class="field-label">Date de naissance</label>
+        <div class="date-field" style="margin-bottom:16px;">
+          <input type="date" id="profile-birthdate">
+        </div>
+        <label class="field-label">Sexe <span style="text-transform:none; letter-spacing:normal; font-weight:400;">(pour comparer aux repères OMS)</span></label>
+        <div class="diaper-row" id="profile-gender-row" style="grid-template-columns: repeat(2,1fr); margin-bottom:16px;">
+          <button type="button" class="diaper-btn" data-val="F">Fille</button>
+          <button type="button" class="diaper-btn" data-val="M">Garçon</button>
+        </div>
+        <button class="save-btn" id="profile-save-btn" type="button">Enregistrer les informations</button>
+        <button class="danger-link-btn hidden" id="profile-delete-child-btn" type="button">Supprimer cet enfant</button>
       </div>
     </div>
 
@@ -1747,53 +1778,7 @@
         <span class="feature-page-card-name">Vaccins &amp; rendez-vous</span>
         <button class="switch" id="feature-toggle-vaccines" type="button" aria-label="Activer le suivi des vaccins"></button>
       </div>
-      <p class="feature-page-card-desc">Une liste à cocher des vaccins et rendez-vous médicaux à venir, directement accessible depuis l'onglet Profil.</p>
-    </div>
-  </div>
-
-  <div class="view" id="view-children">
-    <div class="settings-page-header">
-      <button class="back-btn" id="children-back-btn" type="button" aria-label="Retour">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-      </button>
-      <h2>Enfant(s)</h2>
-    </div>
-    <p class="backup-hint" style="margin:2px 2px 18px;">Renseigne le ou les enfants à charge et choisis celui à suivre.</p>
-
-    <div class="children-page-list" id="children-list-page"></div>
-    <button class="milestone-add-btn" id="children-add-btn" type="button">+ Ajouter un enfant</button>
-
-    <div class="settings-section" data-section="child-info" style="margin-top:20px;">
-      <button class="settings-section-title" type="button" data-section-toggle>
-        <span class="icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span><span id="profile-info-heading">Informations de Bébé</span>
-        <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
-      </button>
-      <div class="settings-section-content">
-        <label class="field-label">Photo de profil</label>
-        <div class="avatar-edit-row">
-          <div class="avatar-edit-preview" id="profile-avatar-preview">?</div>
-          <div class="avatar-edit-controls">
-            <input type="file" accept="image/*" id="profile-avatar-input" style="display:none;">
-            <button type="button" class="quick-ml-btn-toggle" id="profile-avatar-pick-btn">Choisir une photo</button>
-            <button type="button" class="danger-link-btn hidden" id="profile-avatar-remove-btn" style="margin-top:8px;">Retirer la photo</button>
-          </div>
-        </div>
-        <label class="field-label">Prénom(s)</label>
-        <input class="login-field" type="text" id="profile-firstname" placeholder="Prénom(s)" autocomplete="off" autocapitalize="words">
-        <label class="field-label">Nom</label>
-        <input class="login-field" type="text" id="profile-lastname" placeholder="Nom" autocomplete="off" autocapitalize="words">
-        <label class="field-label">Date de naissance</label>
-        <div class="date-field" style="margin-bottom:16px;">
-          <input type="date" id="profile-birthdate">
-        </div>
-        <label class="field-label">Sexe <span style="text-transform:none; letter-spacing:normal; font-weight:400;">(pour comparer aux repères OMS)</span></label>
-        <div class="diaper-row" id="profile-gender-row" style="grid-template-columns: repeat(2,1fr); margin-bottom:16px;">
-          <button type="button" class="diaper-btn" data-val="F">Fille</button>
-          <button type="button" class="diaper-btn" data-val="M">Garçon</button>
-        </div>
-        <button class="save-btn" id="profile-save-btn" type="button">Enregistrer les informations</button>
-        <button class="danger-link-btn hidden" id="profile-delete-child-btn" type="button">Supprimer cet enfant</button>
-      </div>
+      <p class="feature-page-card-desc">Une liste à cocher des vaccins et rendez-vous médicaux à venir, directement accessible depuis l'onglet Enfant(s).</p>
     </div>
   </div>
 
@@ -2139,8 +2124,8 @@ function switchToChild(childId){
   if(milestonesRef) milestonesRef.off();
 
   // Annule toute édition en cours (le formulaire de mesure est affiché en
-  // permanence dans l'onglet Profil, hors modale) pour ne pas laisser des
-  // champs pré-remplis avec les infos de l'enfant précédent.
+  // permanence dans l'onglet Infos > Croissance, hors modale) pour ne pas
+  // laisser des champs pré-remplis avec les infos de l'enfant précédent.
   if(editingGrowthId !== null) cancelEditGrowth();
   if(typeof editingId !== 'undefined' && editingId !== null) cancelEdit();
   if(typeof editingDiaperId !== 'undefined' && editingDiaperId !== null) cancelEditDiaper();
@@ -2914,7 +2899,7 @@ function renderSimpleLineChart(container, points, opts){
         ${lastLabel}
         ${labels}
       </svg>
-      ${opts.whoTable ? `<div class="who-hint">Renseigne la date de naissance dans Profil pour comparer aux repères OMS.</div>` : ''}
+      ${opts.whoTable ? `<div class="who-hint">Renseigne la date de naissance dans Enfant(s) pour comparer aux repères OMS.</div>` : ''}
     `;
 
     requestAnimationFrame(() => { container.scrollLeft = container.scrollWidth; });
@@ -3438,9 +3423,9 @@ function formatDayLabel(key){
 }
 
 let tabAnimating = false;
-const TAB_ORDER = ['today', 'calendar', 'chart', 'features', 'children', 'profile', 'settings'];
-const VIEW_LABELS = { today: "Aujourd'hui", calendar: 'Calendrier', chart: 'Infos', profile: 'Profil', features: 'Fonctionnalités', children: 'Enfant(s)', settings: 'Paramètres' };
-const SUBPAGES = ['settings', 'features', 'children'];
+const TAB_ORDER = ['today', 'calendar', 'chart', 'features', 'profile', 'settings'];
+const VIEW_LABELS = { today: "Aujourd'hui", calendar: 'Calendrier', chart: 'Infos', profile: 'Enfant(s)', features: 'Fonctionnalités', settings: 'Paramètres' };
+const SUBPAGES = ['settings', 'features'];
 
 function switchView(view){
   if(view === currentView || tabAnimating) return;
@@ -3482,7 +3467,7 @@ function switchView(view){
         $('settings-account').textContent = email;
         $('settings-summary-email').textContent = email;
       }
-      $('fab-btn').classList.toggle('hidden', view === 'profile' || view === 'settings' || view === 'features' || view === 'children');
+      $('fab-btn').classList.toggle('hidden', view === 'profile' || view === 'settings' || view === 'features');
     }finally{
       setTimeout(() => { tabAnimating = false; }, 210);
     }
@@ -4770,7 +4755,7 @@ $('profile-avatar-remove-btn').addEventListener('click', () => {
   $('profile-avatar-input').value = '';
   renderAvatarEditPreview();
 });
-$('header-avatar-btn').addEventListener('click', () => switchView('children'));
+$('header-avatar-btn').addEventListener('click', () => switchView('profile'));
 
 document.querySelectorAll('#quick-ml button').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -4821,7 +4806,6 @@ $('add-modal-overlay').addEventListener('click', (e) => {
 
 $('settings-back-btn').addEventListener('click', closeSettingsModal);
 $('features-back-btn').addEventListener('click', closeSettingsModal);
-$('children-back-btn').addEventListener('click', closeSettingsModal);
 document.querySelectorAll('[data-section-toggle]').forEach(btn => {
   btn.addEventListener('click', () => toggleSettingsSection(btn));
 });
