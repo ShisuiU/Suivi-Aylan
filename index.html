@@ -198,6 +198,13 @@
   .stat-hero .lbl{
     position:relative; font-size: 11px; text-transform:uppercase; letter-spacing:.1em; opacity:.9; font-weight:600;
   }
+  /* Hero du jour uniquement (page Aujourd'hui) : même grammaire claymorphism
+     que l'authentification — bordure épaisse, ombre décalée "pressable". */
+  #stat-hero-container .stat-hero{
+    border-radius: 26px; border: 2.5px solid var(--milk-deep);
+    box-shadow: 0 6px 0 var(--milk-deep);
+  }
+  #stat-hero-container .stat-hero.overdue{ border-color: var(--warning-deep); }
   #age-hero{ justify-content:center; text-align:center; margin-bottom:10px; }
   .today-hero-top{
     position:relative; display:flex; align-items:center; gap:14px; width:100%; margin-bottom:20px;
@@ -361,14 +368,13 @@
   .qa-btn{
     flex:0 0 84px; scroll-snap-align:start;
     display:flex; flex-direction:column; align-items:center; gap:7px;
-    background: var(--glass-bg); border:1px solid var(--glass-border); border-radius:16px;
+    background: var(--bg-2); border:2.5px solid var(--milk-dim); border-radius:20px;
     padding:13px 4px 10px; cursor:pointer; font-family:'Plus Jakarta Sans';
     font-size:11px; font-weight:700; color: var(--ink-dim); text-align:center;
-    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
-    box-shadow: var(--shadow-card);
-    transition: transform .1s ease;
+    box-shadow: 0 5px 0 -1px var(--milk-dim), 0 8px 14px -8px rgba(52,93,132,.28);
+    transition: transform .1s ease, box-shadow .1s ease;
   }
-  .qa-btn:active{ transform: scale(0.95); }
+  .qa-btn:active{ transform: translateY(3px); box-shadow: 0 2px 0 -1px var(--milk-dim); }
   .qa-ic{
     position:relative;
     width:36px; height:36px; border-radius:var(--radius-sm); color: var(--on-accent);
