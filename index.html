@@ -1768,6 +1768,23 @@ applyTheme(initialTheme);
 
 function pad(n){ return String(n).padStart(2,'0'); }
 
+// Remet une clé de jour au format canonique "YYYY-MM-DD" (avec zéros de
+// tête). Nécessaire car certaines entrées (notamment via l'import en masse,
+// qui stocke la date telle que collée par l'utilisateur) peuvent arriver
+// sous une forme non strictement zero-paddée ("2026-8-11" au lieu de
+// "2026-08-11") — sans ça, ces entrées deviennent invisibles pour tout ce
+// qui compare une dayKey à une clé générée par todayKey() (points du
+// calendrier, stats du mois, graphiques), alors qu'elles restent trouvables
+// via une comparaison "égale à elle-même" (recherche, détail du jour).
+function normalizeDayKey(key){
+  if(!key || typeof key !== 'string') return key;
+  const parts = key.split('-');
+  if(parts.length !== 3) return key;
+  const [y, mo, d] = parts;
+  if(!/^\d+$/.test(y) || !/^\d+$/.test(mo) || !/^\d+$/.test(d)) return key;
+  return `${y.padStart(4,'0')}-${mo.padStart(2,'0')}-${d.padStart(2,'0')}`;
+}
+
 function nowTimeStr(){
   const d = new Date();
   return pad(d.getHours()) + ':' + pad(d.getMinutes());
@@ -2018,7 +2035,7 @@ function switchToChild(childId){
   entriesRef = childRef('entries');
   entriesRef.on('value', (snapshot) => {
     const val = snapshot.val();
-    entries = val ? Object.values(val) : [];
+    entries = val ? Object.values(val).map(e => ({ ...e, dayKey: normalizeDayKey(e.dayKey) })) : [];
     render();
   }, () => showToast("Erreur de synchronisation"));
 
@@ -4704,7 +4721,7 @@ $('import-btn').addEventListener('click', async () => {
       ml: Number(item.ml) || 0,
       diaper: item.diaper || 'none',
       timestamp: entryDate.getTime(),
-      dayKey: item.date
+      dayKey: `${y}-${pad(mo)}-${pad(d)}`
     };
     count++;
   });
