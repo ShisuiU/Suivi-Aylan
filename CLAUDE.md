@@ -87,7 +87,8 @@ Systématique, dans cet ordre, avant de committer un changement dans `index.html
 
 ## 7. Style de communication
 
-- Réponses en français, directes, sans blabla ni disclaimers inutiles.
+- **Toujours répondre en français.** Règle non négociable, sans exception — y compris pour les messages de commit, les commentaires ajoutés au code, et tout texte affiché à l'utilisateur.
+- Réponses directes, sans blabla ni disclaimers inutiles.
 - Pas de récapitulatif de ce qui est évident dans la conversation — va à l'essentiel.
 - Montre les captures d'écran pertinentes plutôt que de décrire longuement un rendu visuel.
 - Quand une info manque pour trancher (hébergement, comportement attendu, etc.), demande — ne suppose pas silencieusement.
