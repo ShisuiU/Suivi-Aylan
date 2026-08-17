@@ -1010,29 +1010,45 @@
     border:5px solid transparent; border-top-color: var(--ink);
   }
 
-  /* Login */
+  /* Login — bandeau dégradé plein cadre + feuille vitrée qui remonte
+     par-dessus (bottom-sheet), au lieu d'une carte centrée classique. */
   .login-screen{
-    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+    min-height:100vh; display:flex; flex-direction:column;
   }
-  .login-card{
-    width:100%; max-width:360px; background: var(--glass-bg-strong); border:1px solid var(--glass-border);
-    border-radius: 30px; padding: 38px 30px; text-align:center;
-    box-shadow: var(--shadow-lift);
-    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
+  .auth-hero{
+    position:relative; flex-shrink:0; overflow:hidden; text-align:center;
+    padding: calc(56px + env(safe-area-inset-top)) 30px 76px;
+    background: linear-gradient(155deg, var(--milk-light), var(--milk-deep) 70%);
+    color: var(--on-accent);
   }
-  .auth-badge{
-    width:60px; height:60px; margin:0 auto 16px; border-radius:50%;
-    background: linear-gradient(145deg, var(--milk-light), var(--milk-deep)); color: var(--on-accent);
+  .auth-hero::before, .auth-hero::after{
+    content:''; position:absolute; border-radius:50%; background: rgba(255,255,255,.1);
+    pointer-events:none;
+  }
+  .auth-hero::before{ width:200px; height:200px; top:-90px; right:-60px; }
+  .auth-hero::after{ width:130px; height:130px; bottom:20px; left:-50px; background: rgba(255,255,255,.08); }
+  .auth-hero-badge{
+    position:relative; z-index:1; width:64px; height:64px; margin:0 auto 16px; border-radius:50%;
+    background: rgba(255,255,255,.16); border:1.5px solid rgba(255,255,255,.4);
     display:flex; align-items:center; justify-content:center;
-    box-shadow: 0 12px 26px -10px rgba(52,93,132,.55), var(--shadow-gloss);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
   }
-  .login-title{
+  .auth-hero-title{
+    position:relative; z-index:1;
     font-family:'Cormorant Garamond', serif; font-weight:600; font-style:italic;
-    font-size: 40px; margin:0 0 2px 0; color: var(--ink);
+    font-size: 38px; margin:0 0 4px 0; color: var(--on-accent);
   }
-  .login-sub{
-    font-size: 11px; color: var(--ink-faint); text-transform:uppercase; letter-spacing:.14em;
-    margin: 0 0 26px 0;
+  .auth-hero-sub{
+    position:relative; z-index:1;
+    font-size: 11px; color: var(--on-accent); opacity:.85; text-transform:uppercase; letter-spacing:.16em;
+  }
+  .auth-sheet{
+    flex:1; position:relative; z-index:2; margin-top:-34px;
+    background: var(--glass-bg-strong); border:1px solid var(--glass-border); border-bottom:none;
+    border-radius: 32px 32px 0 0; text-align:center;
+    padding: 40px 28px calc(40px + env(safe-area-inset-bottom));
+    box-shadow: 0 -14px 30px -18px rgba(20,34,58,.25);
+    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
   }
   .auth-field-wrap{ position:relative; margin-bottom:10px; }
   .auth-field-wrap .auth-field-ic{
@@ -1170,10 +1186,12 @@
 </div>
 
 <div class="login-screen" id="login-screen">
-  <div class="login-card">
-    <div class="auth-badge"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h4"/><path d="M10.5 2v3c0 .7-.4 1.1-.9 1.6-1 .9-1.6 1.9-1.6 3.4v9c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-9c0-1.5-.6-2.5-1.6-3.4-.5-.5-.9-.9-.9-1.6V2"/><line x1="8.5" y1="12.5" x2="15.5" y2="12.5"/></svg></div>
-    <h1 class="login-title" id="login-title">Bébé</h1>
-    <div class="login-sub" id="auth-mode-label">Connexion</div>
+  <div class="auth-hero">
+    <div class="auth-hero-badge"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h4"/><path d="M10.5 2v3c0 .7-.4 1.1-.9 1.6-1 .9-1.6 1.9-1.6 3.4v9c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-9c0-1.5-.6-2.5-1.6-3.4-.5-.5-.9-.9-.9-1.6V2"/><line x1="8.5" y1="12.5" x2="15.5" y2="12.5"/></svg></div>
+    <h1 class="auth-hero-title" id="login-title">Bébé</h1>
+    <div class="auth-hero-sub" id="auth-mode-label">Connexion</div>
+  </div>
+  <div class="auth-sheet">
     <div class="auth-field-wrap">
       <span class="auth-field-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m3.5 6.5 8.5 6 8.5-6"/></svg></span>
       <input class="auth-field" type="email" id="login-email" placeholder="Email" autocomplete="username">
@@ -1193,7 +1211,8 @@
 </div>
 
 <div class="login-screen hidden" id="family-setup-screen">
-  <div class="login-card" id="family-setup-card"></div>
+  <div class="auth-hero" id="family-setup-hero"></div>
+  <div class="auth-sheet" id="family-setup-sheet"></div>
 </div>
 
 <div class="wrap hidden" id="app-wrap">
@@ -3162,7 +3181,9 @@ async function resolveFamily(uid){
 }
 
 function renderFamilySetup(mode, data){
-  const card = $('family-setup-card');
+  const hero = $('family-setup-hero');
+  const sheet = $('family-setup-sheet');
+  const childName = getChildFirstName() || DEFAULT_SITE_NAME;
 
   const arrowIc = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>';
   const familyIc = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="7" r="3"/><path d="M3 20c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="17.5" cy="8.5" r="2.3"/><path d="M14.8 20c.3-2.2 1.6-3.8 3.6-3.8"/></svg>';
@@ -3171,11 +3192,15 @@ function renderFamilySetup(mode, data){
   const historyIc = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>';
   const checkIc = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.5 2.5 5-5"/></svg>';
 
+  const heroHtml = (icon, sub) => `
+    <div class="auth-hero-badge">${icon}</div>
+    <h1 class="auth-hero-title">${childName}</h1>
+    <div class="auth-hero-sub">${sub}</div>
+  `;
+
   if(mode === 'choice'){
-    card.innerHTML = `
-      <div class="auth-badge">${familyIc}</div>
-      <h1 class="login-title">${getChildFirstName() || DEFAULT_SITE_NAME}</h1>
-      <div class="login-sub">Espace famille</div>
+    hero.innerHTML = heroHtml(familyIc, 'Espace famille');
+    sheet.innerHTML = `
       <button class="family-choice-btn" id="fs-create-btn" type="button">
         <span class="fc-ic">${plusIc}</span>
         <span class="fc-text">Créer une nouvelle famille<span class="sub">Pour commencer le suivi d'un enfant</span></span>
@@ -3194,10 +3219,8 @@ function renderFamilySetup(mode, data){
   }
 
   if(mode === 'create'){
-    card.innerHTML = `
-      <div class="auth-badge">${plusIc}</div>
-      <h1 class="login-title">${getChildFirstName() || DEFAULT_SITE_NAME}</h1>
-      <div class="login-sub">Créer une famille</div>
+    hero.innerHTML = heroHtml(plusIc, 'Créer une famille');
+    sheet.innerHTML = `
       <div class="auth-field-wrap">
         <span class="auth-field-ic">${familyIc}</span>
         <input class="auth-field" type="text" id="fs-family-name" placeholder="ex : Famille Dupont">
@@ -3212,10 +3235,8 @@ function renderFamilySetup(mode, data){
   }
 
   if(mode === 'join'){
-    card.innerHTML = `
-      <div class="auth-badge">${keyIc}</div>
-      <h1 class="login-title">${getChildFirstName() || DEFAULT_SITE_NAME}</h1>
-      <div class="login-sub">Rejoindre une famille</div>
+    hero.innerHTML = heroHtml(keyIc, 'Rejoindre une famille');
+    sheet.innerHTML = `
       <div class="auth-field-wrap">
         <span class="auth-field-ic">${keyIc}</span>
         <input class="auth-field" type="text" id="fs-join-code" placeholder="Code d'invitation" style="text-transform:uppercase;">
@@ -3230,10 +3251,8 @@ function renderFamilySetup(mode, data){
   }
 
   if(mode === 'legacy'){
-    card.innerHTML = `
-      <div class="auth-badge">${historyIc}</div>
-      <h1 class="login-title">${getChildFirstName() || DEFAULT_SITE_NAME}</h1>
-      <div class="login-sub">Anciennes données détectées</div>
+    hero.innerHTML = heroHtml(historyIc, 'Anciennes données détectées');
+    sheet.innerHTML = `
       <p class="backup-hint">On a retrouvé un suivi existant sur ce compte. Créer votre espace famille avec ces données ?</p>
       <button class="login-btn" id="fs-migrate-submit">Récupérer nos données</button>
       <button class="family-back-link" id="fs-skip-legacy">Non, commencer une nouvelle famille</button>
@@ -3245,10 +3264,8 @@ function renderFamilySetup(mode, data){
   }
 
   if(mode === 'created'){
-    card.innerHTML = `
-      <div class="auth-badge">${checkIc}</div>
-      <h1 class="login-title">${getChildFirstName() || DEFAULT_SITE_NAME}</h1>
-      <div class="login-sub">Famille créée 🎉</div>
+    hero.innerHTML = heroHtml(checkIc, 'Famille créée 🎉');
+    sheet.innerHTML = `
       <p class="backup-hint">Partage ce code avec l'autre parent (ou toute autre personne) pour qu'il/elle rejoigne votre espace.</p>
       <div class="invite-code-display">
         <div class="label">Code d'invitation</div>
