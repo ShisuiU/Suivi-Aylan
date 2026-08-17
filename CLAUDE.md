@@ -6,8 +6,9 @@ Ce document est ta référence permanente pour travailler sur ce projet. Il prim
 
 **Suivi Aylan** (alias "Suivi Bébé") est une PWA de suivi de bébé (biberons, couches, sommeil, santé, croissance, vaccins) pour un usage familial multi-parents.
 
-- **Stack** : un seul fichier `index.html` — HTML + CSS + JS vanilla, aucun build, aucune dépendance externe hors Firebase (SDK compat) pour l'auth et la base temps réel.
-- **Pas de framework, pas de bundler.** C'est un choix assumé : tout doit rester lisible en ouvrant le fichier directement. Ne propose pas de migration vers React/Vite/etc. sans que ce soit explicitement demandé — et même là, challenge l'idée (voir §3).
+- **Stack** : HTML + CSS + JS vanilla, séparés en trois fichiers standards à la racine — `index.html` (structure), `style.css` (styles), `script.js` (logique) — chargés nativement (`<link rel="stylesheet">` / `<script src>`, pas de modules ES). Aucun build, aucune dépendance externe hors Firebase (SDK compat, chargé via CDN) pour l'auth et la base temps réel.
+- **Pas de framework, pas de bundler.** C'est un choix assumé : le projet doit rester servable tel quel par n'importe quel hébergeur statique, sans étape de compilation. Ne propose pas de migration vers React/Vite/etc. sans que ce soit explicitement demandé — et même là, challenge l'idée (voir §3).
+- **Pourquoi pas de modules ES ni de découpage plus fin** : un script classique (`<script src="script.js">`, sans `type="module"`) se charge sans restriction CORS même en ouvrant le fichier en local via `file://` — ce qui est utilisé pour les tests headless (voir §5). Des modules ES casseraient ce flux de test. Ne fragmente pas `script.js`/`style.css` en plus petits fichiers sans une vraie raison : au-delà de 2-3 fichiers par langage, la charge de maintenir l'ordre de chargement à la main dépasse le bénéfice, sans bundler pour l'automatiser.
 - **Déploiement** : le dépôt GitHub (`shisuiu/suivi-aylan`) est relié à Vercel (`suivi-bebe-nu.vercel.app`) en déploiement automatique sur `main`. Le déploiement peut prendre un peu de temps à se propager — ne pas paniquer si le changement n'apparaît pas instantanément, mais vérifier par un `curl` sur l'URL si un doute persiste après quelques minutes.
 
 ## 2. Ton rôle
@@ -35,10 +36,12 @@ Concrètement, à chaque demande substantielle :
 
 ## 4. Conventions techniques du projet
 
-### 4.1 Structure du fichier unique
-- `<style>` en tête (design tokens + règles), vues (`<div class="view" id="view-...">`) dans le `<body>`, un seul `<script>` en fin de fichier.
+### 4.1 Structure des fichiers
+- `index.html` : structure uniquement — `<head>` (meta, polices, SDK Firebase en CDN, lien vers `style.css`), vues (`<div class="view" id="view-...">`) et modales dans le `<body>`, `<script src="script.js">` juste avant `</body>`.
+- `style.css` : tous les styles — design tokens (`:root` clair + `html[data-theme="dark"]`) en tête, puis règles par composant/écran, dans l'ordre où les composants apparaissent dans `index.html`.
+- `script.js` : toute la logique — état global, fonctions de rendu par écran, handlers Firebase, écouteurs d'événements en fin de fichier. Un seul fichier, exécuté en `<script>` classique (voir §1 pour le pourquoi).
 - Vues actuelles : `today`, `calendar`, `chart` (Infos), `profile`, `settings` — plus les écrans hors nav (connexion/création de famille, modales).
-- Avant toute édition, `grep`/`Read` la zone concernée plutôt que de deviner l'emplacement — le fichier dépasse 5000 lignes.
+- Avant toute édition, `grep`/`Read` la zone concernée plutôt que de deviner l'emplacement — `script.js` et `style.css` dépassent chacun 1000 lignes.
 
 ### 4.2 Design tokens ("Relief")
 La direction visuelle en place s'appelle en interne **"Relief"** (claymorphism léger) : bordures épaisses (2–2.5px, souvent `var(--milk-dim)`/`var(--milk-deep)`), ombres décalées façon bouton pressable (`0 5px 0 -1px var(--milk-dim)` ou similaire), `:active` en `translateY(3px)` + ombre réduite plutôt qu'un simple `scale()`, coins généreux (16–26px selon l'échelle `--radius-sm/md/(défaut)`).
@@ -68,8 +71,8 @@ Cette règle s'applique à **toute** demande de ce type, y compris quand une imp
 
 Systématique, dans cet ordre, avant de committer un changement dans `index.html` :
 
-1. **Syntaxe JS** : extraire le contenu du dernier `<script>` et `node --check` dessus.
-2. **Équilibre des balises/accolades** : comptage `<div>`/`</div>`, `<svg>`/`</svg>`, `<button>`/`</button>`, accolades CSS `{`/`}` — un écart signale une balise mal fermée avant même de tester dans un navigateur.
+1. **Syntaxe JS** : `node --check script.js` directement.
+2. **Équilibre des balises/accolades** : comptage `<div>`/`</div>`, `<svg>`/`</svg>`, `<button>`/`</button>` dans `index.html`, accolades `{`/`}` dans `style.css` — un écart signale une balise mal fermée avant même de tester dans un navigateur.
 3. **Test fonctionnel headless** (Playwright, Chromium déjà installé sur `/opt/pw-browsers`) : stub `window.firebase`, injecter des données de test réalistes, simuler les interactions clés (clic, saisie, navigation), vérifier l'état résultant et l'absence d'erreurs console (`pageerror`).
 4. **Captures d'écran clair + sombre** de l'écran modifié, et **capture de non-régression** sur les écrans qui partagent une classe touchée.
 5. Seulement après ces quatre étapes vertes : commit avec message français détaillé expliquant le *pourquoi*, pas juste le *quoi*.
