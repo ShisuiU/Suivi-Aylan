@@ -1516,16 +1516,22 @@
       <div class="chart-scroll" id="vomit-chart-scroll"></div>
     </div>
     <div class="tab-panel" data-tab-group="chart" data-tab="growth">
-      <div class="card">
-        <h2 id="growth-form-title">Ajouter une mesure</h2>
-        <label class="field-label">Date</label>
-        <div class="date-field"><input type="date" id="growth-date-input"></div>
-        <label class="field-label">Poids (kg)</label>
-        <div class="time-row"><input class="login-field" type="number" inputmode="decimal" step="0.01" id="growth-weight-input" placeholder="ex : 4.20" style="margin-bottom:0;"></div>
-        <label class="field-label">Taille (cm)</label>
-        <div class="time-row"><input class="login-field" type="number" inputmode="decimal" step="0.5" id="growth-height-input" placeholder="ex : 55" style="margin-bottom:0;"></div>
-        <button class="save-btn" id="growth-save-btn" type="button">Enregistrer la mesure</button>
-        <button class="cancel-edit-btn hidden" id="growth-cancel-btn" type="button">Annuler la modification</button>
+      <div class="settings-section" data-section="growth-form" id="growth-form-section">
+        <button class="settings-section-title" type="button" data-section-toggle>
+          <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="5"/><line x1="12" y1="8.5" x2="12" y2="15.5"/><line x1="8.5" y1="12" x2="15.5" y2="12"/></svg></span>
+          <span id="growth-form-title">Ajouter une mesure</span>
+          <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="settings-section-content">
+          <label class="field-label">Date</label>
+          <div class="date-field"><input type="date" id="growth-date-input"></div>
+          <label class="field-label">Poids (kg)</label>
+          <div class="time-row"><input class="login-field" type="number" inputmode="decimal" step="0.01" id="growth-weight-input" placeholder="ex : 4.20" style="margin-bottom:0;"></div>
+          <label class="field-label">Taille (cm)</label>
+          <div class="time-row"><input class="login-field" type="number" inputmode="decimal" step="0.5" id="growth-height-input" placeholder="ex : 55" style="margin-bottom:0;"></div>
+          <button class="save-btn" id="growth-save-btn" type="button">Enregistrer la mesure</button>
+          <button class="cancel-edit-btn hidden" id="growth-cancel-btn" type="button">Annuler la modification</button>
+        </div>
       </div>
 
       <div class="tab-switch">
@@ -2536,6 +2542,10 @@ function startEditGrowth(id){
   $('growth-form-title').textContent = 'Modifier cette mesure';
   $('growth-save-btn').textContent = 'Enregistrer les modifications';
   $('growth-cancel-btn').classList.remove('hidden');
+
+  const section = $('growth-form-section');
+  section.classList.add('expanded');
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function cancelEditGrowth(){
