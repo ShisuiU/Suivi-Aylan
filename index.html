@@ -205,7 +205,6 @@
     box-shadow: 0 6px 0 var(--milk-deep);
   }
   #stat-hero-container .stat-hero.overdue{ border-color: var(--warning-deep); }
-  #age-hero{ justify-content:center; text-align:center; margin-bottom:10px; }
   .today-hero-top{
     position:relative; display:flex; align-items:center; gap:14px; width:100%; margin-bottom:20px;
     cursor:pointer; -webkit-tap-highlight-color:transparent; transition: transform .12s ease;
@@ -452,8 +451,8 @@
     from{ opacity:0; transform: translateY(10px); }
     to{ opacity:1; transform: translateY(0); }
   }
-  .card, .stat, .qa-btn, .settings-section, .feature-page-card, .child-page-card,
-  .search-result-item, .milestone-card, .stat-hero, .chart-scroll{
+  .card, .stat, .qa-btn, .settings-section, .feature-page-card, .child-chip,
+  .search-result-item, .milestone-card, .stat-hero, .profile-hero, .chart-scroll{
     animation: blockFadeIn .4s cubic-bezier(.22,1,.36,1) backwards;
   }
   .qa-btn:nth-child(1){ animation-delay: .03s; }
@@ -464,8 +463,8 @@
   .stat:nth-child(2){ animation-delay: .06s; }
   .stat:nth-child(3){ animation-delay: .09s; }
   @media (prefers-reduced-motion: reduce){
-    .card, .stat, .qa-btn, .settings-section, .feature-page-card, .child-page-card,
-    .search-result-item, .milestone-card, .stat-hero, .chart-scroll, .entry{
+    .card, .stat, .qa-btn, .settings-section, .feature-page-card, .child-chip,
+    .search-result-item, .milestone-card, .stat-hero, .profile-hero, .chart-scroll, .entry{
       animation: none;
     }
   }
@@ -746,31 +745,47 @@
     border-radius:14px; width:100%;
   }
 
-  /* Page « Enfant(s) » — liste complète avec sélection */
-  .children-page-list{ display:flex; flex-direction:column; gap:10px; }
-  .child-page-card{
-    display:flex; align-items:center; gap:12px; width:100%; text-align:left;
-    background: var(--glass-bg); border:1px solid var(--glass-border); border-radius: var(--radius);
-    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
-    padding:12px 16px; cursor:pointer; font-family:'Plus Jakarta Sans';
-    transition: border-color .15s ease, background-color .15s ease;
+  /* Page « Profil » — fiche fusionnée : âge + enfant suivi dans une seule
+     carte Relief, les autres enfants deviennent de petits avatars à toucher
+     pour changer, au lieu d'une liste complète de lignes. */
+  .profile-hero{
+    display:flex; align-items:center; gap:14px;
+    background: linear-gradient(135deg, var(--milk-light) 0%, var(--milk) 60%, var(--milk-deep) 100%);
+    color: var(--on-accent); border-radius: 22px; border: 2.5px solid var(--milk-deep);
+    box-shadow: 0 6px 0 var(--milk-deep);
+    padding: 16px 18px; margin-bottom:14px; position:relative; overflow:hidden;
   }
-  .child-page-card.active{ border-color: var(--milk); background: var(--milk-dim); }
-  .child-page-avatar{
-    flex-shrink:0; width:42px; height:42px; border-radius:50%; background: var(--bg-2); color: var(--ink-dim);
-    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px;
-    text-transform:uppercase; overflow:hidden; transition: background-color .15s ease, color .15s ease;
+  .profile-hero::before{
+    content:''; position:absolute; width:130px; height:130px; border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, rgba(255,255,255,.3), rgba(255,255,255,0) 70%);
+    top:-50px; right:-30px; pointer-events:none;
   }
-  .child-page-avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .child-page-card.active .child-page-avatar{ background: var(--milk); color: var(--on-accent); }
-  .child-page-info{ flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
-  .child-page-name{
-    font-size:14.5px; font-weight:600; color: var(--ink);
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  .profile-hero-avatar{
+    position:relative; flex-shrink:0; width:52px; height:52px; border-radius:50%;
+    background:rgba(255,255,255,.22); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:19px;
+    text-transform:uppercase; overflow:hidden; box-shadow: var(--shadow-gloss);
   }
-  .child-page-age{ font-size:12px; color: var(--ink-faint); margin-top:1px; }
-  .child-page-badge{
-    flex-shrink:0; font-size:10px; font-weight:700; color: var(--milk); text-transform:uppercase; letter-spacing:.05em;
+  .profile-hero-avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .profile-hero-info{ position:relative; flex:1; min-width:0; }
+  .profile-hero-info .lbl{ font-size: 10.5px; text-transform:uppercase; letter-spacing:.1em; opacity:.9; font-weight:600; }
+  .profile-hero-info .num{
+    font-family:'Plus Jakarta Sans', sans-serif; font-size: 19px; font-weight:700; letter-spacing:-.01em;
+    margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .child-chip-row{ display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-bottom:8px; }
+  .child-chip{
+    flex-shrink:0; width:42px; height:42px; border-radius:50%; padding:0; cursor:pointer;
+    background: var(--bg-2); border:2px solid var(--bg-2); color: var(--ink-dim);
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px;
+    font-family:'Plus Jakarta Sans'; text-transform:uppercase; overflow:hidden; opacity:.65;
+    transition: opacity .15s ease, border-color .15s ease, transform .1s ease;
+  }
+  .child-chip img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .child-chip.active{ opacity:1; border-color: var(--milk-deep); box-shadow: 0 3px 0 var(--milk-deep); }
+  .child-chip:active{ transform: scale(0.9); }
+  .child-chip-add{
+    opacity:1; background:none; border:2px dashed var(--milk-dim); color: var(--ink-faint);
   }
 
   /* Photo de profil d'un enfant */
@@ -1556,16 +1571,15 @@
   </div>
 
   <div class="view" id="view-profile">
-    <div class="stat-hero hidden" id="age-hero">
-      <div>
-        <div class="lbl" id="age-name-lbl">Âge</div>
+    <div class="profile-hero hidden" id="age-hero">
+      <div class="profile-hero-avatar" id="profile-hero-avatar">?</div>
+      <div class="profile-hero-info">
+        <div class="lbl" id="age-name-lbl">Suivi(e) actuellement</div>
         <div class="num" id="age-value">—</div>
       </div>
     </div>
 
-    <p class="backup-hint" style="margin:2px 2px 12px;">Renseigne le ou les enfants à charge et choisis celui à suivre.</p>
-    <div class="children-page-list" id="children-list-page"></div>
-    <button class="milestone-add-btn" id="children-add-btn" type="button">+ Ajouter un enfant</button>
+    <div class="child-chip-row" id="children-list-page"></div>
 
     <div class="tab-switch" style="margin-top:18px;">
       <button class="tab-btn active" data-tab-group="profile" data-tab="milestones" type="button">Souvenirs</button>
@@ -2223,22 +2237,17 @@ function renderChildrenPage(){
     return;
   }
 
-  list.innerHTML = childrenList.map(c => {
+  const chips = childrenList.map(c => {
     const fullName = [c.firstName, c.lastName].filter(Boolean).join(' ').trim() || DEFAULT_SITE_NAME;
     const initial = initialLetterFor(c.firstName, c.lastName);
     const active = c.id === currentChildId ? ' active' : '';
-    const age = c.birthDate ? computeAge(c.birthDate) : 'Date de naissance non renseignée';
-    const badge = c.id === currentChildId ? '<span class="child-page-badge">Suivi</span>' : '';
     const avatarContent = c.avatar ? `<img src="${c.avatar}" alt="">` : escapeHtml(initial);
-    return `<button type="button" class="child-page-card${active}" data-child="${c.id}">
-      <span class="child-page-avatar">${avatarContent}</span>
-      <span class="child-page-info">
-        <span class="child-page-name">${escapeHtml(fullName)}</span>
-        <span class="child-page-age">${escapeHtml(age)}</span>
-      </span>
-      ${badge}
-    </button>`;
+    return `<button type="button" class="child-chip${active}" data-child="${c.id}" title="${escapeHtml(fullName)}">${avatarContent}</button>`;
   }).join('');
+
+  list.innerHTML = chips + `<button type="button" class="child-chip child-chip-add" data-add-child aria-label="Ajouter un enfant">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>`;
 }
 
 async function addChild(profile){
@@ -2445,8 +2454,11 @@ function renderAgeHero(){
   const hero = $('age-hero');
   if(profileData && profileData.birthDate){
     hero.classList.remove('hidden');
-    $('age-name-lbl').textContent = 'Âge';
-    $('age-value').textContent = computeAge(profileData.birthDate);
+    const name = getChildFirstName() || DEFAULT_SITE_NAME;
+    $('age-name-lbl').textContent = 'Suivi(e) actuellement';
+    $('age-value').textContent = `${name} · ${computeAge(profileData.birthDate)}`;
+    const initial = initialLetterFor(profileData.firstName, profileData.lastName);
+    $('profile-hero-avatar').innerHTML = profileData.avatar ? `<img src="${profileData.avatar}" alt="">` : escapeHtml(initial);
   }else{
     hero.classList.add('hidden');
   }
@@ -4583,10 +4595,10 @@ $('profile-delete-child-btn').addEventListener('click', () => {
   deleteCurrentChild();
 });
 $('children-list-page').addEventListener('click', (ev) => {
+  if(ev.target.closest('[data-add-child]')){ openAddChildModal(); return; }
   const card = ev.target.closest('[data-child]');
   if(card) switchToChild(card.getAttribute('data-child'));
 });
-$('children-add-btn').addEventListener('click', openAddChildModal);
 $('add-child-modal-close-btn').addEventListener('click', closeAddChildModal);
 $('add-child-modal-overlay').addEventListener('click', (e) => {
   if(e.target.id === 'add-child-modal-overlay') closeAddChildModal();
