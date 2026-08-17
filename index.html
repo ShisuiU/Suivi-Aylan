@@ -1016,9 +1016,15 @@
   }
   .login-card{
     width:100%; max-width:360px; background: var(--glass-bg-strong); border:1px solid var(--glass-border);
-    border-radius: var(--radius); padding: 38px 30px; text-align:center;
+    border-radius: 30px; padding: 38px 30px; text-align:center;
     box-shadow: var(--shadow-lift);
     -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
+  }
+  .auth-badge{
+    width:60px; height:60px; margin:0 auto 16px; border-radius:50%;
+    background: linear-gradient(145deg, var(--milk-light), var(--milk-deep)); color: var(--on-accent);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 12px 26px -10px rgba(52,93,132,.55), var(--shadow-gloss);
   }
   .login-title{
     font-family:'Cormorant Garamond', serif; font-weight:600; font-style:italic;
@@ -1028,6 +1034,19 @@
     font-size: 11px; color: var(--ink-faint); text-transform:uppercase; letter-spacing:.14em;
     margin: 0 0 26px 0;
   }
+  .auth-field-wrap{ position:relative; margin-bottom:10px; }
+  .auth-field-wrap .auth-field-ic{
+    position:absolute; left:19px; top:50%; transform:translateY(-50%);
+    color: var(--ink-faint); display:flex; pointer-events:none; transition: color .15s ease;
+  }
+  .auth-field-wrap:focus-within .auth-field-ic{ color: var(--milk); }
+  .auth-field{
+    width:100%; background: var(--bg-2); border:1px solid var(--line); color: var(--ink);
+    font-family:'Plus Jakarta Sans'; font-size:16px; padding:15px 18px 15px 48px; border-radius:999px;
+    text-align:left;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .auth-field:focus{ outline:none; border-color: var(--milk); box-shadow: var(--focus-ring); }
   .login-field{
     width:100%; background: var(--bg-2); border:1px solid var(--line); color: var(--ink);
     font-family:'Plus Jakarta Sans'; font-size:16px; padding:15px 18px; border-radius:var(--radius-input);
@@ -1071,11 +1090,20 @@
   }
   .family-choice-btn{
     width:100%; background: var(--bg-2); border:1px solid var(--line); color: var(--ink);
-    padding:16px 20px; border-radius:var(--radius-input); font-family:'Plus Jakarta Sans'; font-weight:600; font-size:14.5px;
-    cursor:pointer; margin-bottom:12px; text-align:left; display:flex; flex-direction:column; gap:2px;
+    padding:14px 16px; border-radius:20px; font-family:'Plus Jakarta Sans';
+    cursor:pointer; margin-bottom:12px; text-align:left;
+    display:flex; align-items:center; gap:13px;
+    transition: border-color .15s ease, background .15s ease, transform .1s ease;
   }
+  .family-choice-btn .fc-ic{
+    flex-shrink:0; width:40px; height:40px; border-radius:14px;
+    background: linear-gradient(145deg, var(--milk-light), var(--milk-deep)); color: var(--on-accent);
+    display:flex; align-items:center; justify-content:center; box-shadow: var(--shadow-gloss);
+  }
+  .family-choice-btn .fc-text{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; font-weight:600; font-size:14.5px; }
+  .family-choice-btn .fc-arrow{ flex-shrink:0; color: var(--ink-faint); }
   .family-choice-btn .sub{ font-size:11.5px; color: var(--ink-faint); font-weight:400; }
-  .family-choice-btn:active{ background: var(--card-hover); }
+  .family-choice-btn:active{ background: var(--card-hover); transform: scale(0.98); }
   .family-back-link{
     display:block; background:none; border:none; color: var(--ink-faint);
     font-family:'Plus Jakarta Sans'; font-size:12.5px; margin-top:14px; cursor:pointer; text-decoration:underline;
@@ -1143,11 +1171,21 @@
 
 <div class="login-screen" id="login-screen">
   <div class="login-card">
+    <div class="auth-badge"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h4"/><path d="M10.5 2v3c0 .7-.4 1.1-.9 1.6-1 .9-1.6 1.9-1.6 3.4v9c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-9c0-1.5-.6-2.5-1.6-3.4-.5-.5-.9-.9-.9-1.6V2"/><line x1="8.5" y1="12.5" x2="15.5" y2="12.5"/></svg></div>
     <h1 class="login-title" id="login-title">Bébé</h1>
     <div class="login-sub" id="auth-mode-label">Connexion</div>
-    <input class="login-field" type="email" id="login-email" placeholder="Email" autocomplete="username">
-    <input class="login-field" type="password" id="login-password" placeholder="Mot de passe" autocomplete="current-password">
-    <input class="login-field hidden" type="password" id="login-password-confirm" placeholder="Confirmer le mot de passe" autocomplete="new-password">
+    <div class="auth-field-wrap">
+      <span class="auth-field-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m3.5 6.5 8.5 6 8.5-6"/></svg></span>
+      <input class="auth-field" type="email" id="login-email" placeholder="Email" autocomplete="username">
+    </div>
+    <div class="auth-field-wrap">
+      <span class="auth-field-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.2a4 4 0 0 1 8 0v3.3"/></svg></span>
+      <input class="auth-field" type="password" id="login-password" placeholder="Mot de passe" autocomplete="current-password">
+    </div>
+    <div class="auth-field-wrap hidden" id="login-password-confirm-wrap">
+      <span class="auth-field-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.2a4 4 0 0 1 8 0v3.3"/></svg></span>
+      <input class="auth-field" type="password" id="login-password-confirm" placeholder="Confirmer le mot de passe" autocomplete="new-password">
+    </div>
     <button class="login-btn" id="login-btn">Se connecter</button>
     <button class="auth-toggle-link" id="auth-toggle-link" type="button">Pas encore de compte ? Créer un compte</button>
     <div class="login-error" id="login-error"></div>
@@ -3028,7 +3066,7 @@ function toggleAuthMode(){
   authMode = authMode === 'login' ? 'signup' : 'login';
   $('auth-mode-label').textContent = authMode === 'login' ? 'Connexion' : 'Créer un compte';
   $('login-btn').textContent = authMode === 'login' ? 'Se connecter' : 'Créer le compte';
-  $('login-password-confirm').classList.toggle('hidden', authMode === 'login');
+  $('login-password-confirm-wrap').classList.toggle('hidden', authMode === 'login');
   $('auth-toggle-link').textContent = authMode === 'login' ? "Pas encore de compte ? Créer un compte" : "Déjà un compte ? Se connecter";
   $('login-error').textContent = '';
 }
@@ -3126,17 +3164,27 @@ async function resolveFamily(uid){
 function renderFamilySetup(mode, data){
   const card = $('family-setup-card');
 
+  const arrowIc = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>';
+  const familyIc = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="7" r="3"/><path d="M3 20c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="17.5" cy="8.5" r="2.3"/><path d="M14.8 20c.3-2.2 1.6-3.8 3.6-3.8"/></svg>';
+  const plusIc = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="5"/><line x1="12" y1="8.5" x2="12" y2="15.5"/><line x1="8.5" y1="12" x2="15.5" y2="12"/></svg>';
+  const keyIc = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4.2"/><path d="M11 12 19.5 3.5"/><path d="M16.5 6.5 19 9"/><path d="M14 9 16.2 11.2"/></svg>';
+  const historyIc = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>';
+  const checkIc = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.5 2.5 5-5"/></svg>';
+
   if(mode === 'choice'){
     card.innerHTML = `
+      <div class="auth-badge">${familyIc}</div>
       <h1 class="login-title">${getChildFirstName() || DEFAULT_SITE_NAME}</h1>
       <div class="login-sub">Espace famille</div>
       <button class="family-choice-btn" id="fs-create-btn" type="button">
-        Créer une nouvelle famille
-        <span class="sub">Pour commencer le suivi d'un enfant</span>
+        <span class="fc-ic">${plusIc}</span>
+        <span class="fc-text">Créer une nouvelle famille<span class="sub">Pour commencer le suivi d'un enfant</span></span>
+        <span class="fc-arrow">${arrowIc}</span>
       </button>
       <button class="family-choice-btn" id="fs-join-btn" type="button">
-        Rejoindre une famille existante
-        <span class="sub">Avec un code d'invitation reçu</span>
+        <span class="fc-ic">${keyIc}</span>
+        <span class="fc-text">Rejoindre une famille existante<span class="sub">Avec un code d'invitation reçu</span></span>
+        <span class="fc-arrow">${arrowIc}</span>
       </button>
       <div class="login-error" id="fs-error"></div>
     `;
@@ -3147,9 +3195,13 @@ function renderFamilySetup(mode, data){
 
   if(mode === 'create'){
     card.innerHTML = `
+      <div class="auth-badge">${plusIc}</div>
       <h1 class="login-title">${getChildFirstName() || DEFAULT_SITE_NAME}</h1>
       <div class="login-sub">Créer une famille</div>
-      <input class="login-field" type="text" id="fs-family-name" placeholder="ex : Famille Dupont">
+      <div class="auth-field-wrap">
+        <span class="auth-field-ic">${familyIc}</span>
+        <input class="auth-field" type="text" id="fs-family-name" placeholder="ex : Famille Dupont">
+      </div>
       <button class="login-btn" id="fs-create-submit">Créer</button>
       <button class="family-back-link" id="fs-back">← Retour</button>
       <div class="login-error" id="fs-error"></div>
@@ -3161,9 +3213,13 @@ function renderFamilySetup(mode, data){
 
   if(mode === 'join'){
     card.innerHTML = `
+      <div class="auth-badge">${keyIc}</div>
       <h1 class="login-title">${getChildFirstName() || DEFAULT_SITE_NAME}</h1>
       <div class="login-sub">Rejoindre une famille</div>
-      <input class="login-field" type="text" id="fs-join-code" placeholder="Code d'invitation" style="text-transform:uppercase;">
+      <div class="auth-field-wrap">
+        <span class="auth-field-ic">${keyIc}</span>
+        <input class="auth-field" type="text" id="fs-join-code" placeholder="Code d'invitation" style="text-transform:uppercase;">
+      </div>
       <button class="login-btn" id="fs-join-submit">Rejoindre</button>
       <button class="family-back-link" id="fs-back">← Retour</button>
       <div class="login-error" id="fs-error"></div>
@@ -3175,6 +3231,7 @@ function renderFamilySetup(mode, data){
 
   if(mode === 'legacy'){
     card.innerHTML = `
+      <div class="auth-badge">${historyIc}</div>
       <h1 class="login-title">${getChildFirstName() || DEFAULT_SITE_NAME}</h1>
       <div class="login-sub">Anciennes données détectées</div>
       <p class="backup-hint">On a retrouvé un suivi existant sur ce compte. Créer votre espace famille avec ces données ?</p>
@@ -3189,6 +3246,7 @@ function renderFamilySetup(mode, data){
 
   if(mode === 'created'){
     card.innerHTML = `
+      <div class="auth-badge">${checkIc}</div>
       <h1 class="login-title">${getChildFirstName() || DEFAULT_SITE_NAME}</h1>
       <div class="login-sub">Famille créée 🎉</div>
       <p class="backup-hint">Partage ce code avec l'autre parent (ou toute autre personne) pour qu'il/elle rejoigne votre espace.</p>
