@@ -1202,6 +1202,15 @@
   .invite-code-display .label{
     font-size:10.5px; color: var(--ink-faint); text-transform:uppercase; letter-spacing:.1em; margin-bottom:6px;
   }
+  .invite-code-row{ display:flex; align-items:center; justify-content:center; gap:8px; }
+  .invite-code-row .code{ min-width:0; overflow:hidden; text-overflow:ellipsis; }
+  .invite-code-btn{
+    flex-shrink:0; width:30px; height:30px; border-radius:50%;
+    background:none; border:1.5px solid var(--milk); color: var(--milk); padding:0;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition: background-color .15s ease, transform .1s ease;
+  }
+  .invite-code-btn:active{ background: var(--milk-dim); transform: scale(0.88); }
   .hidden{ display:none !important; }
 
   .offline-banner{
@@ -1679,7 +1688,15 @@
 
         <div class="invite-code-display">
           <div class="label">Code d'invitation</div>
-          <div class="code" id="settings-invite-code">—</div>
+          <div class="invite-code-row">
+            <div class="code" id="settings-invite-code">—</div>
+            <button type="button" class="invite-code-btn" id="settings-invite-reveal-btn" aria-label="Afficher le code" aria-pressed="false">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+            <button type="button" class="invite-code-btn" id="settings-invite-copy-btn" aria-label="Copier le code">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+            </button>
+          </div>
         </div>
         <p class="backup-hint">Partage ce code avec une personne pour qu'elle rejoigne votre espace famille (onglet "Rejoindre une famille" à l'inscription).</p>
         <button class="danger-link-btn" id="settings-logout-btn" type="button">Se déconnecter</button>
@@ -2311,12 +2328,48 @@ async function deleteCurrentChild(){
 
 let lastMigrationError = null;
 
+// Code d'invitation de la page Paramètres : masqué par défaut (visible par-dessus
+// une épaule ou en partage d'écran), un bouton "œil" le dévoile et un bouton
+// "copier" le met dans le presse-papier sans avoir à le sélectionner à la main.
+let inviteCodeValue = '—';
+let inviteCodeRevealed = false;
+const EYE_ICON = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_OFF_ICON = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 5.2A10.6 10.6 0 0 1 12 5c6.5 0 10 7 10 7a17.9 17.9 0 0 1-3.2 4.2M6.6 6.6C4 8.3 2 12 2 12s3.5 7 10 7c1.4 0 2.6-.3 3.7-.8"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+
+function renderInviteCodeDisplay(){
+  const el = $('settings-invite-code');
+  const btn = $('settings-invite-reveal-btn');
+  if(!el || !btn) return;
+  const hasCode = inviteCodeValue && inviteCodeValue !== '—';
+  el.textContent = (inviteCodeRevealed || !hasCode) ? inviteCodeValue : '••••••••';
+  btn.innerHTML = inviteCodeRevealed ? EYE_OFF_ICON : EYE_ICON;
+  btn.setAttribute('aria-label', inviteCodeRevealed ? 'Masquer le code' : 'Afficher le code');
+  btn.setAttribute('aria-pressed', String(inviteCodeRevealed));
+}
+
+function toggleInviteCodeReveal(){
+  inviteCodeRevealed = !inviteCodeRevealed;
+  renderInviteCodeDisplay();
+}
+
+async function copyInviteCode(explicitCode){
+  const code = explicitCode || inviteCodeValue;
+  if(!code || code === '—'){ showToast('Code pas encore disponible'); return; }
+  try{
+    await navigator.clipboard.writeText(code);
+    showToast('Code copié dans le presse-papier');
+  }catch(e){
+    showToast('Impossible de copier le code');
+  }
+}
+
 function startSync(){
   settingsRef = db.ref('families/' + currentFamilyId + '/meta');
   settingsRef.on('value', (snapshot) => {
     const meta = snapshot.val() || {};
     $('settings-family-name-input').value = meta.name || 'Ma famille';
-    $('settings-invite-code').textContent = meta.inviteCode || '—';
+    inviteCodeValue = meta.inviteCode || '—';
+    renderInviteCodeDisplay();
     $('settings-summary-name').textContent = meta.name || 'Ma famille';
     const val = meta.features || {};
     familyFeatures = { sleep: !!val.sleep, health: !!val.health, vaccines: !!val.vaccines };
@@ -3347,10 +3400,16 @@ function renderFamilySetup(mode, data){
       <p class="backup-hint">Partage ce code avec l'autre parent (ou toute autre personne) pour qu'il/elle rejoigne votre espace.</p>
       <div class="invite-code-display">
         <div class="label">Code d'invitation</div>
-        <div class="code">${data.inviteCode}</div>
+        <div class="invite-code-row">
+          <div class="code">${data.inviteCode}</div>
+          <button type="button" class="invite-code-btn" id="fs-invite-copy-btn" aria-label="Copier le code">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          </button>
+        </div>
       </div>
       <button class="login-btn" id="fs-continue">Continuer</button>
     `;
+    $('fs-invite-copy-btn').addEventListener('click', () => copyInviteCode(data.inviteCode));
     $('fs-continue').addEventListener('click', () => {
       currentFamilyId = data.familyId;
       showScreen('app-wrap');
@@ -4828,6 +4887,8 @@ $('login-password').addEventListener('keydown', (e) => { if(e.key === 'Enter') d
 $('login-password-confirm').addEventListener('keydown', (e) => { if(e.key === 'Enter') doAuthSubmit(); });
 $('auth-toggle-link').addEventListener('click', toggleAuthMode);
 $('settings-logout-btn').addEventListener('click', doLogout);
+$('settings-invite-reveal-btn').addEventListener('click', toggleInviteCodeReveal);
+$('settings-invite-copy-btn').addEventListener('click', () => copyInviteCode());
 $('settings-family-name-save-btn').addEventListener('click', saveFamilyName);
 $('settings-family-name-input').addEventListener('keydown', (e) => { if(e.key === 'Enter') saveFamilyName(); });
 $('theme-toggle-switch').addEventListener('click', toggleTheme);
