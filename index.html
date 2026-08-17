@@ -929,20 +929,35 @@
   .search-result-comment{ font-size:13px; color: var(--ink); line-height:1.4; }
   .search-result-comment mark{ background: var(--milk-dim); color: var(--milk); border-radius:3px; padding:0 2px; }
   .search-no-results{ text-align:center; color: var(--ink-faint); font-size:13px; padding:20px 10px; }
+  .cal-search-panel{ margin-bottom:14px; }
 
   .cal-nav{
-    display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;
+    display:flex; flex-direction:column;
+    background: var(--bg-2); border:2.5px solid var(--milk-dim); border-radius:20px;
+    padding:12px 14px; margin-bottom:16px;
+    box-shadow: 0 5px 0 -1px var(--milk-dim), 0 8px 14px -8px rgba(52,93,132,.28);
   }
+  .cal-nav-top{ display:flex; align-items:center; gap:4px; }
   .cal-nav-btn{
-    width:38px; height:38px; border-radius:50%; border:1px solid var(--glass-border);
-    background: var(--glass-bg); color: var(--ink); font-size:16px; cursor:pointer;
-    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
+    width:32px; height:32px; flex-shrink:0; border-radius:50%; border:none;
+    background:none; color: var(--milk-deep); font-size:17px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
     transition: background-color .15s ease, transform .1s ease;
   }
-  .cal-nav-btn:active{ background: var(--card-hover); transform: scale(0.88); }
+  .cal-nav-btn:active{ background: var(--milk-dim); transform: scale(0.85); }
+  .cal-search-btn{ color: var(--ink-faint); }
+  .cal-search-btn.active{ color: var(--milk-deep); background: var(--milk-dim); }
   .cal-nav-title{
-    font-family:'Plus Jakarta Sans', sans-serif; font-size:17px; font-weight:600; text-transform:capitalize;
+    flex:1; min-width:0; text-align:center;
+    font-family:'Plus Jakarta Sans', sans-serif; font-size:15.5px; font-weight:700; color: var(--ink);
+    text-transform:capitalize; transition: opacity .18s ease;
   }
+  .cal-nav-stats{
+    display:flex; justify-content:space-around; gap:6px; margin-top:10px; padding-top:10px;
+    border-top: 1.5px solid var(--milk-dim);
+    font-size:11.5px; color: var(--ink-faint); font-weight:500;
+  }
+  .cal-nav-stats b{ color: var(--ink); font-weight:700; }
   .cal-grid{
     display:grid; grid-template-columns: repeat(7,1fr); gap:6px; margin-bottom:22px;
     touch-action: pan-y;
@@ -952,18 +967,18 @@
   .cal-grid.slide-out-r{ transform: translateX(24px); opacity:0; }
   .cal-grid.slide-in-prep-l{ transition:none; transform: translateX(24px); opacity:0; }
   .cal-grid.slide-in-prep-r{ transition:none; transform: translateX(-24px); opacity:0; }
-  .cal-nav-title{ transition: opacity .18s ease; }
   .cal-dow{
     text-align:center; font-size:10.5px; color: var(--ink-faint); text-transform:uppercase;
-    padding-bottom:4px;
+    padding-bottom:6px; font-weight:600;
   }
   .cal-day{
-    aspect-ratio:1; border-radius:10px; border:1px solid transparent; background: var(--glass-bg);
+    aspect-ratio:1; border-radius:14px; border:2px solid transparent; background: var(--bg-2);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     cursor:pointer; font-size:13px; color: var(--ink-dim); gap:3px; position:relative;
+    transition: transform .1s ease, background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
   }
   .cal-day.empty-cell{ background:none; cursor:default; }
-  .cal-day.has-entries{ color: var(--ink); }
+  .cal-day.has-entries{ color: var(--ink); background: var(--glass-bg); }
   .cal-day .dots{ display:flex; align-items:center; gap:3px; }
   .cal-day .dot{
     width:6px; height:6px; border-radius:50%; background: var(--milk);
@@ -973,8 +988,12 @@
   .cal-day .dot.dot-vomit{ background: var(--vomit); }
   .cal-day .dot.dot-sleep{ background: var(--sleep); }
   .cal-day .dot.dot-health{ background: var(--danger); }
-  .cal-day.selected{ border-color: var(--milk); background: var(--milk-dim); color: var(--ink); }
-  .cal-day.is-today{ box-shadow: inset 0 0 0 1px var(--sage); }
+  .cal-day.is-today{ border-color: var(--milk); }
+  .cal-day.selected{
+    border-color: var(--milk-deep); background: var(--milk); color: var(--on-accent);
+    box-shadow: 0 3px 0 var(--milk-deep);
+  }
+  .cal-day.selected .dot{ background: var(--on-accent); box-shadow:none; }
 
   .cal-day-detail-label{
     font-family:'Plus Jakarta Sans', sans-serif; font-size:16px; font-weight:600; margin: 4px 0 12px 2px;
@@ -1424,27 +1443,35 @@
   </div>
 
   <div class="view" id="view-calendar">
-    <div class="search-field-wrap">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="text" id="comment-search-input" placeholder="Rechercher dans les commentaires...">
-    </div>
-    <div class="filter-chip-row" id="search-filter-row">
-      <button class="filter-chip active" data-filter-type="all" type="button">Tout</button>
-      <button class="filter-chip" data-filter-type="biberon" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h4"/><path d="M10.5 2v3c0 .7-.4 1.1-.9 1.6-1 .9-1.6 1.9-1.6 3.4v9c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-9c0-1.5-.6-2.5-1.6-3.4-.5-.5-.9-.9-.9-1.6V2"/><line x1="8.5" y1="12.5" x2="15.5" y2="12.5"/></svg> Biberon</button>
-      <button class="filter-chip" data-filter-type="diaper" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3c-3 4-6 8-6 11.5A6 6 0 0 0 12 21a6 6 0 0 0 6-6.5C18 11 15 7 12 3z"/></svg> Couche</button>
-      <button class="filter-chip" data-filter-type="vomit" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/><path d="M3 17c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/></svg> Vomi</button>
-      <button class="filter-chip hidden" data-filter-type="sleep" id="filter-chip-sleep" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg> Sommeil</button>
-      <button class="filter-chip hidden" data-filter-type="health" id="filter-chip-health" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg> Santé</button>
-    </div>
-    <div id="comment-search-results"></div>
-
-    <div id="calendar-main-block">
-      <div class="stats-row" id="cal-month-stats"></div>
-      <div class="cal-nav">
+    <div class="cal-nav">
+      <div class="cal-nav-top">
         <button class="cal-nav-btn" id="cal-prev" type="button">‹</button>
         <div class="cal-nav-title" id="cal-title"></div>
+        <button class="cal-nav-btn cal-search-btn" id="cal-search-toggle" type="button" aria-label="Rechercher dans les commentaires">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
         <button class="cal-nav-btn" id="cal-next" type="button">›</button>
       </div>
+      <div class="cal-nav-stats" id="cal-month-stats"></div>
+    </div>
+
+    <div class="cal-search-panel hidden" id="cal-search-panel">
+      <div class="search-field-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="comment-search-input" placeholder="Rechercher dans les commentaires...">
+      </div>
+      <div class="filter-chip-row" id="search-filter-row">
+        <button class="filter-chip active" data-filter-type="all" type="button">Tout</button>
+        <button class="filter-chip" data-filter-type="biberon" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h4"/><path d="M10.5 2v3c0 .7-.4 1.1-.9 1.6-1 .9-1.6 1.9-1.6 3.4v9c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-9c0-1.5-.6-2.5-1.6-3.4-.5-.5-.9-.9-.9-1.6V2"/><line x1="8.5" y1="12.5" x2="15.5" y2="12.5"/></svg> Biberon</button>
+        <button class="filter-chip" data-filter-type="diaper" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3c-3 4-6 8-6 11.5A6 6 0 0 0 12 21a6 6 0 0 0 6-6.5C18 11 15 7 12 3z"/></svg> Couche</button>
+        <button class="filter-chip" data-filter-type="vomit" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/><path d="M3 17c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/></svg> Vomi</button>
+        <button class="filter-chip hidden" data-filter-type="sleep" id="filter-chip-sleep" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg> Sommeil</button>
+        <button class="filter-chip hidden" data-filter-type="health" id="filter-chip-health" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg> Santé</button>
+      </div>
+      <div id="comment-search-results"></div>
+    </div>
+
+    <div id="calendar-main-block">
       <div class="cal-grid" id="cal-grid"></div>
       <div id="cal-day-detail"></div>
     </div>
@@ -3931,12 +3958,32 @@ function renderCommentSearch(){
       });
       resultsEl.innerHTML = '';
       mainBlock.classList.remove('hidden');
+      $('cal-search-panel').classList.add('hidden');
+      $('cal-search-toggle').classList.remove('active');
       renderCalendar();
       setTimeout(() => {
         $('cal-day-detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 50);
     });
   });
+}
+
+function toggleCalSearch(){
+  const panel = $('cal-search-panel');
+  const btn = $('cal-search-toggle');
+  const opening = panel.classList.contains('hidden');
+  panel.classList.toggle('hidden', !opening);
+  btn.classList.toggle('active', opening);
+  if(opening){
+    setTimeout(() => $('comment-search-input').focus(), 50);
+  }else{
+    $('comment-search-input').value = '';
+    activeFilterType = 'all';
+    document.querySelectorAll('#search-filter-row .filter-chip').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-filter-type') === 'all');
+    });
+    renderCommentSearch();
+  }
 }
 
 function dayDotClasses(dayEntries){
@@ -3964,10 +4011,10 @@ function renderCalendar(){
   const monthDiaperCount = monthEntries.filter(e => e.type === 'diaper').length
     + monthBottles.filter(e => e.diaper !== 'none').length;
   $('cal-month-stats').innerHTML = monthEntries.length ? `
-    <div class="stat"><div class="num">${monthBottles.length}</div><div class="lbl">Biberons</div></div>
-    <div class="stat"><div class="num">${monthMl}</div><div class="lbl">ml au total</div></div>
-    <div class="stat"><div class="num">${monthDiaperCount}</div><div class="lbl">Couches</div></div>
-  ` : '';
+    <span><b>${monthBottles.length}</b> biberon${monthBottles.length > 1 ? 's' : ''}</span>
+    <span><b>${monthMl}</b> ml</span>
+    <span><b>${monthDiaperCount}</b> couche${monthDiaperCount > 1 ? 's' : ''}</span>
+  ` : `<span>Aucune entrée ce mois-ci</span>`;
 
   const entriesByDay = {};
   entries.forEach(e => { (entriesByDay[e.dayKey] || (entriesByDay[e.dayKey] = [])).push(e); });
@@ -4601,6 +4648,7 @@ function goToMonth(direction){
 $('cal-prev').addEventListener('click', () => goToMonth(-1));
 $('comment-search-input').addEventListener('input', renderCommentSearch);
 $('cal-next').addEventListener('click', () => goToMonth(1));
+$('cal-search-toggle').addEventListener('click', toggleCalSearch);
 
 let swipeStartX = null;
 let swipeStartY = null;
