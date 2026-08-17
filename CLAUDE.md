@@ -89,8 +89,8 @@ Déclaré dans `.mcp.json`, lancé en headless avec Chromium. Deux façons de te
 
 Dans les deux cas, l'objectif reste le même : ne jamais se contenter d'écrire du code, toujours vérifier réellement que ça fonctionne (parcours utilisateur, formulaires, boutons, navigation, erreurs visuelles, régressions) avant de considérer une tâche terminée.
 
-### 5.4 Figma — nécessite une action de ta part (voir résumé en fin d'analyse)
-Connecteur officiel disponible mais **pas encore autorisé** — je ne peux pas l'activer moi-même, ça se fait depuis les réglages de ton compte claude.ai. Une fois connecté, utilise-le pour : réfléchir aux interfaces/composants/système de design dans Figma, récupérer le contexte d'une maquette (`get_design_context`, `get_variable_defs`, `get_screenshot`) pour ensuite traduire fidèlement une idée validée dans le système de design "Relief" déjà en place (§4.2) — jamais pour importer un design brut sans passer par les conventions du projet (tokens, scoping CSS).
+### 5.4 Figma (`mcp__Figma__*`) — connecté et actif
+Connecteur officiel, autorisé par l'utilisateur et vérifié fonctionnel. Utilise-le pour : réfléchir aux interfaces/composants/système de design dans Figma, récupérer le contexte d'une maquette (`get_design_context`, `get_variable_defs`, `get_screenshot`, `search_design_system`) pour ensuite traduire fidèlement une idée validée dans le système de design "Relief" déjà en place (§4.2) — jamais pour importer un design brut sans passer par les conventions du projet (tokens, scoping CSS). Avant tout `use_figma` (écrire dans Figma), suis le skill dédié `/figma-use`.
 
 ### 5.5 21st.dev (`mcp__21st__*`) — déjà actif
 Déjà connecté et utilisé dans ce projet pour l'inspiration visuelle (recherche de composants, mood pour une refonte). Complète le skill `ui-ux-pro-max`.
