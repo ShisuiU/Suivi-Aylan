@@ -160,11 +160,27 @@ function setDateOffset(daysAgo){
   $('date-input').value = dateInputVal(d);
 }
 
-function showToast(msg){
+function showToast(msg, opts){
   const t = $('toast');
-  t.textContent = msg;
+  t.innerHTML = '';
+  const label = document.createElement('span');
+  label.textContent = msg;
+  t.appendChild(label);
+  if(opts && opts.actionLabel && opts.onAction){
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'toast-action';
+    btn.textContent = opts.actionLabel;
+    btn.addEventListener('click', () => {
+      opts.onAction();
+      t.classList.remove('show');
+      clearTimeout(t._hideTimeout);
+    });
+    t.appendChild(btn);
+  }
   t.classList.add('show');
-  setTimeout(()=> t.classList.remove('show'), 1800);
+  clearTimeout(t._hideTimeout);
+  t._hideTimeout = setTimeout(()=> t.classList.remove('show'), (opts && opts.duration) || 1800);
 }
 
 let childrenRef = null;
@@ -331,6 +347,9 @@ function switchToChild(childId){
 
   currentChildId = childId;
   setStoredActiveChildId(currentFamilyId, childId);
+  dailySummaryChecked = false;
+  const dsc = $('daily-summary-container');
+  if(dsc){ dsc.classList.add('hidden'); dsc.innerHTML = ''; }
 
   entriesRef = childRef('entries');
   entriesRef.on('value', (snapshot) => {
@@ -777,6 +796,27 @@ function cancelEditGrowth(){
   resetGrowthForm();
 }
 
+// Bornes de plausibilité (pas des limites médicales strictes) — juste de quoi
+// attraper une faute de frappe évidente (ex. 45 kg au lieu de 4,5) sans jamais
+// bloquer une mesure réelle, même atypique.
+const GROWTH_BOUNDS = {
+  weight: { min: 0.3, max: 40, label: 'Poids', unit: 'kg' },
+  height: { min: 15, max: 150, label: 'Taille', unit: 'cm' },
+  headCirc: { min: 15, max: 65, label: 'Périmètre crânien', unit: 'cm' },
+};
+function parseGrowthField(rawVal, key){
+  if(!rawVal) return { value: null, error: null };
+  const n = parseFloat(rawVal);
+  const bounds = GROWTH_BOUNDS[key];
+  if(!Number.isFinite(n)){
+    return { value: null, error: `${bounds.label} : valeur non reconnue` };
+  }
+  if(n < bounds.min || n > bounds.max){
+    return { value: null, error: `${bounds.label} hors limites (${bounds.min} à ${bounds.max} ${bounds.unit}) — vérifie la valeur` };
+  }
+  return { value: n, error: null };
+}
+
 async function saveGrowthEntry(){
   const dateVal = $('growth-date-input').value || dateInputVal(new Date());
   const weightVal = $('growth-weight-input').value;
@@ -788,20 +828,33 @@ async function saveGrowthEntry(){
     return;
   }
 
+  const weight = parseGrowthField(weightVal, 'weight');
+  const height = parseGrowthField(heightVal, 'height');
+  const headCirc = parseGrowthField(headCircVal, 'headCirc');
+  const firstError = weight.error || height.error || headCirc.error;
+  if(firstError){
+    showToast(firstError);
+    return;
+  }
+
   const isEditing = editingGrowthId !== null;
   const entry = {
     id: isEditing ? editingGrowthId : Date.now(),
     date: dateVal,
-    weight: weightVal ? parseFloat(weightVal) : null,
-    height: heightVal ? parseFloat(heightVal) : null,
-    headCirc: headCircVal ? parseFloat(headCircVal) : null
+    weight: weight.value,
+    height: height.value,
+    headCirc: headCirc.value
   };
 
+  const btn = $('growth-save-btn');
+  btn.disabled = true;
   try{
     await childRef('growth/' + entry.id).set(entry);
     showToast(isEditing ? 'Mesure modifiée' : 'Mesure enregistrée');
   }catch(e){
     showToast("Erreur d'enregistrement");
+  }finally{
+    btn.disabled = false;
   }
 
   if(isEditing) cancelEditGrowth();
@@ -863,6 +916,8 @@ async function addVaccine(){
     return;
   }
   const id = generateId('vax');
+  const btn = $('vaccine-add-btn');
+  btn.disabled = true;
   try{
     await childRef('vaccines/' + id).set({ id, name, date: date || '', done: false });
     $('vaccine-name-input').value = '';
@@ -870,6 +925,8 @@ async function addVaccine(){
     showToast('Ajouté');
   }catch(e){
     showToast("Erreur d'enregistrement");
+  }finally{
+    btn.disabled = false;
   }
 }
 
@@ -990,12 +1047,16 @@ async function saveMilestone(){
   const id = generateId('mile');
   const payload = { id, label, date, note };
   if(milestonePhotoDataUrl) payload.photo = milestonePhotoDataUrl;
+  const btn = $('milestone-save-btn');
+  btn.disabled = true;
   try{
     await childRef('milestones/' + id).set(payload);
     showToast('Souvenir enregistré');
     closeMilestoneModal();
   }catch(e){
     showToast("Erreur d'enregistrement (photo peut-être trop lourde)");
+  }finally{
+    btn.disabled = false;
   }
 }
 
@@ -1760,8 +1821,57 @@ function render(){
   renderStats();
   renderTodayTimeline();
   updateSleepButton();
+  maybeShowDailySummary();
   if(currentView === 'calendar') renderCalendar();
   if(currentView === 'chart'){ renderChart(); renderVomitChart(); }
+}
+
+// --- Résumé "Hier" : un rappel bref au premier retour de la journée, pour
+// comprendre la journée précédente d'un coup d'œil sans rouvrir la timeline.
+// Calculé une seule fois par enfant/jour (localStorage), pas à chaque render().
+let dailySummaryChecked = false;
+function maybeShowDailySummary(){
+  const container = $('daily-summary-container');
+  if(!container || dailySummaryChecked || !currentChildId) return;
+  dailySummaryChecked = true;
+
+  const todayK = todayKey(new Date());
+  const storageKey = 'dailySummarySeen_' + currentChildId + '_' + todayK;
+  if(localStorage.getItem(storageKey)) return;
+
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yKey = todayKey(yesterday);
+  const yEntries = entries.filter(e => e.dayKey === yKey);
+  if(!yEntries.length) return;
+
+  const bottles = yEntries.filter(e => e.type === 'biberon');
+  const totalMl = bottles.reduce((s,e) => s + (e.ml || 0), 0);
+  const bottleDiaperCount = bottles.filter(e => e.diaper && e.diaper !== 'none').length;
+  const diaperCount = bottleDiaperCount + yEntries.filter(e => e.type === 'diaper').length;
+  const vomitCount = yEntries.filter(e => e.type === 'vomit').length;
+  const sleepEntries = yEntries.filter(e => e.type === 'sleep' && (e.durationMin != null || e.end != null));
+  const sleepMin = sleepEntries.reduce((s,e) => s + (e.durationMin != null ? e.durationMin : (e.end - e.start) / 60000), 0);
+
+  const parts = [];
+  if(bottles.length) parts.push(`${bottles.length} biberon${bottles.length > 1 ? 's' : ''} (${totalMl} ml)`);
+  if(diaperCount) parts.push(`${diaperCount} couche${diaperCount > 1 ? 's' : ''}`);
+  if(sleepMin > 0) parts.push(formatDuration(sleepMin) + ' de sommeil');
+  if(vomitCount) parts.push(`${vomitCount} vomissement${vomitCount > 1 ? 's' : ''}`);
+  if(!parts.length) return;
+
+  container.innerHTML = `
+    <div class="daily-summary-card">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+      <div class="daily-summary-text"><b>Hier —</b> ${parts.join(' · ')}</div>
+      <button type="button" class="daily-summary-close" aria-label="Fermer">✕</button>
+    </div>`;
+  container.classList.remove('hidden');
+  container.querySelector('.daily-summary-close').addEventListener('click', () => {
+    container.classList.add('hidden');
+    container.innerHTML = '';
+    localStorage.setItem(storageKey, '1');
+  });
 }
 
 let reminderEnabled = false;
@@ -1837,6 +1947,35 @@ function checkReminderNotification(overdue, lastBottleTimestamp){
 }
 
 function renderStats(){
+  // Premier lancement : aucune entrée n'existe encore pour cet enfant, tous
+  // temps confondus (pas juste "aujourd'hui"). Un mur de "0 ml / 0 vomissements"
+  // n'aide personne à démarrer — on remplace la carte héro par un accueil qui
+  // invite explicitement au premier geste plutôt que de constater son absence.
+  if(entries.length === 0){
+    const name = getChildFirstName() || DEFAULT_SITE_NAME;
+    $('stat-hero-container').innerHTML = `
+      <div class="stat-hero stat-hero-welcome">
+        <div class="today-hero-top">
+          <div class="today-hero-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h4"/><path d="M10.5 2v3c0 .7-.4 1.1-.9 1.6-1 .9-1.6 1.9-1.6 3.4v9c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-9c0-1.5-.6-2.5-1.6-3.4-.5-.5-.9-.9-.9-1.6V2"/><line x1="8.5" y1="12.5" x2="15.5" y2="12.5"/></svg>
+          </div>
+          <div>
+            <div class="lbl">Bienvenue</div>
+            <div class="num" style="font-size:19px;">Ajoute le premier biberon de ${escapeHtml(name)}</div>
+          </div>
+        </div>
+        <p class="stat-hero-welcome-hint">Tout ce que tu enregistres ici — biberons, couches, et plus si tu actives d'autres suivis dans les paramètres — apparaît immédiatement ci-dessous et nourrit les statistiques et le calendrier.</p>
+      </div>
+    `;
+    const heroTopEl2 = document.querySelector('#stat-hero-container .today-hero-top');
+    if(heroTopEl2) heroTopEl2.addEventListener('click', openAddModal);
+    const diaperBadge2 = $('diaper-qa-badge');
+    if(diaperBadge2) diaperBadge2.classList.add('hidden');
+    const vomitBadge2 = $('vomit-qa-badge');
+    if(vomitBadge2) vomitBadge2.classList.add('hidden');
+    return;
+  }
+
   const today = todayKey(new Date());
   const todays = entries.filter(e => e.dayKey === today);
   const bottlesToday = todays.filter(e => e.type === 'biberon');
@@ -2534,17 +2673,24 @@ function selectDiaperType(val){
 }
 
 async function logVomit(){
-  const now = new Date();
-  const entry = {
-    id: Date.now(),
-    type: 'vomit',
-    time: nowTimeStr(),
-    timestamp: now.getTime(),
-    dayKey: todayKey(now),
-    authorEmail: auth.currentUser ? auth.currentUser.email : null
-  };
-  await addEntryToDB(entry);
-  showToast('Vomissement enregistré');
+  const btn = $('vomit-log-btn');
+  if(btn.disabled) return;
+  btn.disabled = true;
+  try{
+    const now = new Date();
+    const entry = {
+      id: Date.now(),
+      type: 'vomit',
+      time: nowTimeStr(),
+      timestamp: now.getTime(),
+      dayKey: todayKey(now),
+      authorEmail: auth.currentUser ? auth.currentUser.email : null
+    };
+    await addEntryToDB(entry);
+    showToast('Vomissement enregistré', { actionLabel: 'Annuler', onAction: () => removeEntryFromDB(entry.id) });
+  }finally{
+    btn.disabled = false;
+  }
 }
 
 // --- Santé (fonctionnalité optionnelle) ---
@@ -2601,6 +2747,10 @@ async function saveHealthEntry(){
       showToast('Merci de renseigner une température');
       return;
     }
+    if(t < 30 || t > 43){
+      showToast('Température hors limites (30 à 43°C) — vérifie la valeur');
+      return;
+    }
     value = t;
   }else if(selectedHealthKind === 'stool'){
     value = selectedStoolVal;
@@ -2617,9 +2767,15 @@ async function saveHealthEntry(){
     comment: $('health-comment-input').value.trim(),
     authorEmail: auth.currentUser ? auth.currentUser.email : null
   };
-  await addEntryToDB(entry);
-  showToast('Entrée santé enregistrée');
-  closeHealthModal();
+  const btn = $('health-save-btn');
+  btn.disabled = true;
+  try{
+    await addEntryToDB(entry);
+    showToast('Entrée santé enregistrée', { actionLabel: 'Annuler', onAction: () => removeEntryFromDB(entry.id) });
+    closeHealthModal();
+  }finally{
+    btn.disabled = false;
+  }
 }
 
 let editingDiaperId = null;
@@ -2690,14 +2846,20 @@ async function saveDiaperEntry(){
     authorEmail: isEditing ? (editingDiaperOriginalAuthor || currentEmail) : currentEmail
   };
 
-  await addEntryToDB(entry);
-  showToast(isEditing ? 'Couche modifiée' : 'Couche enregistrée');
+  const btn = $('diaper-save-btn');
+  btn.disabled = true;
+  try{
+    await addEntryToDB(entry);
+    showToast(isEditing ? 'Couche modifiée' : 'Couche enregistrée', isEditing ? undefined : { actionLabel: 'Annuler', onAction: () => removeEntryFromDB(entry.id) });
 
-  if(isEditing){
-    cancelEditDiaper();
-  }else{
-    resetDiaperForm();
-    closeDiaperModal();
+    if(isEditing){
+      cancelEditDiaper();
+    }else{
+      resetDiaperForm();
+      closeDiaperModal();
+    }
+  }finally{
+    btn.disabled = false;
   }
 }
 
@@ -2776,6 +2938,10 @@ async function saveEntry(){
   const timeVal = $('time-input').value || nowTimeStr();
   const dateVal = $('date-input').value || dateInputVal(new Date());
   const ml = parseInt($('ml-input').value, 10) || 0;
+  if(ml < 0 || ml > 1000){
+    showToast('Quantité hors limites (0 à 1000 ml) — vérifie la valeur');
+    return;
+  }
   const comment = $('comment-input').value.trim();
   const [h,m] = timeVal.split(':').map(Number);
   const [y,mo,d] = dateVal.split('-').map(Number);
@@ -2796,8 +2962,14 @@ async function saveEntry(){
     authorEmail: isEditing ? (editingOriginalAuthor || currentEmail) : currentEmail
   };
 
+  const saveBtn = $('save-btn');
+  saveBtn.disabled = true;
+  try{
   await addEntryToDB(entry);
-  showToast(isEditing ? 'Biberon modifié' : (entry.dayKey === todayKey(new Date()) ? 'Biberon enregistré' : `Biberon ajouté pour le ${formatDayLabel(entry.dayKey)}`));
+  showToast(
+    isEditing ? 'Biberon modifié' : (entry.dayKey === todayKey(new Date()) ? 'Biberon enregistré' : `Biberon ajouté pour le ${formatDayLabel(entry.dayKey)}`),
+    isEditing ? undefined : { actionLabel: 'Annuler', onAction: () => removeEntryFromDB(entry.id) }
+  );
 
   if(isEditing){
     cancelEdit();
@@ -2807,7 +2979,9 @@ async function saveEntry(){
     setNow();
     $('comment-input').value = '';
     closeAddModal();
-    $('comment-input').value = '';
+  }
+  }finally{
+    saveBtn.disabled = false;
   }
 }
 
