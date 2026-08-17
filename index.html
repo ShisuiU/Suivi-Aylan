@@ -170,37 +170,6 @@
     font-size: 10px; color: var(--ink-faint); margin-top: 1px;
     text-transform: uppercase; letter-spacing: .12em;
   }
-  .menu-btn, .app-header-avatar{
-    flex-shrink:0; width:38px; height:38px;
-  }
-  .app-header-avatar{
-    border-radius:50%; background: linear-gradient(145deg, var(--milk-light), var(--milk-deep)); color: var(--on-accent);
-    border:none; padding:0; cursor:pointer; overflow:hidden;
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Plus Jakarta Sans'; font-weight:700; font-size:14px; text-transform:uppercase;
-    box-shadow: 0 4px 12px -3px rgba(52,93,132,.5);
-    transition: transform .12s ease;
-  }
-  .app-header-avatar:active{ transform: scale(0.9); }
-  .app-header-avatar span{ display:flex; align-items:center; justify-content:center; width:100%; height:100%; }
-  .app-header-avatar img{ width:38px; height:38px; object-fit:cover; display:block; border-radius:50%; }
-  .menu-btn{
-    background: var(--glass-bg); border:1px solid var(--glass-border); border-radius:12px; padding:0; color: var(--ink);
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
-    cursor:pointer; box-shadow: var(--shadow-card);
-    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
-    transition: color .15s ease, transform .12s ease;
-  }
-  .menu-btn:active{ transform: scale(0.9); }
-  .menu-btn-line{
-    display:block; width:18px; height:1.5px; background: currentColor;
-    transition: transform .3s cubic-bezier(.4,0,.2,1), opacity .2s ease, width .2s ease;
-  }
-  .menu-btn.is-open{ color: var(--milk); }
-  .menu-btn.is-open .menu-btn-line:nth-child(1){ transform: translateY(6.5px) rotate(45deg); }
-  .menu-btn.is-open .menu-btn-line:nth-child(2){ opacity:0; width:0; }
-  .menu-btn.is-open .menu-btn-line:nth-child(3){ transform: translateY(-6.5px) rotate(-45deg); }
-
   .stats{
     margin-bottom:22px;
   }
@@ -920,50 +889,6 @@
   }
   .danger-link-btn.confirming{ color: var(--danger); font-weight:600; text-decoration:none; }
 
-  /* Menu — tiroir plein écran depuis la gauche (remplace les onglets) */
-  .menu-overlay{ align-items:stretch; justify-content:flex-start; padding:0; }
-  .menu-panel{
-    width:82%; max-width:300px; height:100%; max-height:none;
-    border-radius:0 20px 20px 0; padding:0; margin:0;
-    border:none; border-right:1px solid var(--glass-border);
-    box-shadow: var(--shadow-drawer);
-    display:flex; flex-direction:column;
-    transform:translateX(0); transition: transform .38s cubic-bezier(.65,0,.35,1);
-  }
-  .menu-overlay.hidden .menu-panel{ transform: translateX(-100%); }
-  .menu-panel.modal-pop{ animation:none; }
-  .menu-panel-header{
-    flex-shrink:0; display:flex; justify-content:flex-end; align-items:center;
-    padding: calc(14px + env(safe-area-inset-top)) 16px 8px;
-  }
-  .menu-close-btn{
-    width:32px; height:32px; border-radius:50%; background:none; border:none; color: var(--ink-faint);
-    display:flex; align-items:center; justify-content:center; cursor:pointer;
-    transition: background-color .15s ease, color .15s ease;
-  }
-  .menu-close-btn:active{ background: var(--bg-2); color: var(--ink); }
-  .menu-nav{ display:flex; flex-direction:column; padding:6px 0 0; }
-  .menu-nav--secondary{ margin-top:auto; padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
-  .menu-item{
-    display:flex; align-items:center; gap:14px; width:100%; text-align:left;
-    background:none; border:none;
-    padding:14px 26px; font-family:'Plus Jakarta Sans', sans-serif;
-    font-size:17px; font-weight:600; color: var(--ink);
-    cursor:pointer; transition: background-color .15s ease, color .15s ease;
-  }
-  .menu-item .ic{
-    flex-shrink:0; width:36px; height:36px; border-radius:var(--radius-sm);
-    background: var(--bg-2); color: var(--ink-dim);
-    display:flex; align-items:center; justify-content:center;
-    box-shadow: var(--shadow-gloss);
-    transition: background .15s ease, color .15s ease, box-shadow .15s ease;
-  }
-  .menu-item:active{ background: var(--bg-2); }
-  .menu-item.active{ color: var(--milk); }
-  .menu-item.active .ic{
-    background: linear-gradient(145deg, var(--milk-light), var(--milk-deep)); color: var(--on-accent);
-    box-shadow: var(--shadow-gloss), 0 4px 10px -4px rgba(52,93,132,.5);
-  }
   .view{ display:none; }
   .view.active{ display:block; }
   .view{ transition: transform .2s ease, opacity .2s ease; }
@@ -1387,53 +1312,11 @@
   </div>
 
   <header class="app-header">
-    <button class="menu-btn" id="menu-btn" aria-label="Menu" title="Menu">
-      <span class="menu-btn-line"></span>
-      <span class="menu-btn-line"></span>
-      <span class="menu-btn-line"></span>
-    </button>
     <div class="app-header-title">
       <h1 id="app-title">Bébé</h1>
       <div class="subtitle" id="current-view-label">Aujourd'hui</div>
     </div>
-    <button class="app-header-avatar" id="header-avatar-btn" type="button" aria-label="Enfant suivi">
-      <span id="header-avatar-content">?</span>
-    </button>
   </header>
-
-  <div class="modal-overlay menu-overlay hidden" id="menu-overlay">
-    <div class="modal-panel menu-panel">
-      <div class="menu-panel-header">
-        <button class="menu-close-btn" id="menu-close-btn" type="button" aria-label="Fermer le menu">
-          <svg width="15" height="14" viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M15 1 1 13M15 13 1 1"/></svg>
-        </button>
-      </div>
-      <nav class="menu-nav">
-        <button class="menu-item active" data-view="today" type="button">
-          <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg></span>
-          Aujourd'hui
-        </button>
-        <button class="menu-item" data-view="calendar" type="button">
-          <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><line x1="3" y1="9.5" x2="21" y2="9.5"/><line x1="8" y1="2.5" x2="8" y2="6.5"/><line x1="16" y1="2.5" x2="16" y2="6.5"/></svg></span>
-          Calendrier
-        </button>
-        <button class="menu-item" data-view="chart" type="button">
-          <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="13"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="10"/></svg></span>
-          Infos
-        </button>
-        <button class="menu-item" data-view="profile" type="button">
-          <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg></span>
-          Enfant(s)
-        </button>
-      </nav>
-      <nav class="menu-nav menu-nav--secondary">
-        <button class="menu-item" id="menu-settings-item" data-view="settings" type="button">
-          <span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
-          Paramètres
-        </button>
-      </nav>
-    </div>
-  </div>
 
   <div class="view active" id="view-today">
     <div id="stat-hero-container"></div>
@@ -2142,7 +2025,6 @@ function switchToChild(childId){
     renderProfileForm();
     renderAgeHero();
     updateSiteTitle();
-    renderHeaderAvatar();
   });
 
   growthRef = childRef('growth');
@@ -2326,7 +2208,6 @@ function stopSync(){
   currentChildId = null;
   familyFeatures = { sleep: false, health: false, vaccines: false };
   updateSiteTitle();
-  renderHeaderAvatar();
   refreshChildrenUI();
   applyFeatureVisibility();
 
@@ -2334,7 +2215,7 @@ function stopSync(){
   // déconnecté depuis la page Paramètres ou une autre vue.
   currentView = 'today';
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-today'));
-  document.querySelectorAll('.menu-item[data-view], .bottom-nav-btn[data-view]').forEach(b => b.classList.toggle('active', b.getAttribute('data-view') === 'today'));
+  document.querySelectorAll('.bottom-nav-btn[data-view]').forEach(b => b.classList.toggle('active', b.getAttribute('data-view') === 'today'));
   const viewLabelEl = $('current-view-label');
   if(viewLabelEl) viewLabelEl.textContent = VIEW_LABELS.today;
   $('fab-btn').classList.remove('hidden');
@@ -2408,15 +2289,6 @@ function renderAvatarEditPreview(){
   const initial = initialLetterFor($('profile-firstname').value, $('profile-lastname').value);
   preview.innerHTML = profileAvatarDataUrl ? `<img src="${profileAvatarDataUrl}" alt="">` : escapeHtml(initial);
   $('profile-avatar-remove-btn').classList.toggle('hidden', !profileAvatarDataUrl);
-}
-function renderHeaderAvatar(){
-  const content = $('header-avatar-content');
-  if(!content) return;
-  if(profileData && profileData.avatar){
-    content.innerHTML = `<img src="${profileData.avatar}" alt="">`;
-  }else{
-    content.textContent = initialLetterFor(profileData && profileData.firstName, profileData && profileData.lastName);
-  }
 }
 
 function renderAgeHero(){
@@ -3433,7 +3305,7 @@ function switchView(view){
   const newIndex = TAB_ORDER.indexOf(view);
   const direction = newIndex > oldIndex ? 1 : -1;
 
-  document.querySelectorAll('.menu-item[data-view], .bottom-nav-btn[data-view]').forEach(b => {
+  document.querySelectorAll('.bottom-nav-btn[data-view]').forEach(b => {
     b.classList.toggle('active', b.getAttribute('data-view') === view);
   });
   const viewLabelEl = $('current-view-label');
@@ -4547,21 +4419,6 @@ document.querySelectorAll('#pediatric-period-row .period-btn').forEach(btn => {
   });
 });
 
-function openMenu(){
-  openModal('menu-overlay');
-  $('menu-btn').classList.add('is-open');
-}
-function closeMenu(){
-  closeModal('menu-overlay');
-  $('menu-btn').classList.remove('is-open');
-}
-
-document.querySelectorAll('.menu-item[data-view]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    switchView(btn.getAttribute('data-view'));
-    closeMenu();
-  });
-});
 document.querySelectorAll('.bottom-nav-btn[data-view]').forEach(btn => {
   btn.addEventListener('click', () => {
     switchView(btn.getAttribute('data-view'));
@@ -4581,14 +4438,6 @@ function wireTabs(groupName){
 wireTabs('chart');
 wireTabs('profile');
 wireTabs('growth-chart');
-$('menu-btn').addEventListener('click', () => {
-  if($('menu-overlay').classList.contains('hidden')) openMenu();
-  else closeMenu();
-});
-$('menu-overlay').addEventListener('click', (e) => {
-  if(e.target.id === 'menu-overlay') closeMenu();
-});
-$('menu-close-btn').addEventListener('click', closeMenu);
 
 let calAnimating = false;
 
@@ -4751,7 +4600,6 @@ $('profile-avatar-remove-btn').addEventListener('click', () => {
   $('profile-avatar-input').value = '';
   renderAvatarEditPreview();
 });
-$('header-avatar-btn').addEventListener('click', () => switchView('profile'));
 
 document.querySelectorAll('#quick-ml button').forEach(btn => {
   btn.addEventListener('click', () => {
