@@ -1556,6 +1556,8 @@
           <div class="time-row"><input class="login-field" type="number" inputmode="decimal" step="0.01" id="growth-weight-input" placeholder="ex : 4.20" style="margin-bottom:0;"></div>
           <label class="field-label">Taille (cm)</label>
           <div class="time-row"><input class="login-field" type="number" inputmode="decimal" step="0.5" id="growth-height-input" placeholder="ex : 55" style="margin-bottom:0;"></div>
+          <label class="field-label">Périmètre crânien (cm)</label>
+          <div class="time-row"><input class="login-field" type="number" inputmode="decimal" step="0.1" id="growth-headcirc-input" placeholder="ex : 38.5" style="margin-bottom:0;"></div>
           <button class="save-btn" id="growth-save-btn" type="button">Enregistrer la mesure</button>
           <button class="cancel-edit-btn hidden" id="growth-cancel-btn" type="button">Annuler la modification</button>
         </div>
@@ -1564,6 +1566,7 @@
       <div class="tab-switch">
         <button class="tab-btn active" data-tab-group="growth-chart" data-tab="weight" type="button">Poids</button>
         <button class="tab-btn" data-tab-group="growth-chart" data-tab="height" type="button">Taille</button>
+        <button class="tab-btn" data-tab-group="growth-chart" data-tab="headcirc" type="button">PC</button>
       </div>
       <div class="tab-panel active" data-tab-group="growth-chart" data-tab="weight">
         <div class="chart-card">
@@ -1576,6 +1579,12 @@
           <div class="chart-scroll" id="height-chart-scroll"></div>
         </div>
         <div class="chart-card-caption" id="height-chart-label">Courbe de taille</div>
+      </div>
+      <div class="tab-panel" data-tab-group="growth-chart" data-tab="headcirc">
+        <div class="chart-card">
+          <div class="chart-scroll" id="headcirc-chart-scroll"></div>
+        </div>
+        <div class="chart-card-caption" id="headcirc-chart-label">Courbe du périmètre crânien</div>
       </div>
 
       <div class="settings-section" data-section="growth-history" id="growth-history-section" style="margin-top:22px;">
@@ -2557,6 +2566,7 @@ function growthRowHtml(g){
   const parts = [];
   if(g.weight != null) parts.push(`${g.weight} kg`);
   if(g.height != null) parts.push(`${g.height} cm`);
+  if(g.headCirc != null) parts.push(`PC ${g.headCirc} cm`);
   return `
     <div class="entry" data-id="${g.id}">
       <div class="node">·</div>
@@ -2613,6 +2623,7 @@ function resetGrowthForm(){
   $('growth-date-input').value = dateInputVal(new Date());
   $('growth-weight-input').value = '';
   $('growth-height-input').value = '';
+  $('growth-headcirc-input').value = '';
 }
 
 let editingGrowthId = null;
@@ -2625,6 +2636,7 @@ function startEditGrowth(id){
   $('growth-date-input').value = g.date;
   $('growth-weight-input').value = g.weight != null ? g.weight : '';
   $('growth-height-input').value = g.height != null ? g.height : '';
+  $('growth-headcirc-input').value = g.headCirc != null ? g.headCirc : '';
 
   $('growth-form-title').textContent = 'Modifier cette mesure';
   $('growth-save-btn').textContent = 'Enregistrer les modifications';
@@ -2647,9 +2659,10 @@ async function saveGrowthEntry(){
   const dateVal = $('growth-date-input').value || dateInputVal(new Date());
   const weightVal = $('growth-weight-input').value;
   const heightVal = $('growth-height-input').value;
+  const headCircVal = $('growth-headcirc-input').value;
 
-  if(!weightVal && !heightVal){
-    showToast('Renseigne au moins un poids ou une taille');
+  if(!weightVal && !heightVal && !headCircVal){
+    showToast('Renseigne au moins un poids, une taille ou un périmètre crânien');
     return;
   }
 
@@ -2658,7 +2671,8 @@ async function saveGrowthEntry(){
     id: isEditing ? editingGrowthId : Date.now(),
     date: dateVal,
     weight: weightVal ? parseFloat(weightVal) : null,
-    height: heightVal ? parseFloat(heightVal) : null
+    height: heightVal ? parseFloat(heightVal) : null,
+    headCirc: headCircVal ? parseFloat(headCircVal) : null
   };
 
   try{
@@ -2901,6 +2915,25 @@ const WHO_HEIGHT_GIRLS = [
   {m:18, p3:75.4, p50:80.7, p97:86.0}, {m:21, p3:78.1, p50:83.7, p97:89.4},
   {m:24, p3:80.4, p50:86.4, p97:92.4}
 ];
+// Périmètre crânien — repères approximatifs, à titre indicatif uniquement.
+const WHO_HEADCIRC_BOYS = [
+  {m:0, p3:32.1, p50:34.5, p97:36.9}, {m:1, p3:35.1, p50:37.3, p97:39.5},
+  {m:2, p3:36.9, p50:39.1, p97:41.3}, {m:3, p3:38.3, p50:40.5, p97:42.8},
+  {m:4, p3:39.4, p50:41.6, p97:43.9}, {m:5, p3:40.3, p50:42.6, p97:44.8},
+  {m:6, p3:41.0, p50:43.3, p97:45.6}, {m:9, p3:42.6, p50:45.0, p97:47.4},
+  {m:12, p3:43.5, p50:46.1, p97:48.6}, {m:15, p3:44.2, p50:46.9, p97:49.4},
+  {m:18, p3:44.8, p50:47.5, p97:50.1}, {m:21, p3:45.2, p50:48.0, p97:50.7},
+  {m:24, p3:45.6, p50:48.3, p97:51.1}
+];
+const WHO_HEADCIRC_GIRLS = [
+  {m:0, p3:31.5, p50:33.9, p97:36.2}, {m:1, p3:34.2, p50:36.5, p97:38.9},
+  {m:2, p3:35.8, p50:38.3, p97:40.7}, {m:3, p3:37.1, p50:39.5, p97:42.0},
+  {m:4, p3:38.1, p50:40.6, p97:43.1}, {m:5, p3:38.9, p50:41.5, p97:44.0},
+  {m:6, p3:39.6, p50:42.2, p97:44.8}, {m:9, p3:41.1, p50:43.8, p97:46.4},
+  {m:12, p3:42.2, p50:45.0, p97:47.6}, {m:15, p3:43.0, p50:45.8, p97:48.5},
+  {m:18, p3:43.6, p50:46.5, p97:49.2}, {m:21, p3:44.1, p50:47.0, p97:49.8},
+  {m:24, p3:44.5, p50:47.5, p97:50.2}
+];
 
 function ageInMonths(birthDateStr, dateStr){
   const [by,bm,bd] = birthDateStr.split('-').map(Number);
@@ -3091,16 +3124,20 @@ function renderGrowthCharts(){
   const sorted = [...growthEntries].sort((a,b) => a.date.localeCompare(b.date));
   const weightPoints = sorted.filter(g => g.weight != null).map(g => ({ date: g.date, label: formatShortDateNoYear(g.date), value: g.weight }));
   const heightPoints = sorted.filter(g => g.height != null).map(g => ({ date: g.date, label: formatShortDateNoYear(g.date), value: g.height }));
+  const headCircPoints = sorted.filter(g => g.headCirc != null).map(g => ({ date: g.date, label: formatShortDateNoYear(g.date), value: g.headCirc }));
   const isGirl = profileData && profileData.gender === 'F';
   const weightTable = isGirl ? WHO_WEIGHT_GIRLS : WHO_WEIGHT_BOYS;
   const heightTable = isGirl ? WHO_HEIGHT_GIRLS : WHO_HEIGHT_BOYS;
+  const headCircTable = isGirl ? WHO_HEADCIRC_GIRLS : WHO_HEADCIRC_BOYS;
   renderSimpleLineChart($('weight-chart-scroll'), weightPoints, { suffix: ' kg', decimals: 2, whoTable: weightTable });
   renderSimpleLineChart($('height-chart-scroll'), heightPoints, { suffix: ' cm', decimals: 0, whoTable: heightTable });
+  renderSimpleLineChart($('headcirc-chart-scroll'), headCircPoints, { suffix: ' cm', decimals: 1, whoTable: headCircTable });
 
   const weightAvg = avgRatePerDay(weightPoints, 'g');
   const heightAvg = avgRatePerDay(heightPoints, 'cm');
+  const headCircAvg = avgRatePerDay(headCircPoints, 'cm');
 
-  let weightPercentileTxt = '', heightPercentileTxt = '';
+  let weightPercentileTxt = '', heightPercentileTxt = '', headCircPercentileTxt = '';
   if(profileData && profileData.birthDate){
     if(weightPoints.length){
       const last = weightPoints[weightPoints.length - 1];
@@ -3112,10 +3149,16 @@ function renderGrowthCharts(){
       const ageM = ageInMonths(profileData.birthDate, last.date);
       heightPercentileTxt = ' · ~' + estimatePercentile(heightTable, ageM, last.value) + 'e percentile';
     }
+    if(headCircPoints.length){
+      const last = headCircPoints[headCircPoints.length - 1];
+      const ageM = ageInMonths(profileData.birthDate, last.date);
+      headCircPercentileTxt = ' · ~' + estimatePercentile(headCircTable, ageM, last.value) + 'e percentile';
+    }
   }
 
   $('weight-chart-label').textContent = 'Courbe de poids' + (weightAvg ? ' · ' + weightAvg : '') + weightPercentileTxt;
   $('height-chart-label').textContent = 'Courbe de taille' + (heightAvg ? ' · ' + heightAvg : '') + heightPercentileTxt;
+  $('headcirc-chart-label').textContent = 'Courbe du périmètre crânien' + (headCircAvg ? ' · ' + headCircAvg : '') + headCircPercentileTxt;
 }
 
 function exportDataJSON(){
@@ -3155,6 +3198,7 @@ function exportPDF(){
       <td>${formatShortDate(g.date)}</td>
       <td>${g.weight != null ? g.weight + ' kg' : '—'}</td>
       <td>${g.height != null ? g.height + ' cm' : '—'}</td>
+      <td>${g.headCirc != null ? g.headCirc + ' cm' : '—'}</td>
     </tr>`).join('');
 
   const today = new Date();
@@ -3200,8 +3244,8 @@ function exportPDF(){
     </table>
     <h2>Mesures de croissance récentes</h2>
     <table>
-      <thead><tr><th>Date</th><th>Poids</th><th>Taille</th></tr></thead>
-      <tbody>${growthRows || '<tr><td colspan="3">Aucune mesure enregistrée</td></tr>'}</tbody>
+      <thead><tr><th>Date</th><th>Poids</th><th>Taille</th><th>PC</th></tr></thead>
+      <tbody>${growthRows || '<tr><td colspan="4">Aucune mesure enregistrée</td></tr>'}</tbody>
     </table>
     <p class="print-footer">Document généré le ${formatShortDate(todayKey(new Date()))} depuis le carnet de suivi.</p>
   `;
