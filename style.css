@@ -808,6 +808,11 @@
     opacity:1; background:none; border:2px dashed var(--milk-dim); color: var(--ink-faint);
   }
 
+  /* Sélecteur d'enfant compact sur "Aujourd'hui" — mêmes chips que sur Profil,
+     en plus petit pour rester un raccourci discret et non une page de gestion. */
+  #children-list-today{ margin-bottom:14px; }
+  #children-list-today .child-chip{ width:34px; height:34px; font-size:12.5px; }
+
   /* Photo de profil d'un enfant */
   .avatar-edit-row{ display:flex; align-items:center; gap:14px; margin-bottom:18px; }
   .avatar-edit-preview{

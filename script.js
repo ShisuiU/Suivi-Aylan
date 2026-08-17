@@ -401,6 +401,17 @@ function refreshChildrenUI(){
   }
 
   renderChildrenPage();
+  renderChildSwitcherToday();
+}
+
+function childChipsMarkup(){
+  return childrenList.map(c => {
+    const fullName = [c.firstName, c.lastName].filter(Boolean).join(' ').trim() || DEFAULT_SITE_NAME;
+    const initial = initialLetterFor(c.firstName, c.lastName);
+    const active = c.id === currentChildId ? ' active' : '';
+    const avatarContent = c.avatar ? `<img src="${c.avatar}" alt="">` : escapeHtml(initial);
+    return `<button type="button" class="child-chip${active}" data-child="${c.id}" title="${escapeHtml(fullName)}">${avatarContent}</button>`;
+  }).join('');
 }
 
 function renderChildrenPage(){
@@ -412,17 +423,25 @@ function renderChildrenPage(){
     return;
   }
 
-  const chips = childrenList.map(c => {
-    const fullName = [c.firstName, c.lastName].filter(Boolean).join(' ').trim() || DEFAULT_SITE_NAME;
-    const initial = initialLetterFor(c.firstName, c.lastName);
-    const active = c.id === currentChildId ? ' active' : '';
-    const avatarContent = c.avatar ? `<img src="${c.avatar}" alt="">` : escapeHtml(initial);
-    return `<button type="button" class="child-chip${active}" data-child="${c.id}" title="${escapeHtml(fullName)}">${avatarContent}</button>`;
-  }).join('');
-
-  list.innerHTML = chips + `<button type="button" class="child-chip child-chip-add" data-add-child aria-label="Ajouter un enfant">
+  list.innerHTML = childChipsMarkup() + `<button type="button" class="child-chip child-chip-add" data-add-child aria-label="Ajouter un enfant">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
   </button>`;
+}
+
+// Raccourci de changement d'enfant directement sur l'écran "Aujourd'hui" :
+// une famille à plusieurs enfants devait auparavant passer par l'onglet Profil
+// pour logger sur le second enfant. N'apparaît que s'il y a plus d'un enfant —
+// inutile de montrer un sélecteur à une famille qui n'en a qu'un.
+function renderChildSwitcherToday(){
+  const row = $('children-list-today');
+  if(!row) return;
+  if(childrenList.length <= 1){
+    row.classList.add('hidden');
+    row.innerHTML = '';
+    return;
+  }
+  row.classList.remove('hidden');
+  row.innerHTML = childChipsMarkup();
 }
 
 async function addChild(profile){
@@ -3003,6 +3022,10 @@ $('profile-delete-child-btn').addEventListener('click', () => {
 });
 $('children-list-page').addEventListener('click', (ev) => {
   if(ev.target.closest('[data-add-child]')){ openAddChildModal(); return; }
+  const card = ev.target.closest('[data-child]');
+  if(card) switchToChild(card.getAttribute('data-child'));
+});
+$('children-list-today').addEventListener('click', (ev) => {
   const card = ev.target.closest('[data-child]');
   if(card) switchToChild(card.getAttribute('data-child'));
 });
