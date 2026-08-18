@@ -53,10 +53,28 @@ if('serviceWorker' in navigator && 'PushManager' in window){
   try{ messaging = firebase.messaging(); }catch(e){ messaging = null; }
 }
 
+// Le bandeau "Hors connexion" est en position:fixed par-dessus tout
+// (nécessaire pour rester visible en toute circonstance) — sans ce
+// réajustement, l'en-tête collant (position:sticky, top:0) et le rail de
+// navigation desktop restent scotchés au sommet et se retrouvent partiellement
+// cachés DERRIÈRE le bandeau quand il apparaît. On mesure sa hauteur réelle
+// (variable selon l'encoche/safe-area) et on la republie en variable CSS
+// (--offline-banner-h) pour décaler ces éléments d'autant.
+function updateOfflineBannerOffset(){
+  const banner = document.getElementById('offline-banner');
+  if(!banner) return;
+  const visible = !banner.classList.contains('off-hidden');
+  document.documentElement.style.setProperty('--offline-banner-h', visible ? banner.offsetHeight + 'px' : '0px');
+}
+window.addEventListener('resize', updateOfflineBannerOffset);
+
 db.ref('.info/connected').on('value', (snap) => {
   const connected = snap.val() === true;
   const banner = document.getElementById('offline-banner');
-  if(banner) banner.classList.toggle('off-hidden', connected);
+  if(banner){
+    banner.classList.toggle('off-hidden', connected);
+    updateOfflineBannerOffset();
+  }
 });
 
 // Cette app ne met rien en cache côté service worker (pas de mode hors-ligne

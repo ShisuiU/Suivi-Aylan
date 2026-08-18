@@ -56,6 +56,7 @@
     --glass-bg-strong: var(--card);
     --glass-border: var(--line);
     --glass-blur: 0px;
+    --offline-banner-h: 0px;
   }
   html[data-theme="dark"]{
     --bg: #0d1017;
@@ -118,7 +119,7 @@
   }
 
   .app-header{
-    position: sticky; top:0; z-index:15;
+    position: sticky; top: var(--offline-banner-h); z-index:15;
     display:flex; align-items:center; gap:10px;
     margin: 0 -18px 18px; padding: calc(12px + env(safe-area-inset-top)) 18px 12px;
     background: var(--card);
@@ -561,9 +562,9 @@
      modifiée puisqu'elle reste utilisée telle quelle par la nav mobile. */
   .nav-rail{
     display:none; position:fixed; left:0; top:0; bottom:0; z-index:20; width:84px;
-    flex-direction:column; align-items:center; padding: calc(20px + env(safe-area-inset-top)) 0 20px;
-    gap:6px; background: var(--glass-bg-strong); border-right:1px solid var(--glass-border);
-    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
+    flex-direction:column; align-items:center;
+    padding: calc(20px + env(safe-area-inset-top) + var(--offline-banner-h)) 0 20px;
+    gap:6px; background: var(--card); border-right:1px solid var(--line);
   }
   .nav-rail-brand{
     width:38px; height:38px; border-radius:13px; margin-bottom:16px;
@@ -1356,12 +1357,17 @@
     .toast{ bottom:28px; } /* plus besoin de dégager la nav du bas, absente sur desktop */
     /* Colonne confortablement élargie par défaut (Infos, Profil, Paramètres) —
        du contenu séquentiel (formulaire, réglages) ne gagne rien à être coupé
-       en colonnes, juste à respirer un peu plus qu'au format mobile. */
-    .wrap{ padding-left:104px; max-width:640px; }
+       en colonnes, juste à respirer un peu plus qu'au format mobile. Largeur
+       calée sur une longueur de ligne confortable (~70ch), pas une contrainte
+       arbitraire — un formulaire ou une liste de réglages n'a rien à gagner
+       à s'étirer sur toute la largeur d'un écran large. */
+    .wrap{ padding-left:104px; max-width:680px; }
 
     /* Aujourd'hui et Calendrier exploitent vraiment l'espace en tableau de
-       bord à deux colonnes — cf. galerie de maquettes étape 1/2. */
-    .wrap.wide-view{ max-width:1040px; }
+       bord à deux colonnes — cf. galerie de maquettes étape 1/2. Plafond
+       relevé pour qu'un écran large (1440px+) n'affiche plus l'essentiel de
+       sa surface en marge vide de part et d'autre. */
+    .wrap.wide-view{ max-width:1220px; }
     #view-today.active{
       display:grid; grid-template-columns: 1.6fr 1fr; align-items:start; gap:26px;
     }
