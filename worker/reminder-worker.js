@@ -29,8 +29,22 @@ export default {
 
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (!env.MANUAL_TRIGGER_KEY || url.searchParams.get('key') !== env.MANUAL_TRIGGER_KEY) {
-      return new Response('Unauthorized', { status: 401 });
+    // Deux causes distinctes derrière un "Unauthorized" générique : le
+    // secret n'est pas configuré sur ce Worker, ou la clé fournie ne
+    // correspond pas — on les distingue explicitement pour ne pas laisser
+    // une simple faute de frappe ressembler à un problème de déploiement.
+    // Ne révèle jamais la valeur du secret, seulement s'il est défini.
+    if (!env.MANUAL_TRIGGER_KEY) {
+      return new Response(
+        "Unauthorized — le secret MANUAL_TRIGGER_KEY n'est pas configuré sur ce Worker (Settings > Variables and Secrets).",
+        { status: 401 }
+      );
+    }
+    if (url.searchParams.get('key') !== env.MANUAL_TRIGGER_KEY) {
+      return new Response(
+        "Unauthorized — la clé fournie dans ?key=... ne correspond pas à la valeur du secret MANUAL_TRIGGER_KEY enregistré.",
+        { status: 401 }
+      );
     }
     const summary = await runReminders(env);
     return new Response(JSON.stringify(summary, null, 2), {
