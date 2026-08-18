@@ -1891,7 +1891,7 @@ function switchView(view){
       newEl.classList.remove(inPrepClass);
 
       if(view === 'calendar') renderCalendar();
-      if(view === 'chart'){ renderChart(); renderVomitChart(); renderGrowthCharts(); }
+      if(view === 'chart'){ renderChart(); renderMilkInsight(); renderVomitChart(); renderGrowthCharts(); }
       if(view === 'settings'){
         const email = auth.currentUser ? auth.currentUser.email : '—';
         $('settings-account').textContent = email;
@@ -1912,7 +1912,7 @@ function render(){
   maybeShowDailySummary();
   renderTodaySidebar();
   if(currentView === 'calendar') renderCalendar();
-  if(currentView === 'chart'){ renderChart(); renderVomitChart(); }
+  if(currentView === 'chart'){ renderChart(); renderMilkInsight(); renderVomitChart(); }
 }
 
 // Colonne latérale "Aujourd'hui" (desktop ≥900px, cf. media query CSS) : aperçu
@@ -2080,12 +2080,117 @@ async function saveReminderHours(){
   }
 }
 
+// true si l'app tourne déjà en PWA installée (pas dans un onglet de
+// navigateur classique) — partagé par la détection iOS ci-dessous et par
+// la bannière/le réglage d'installation.
+function isAppInstalled(){
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
 // true uniquement sur les plateformes qui exigent une PWA installée pour le
 // push web (Safari/iOS) — sert juste à afficher le bon message d'aide.
 function isIOSStandaloneRequired(){
   const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-  return isIOS && !isStandalone;
+  return isIOS && !isAppInstalled();
+}
+
+// Bannière d'installation PWA proactive — manifest, icônes et raccourcis
+// existent déjà (§9/10 de l'audit) mais ne servent à rien tant que l'app
+// n'est pas installée ; sur iOS en particulier, le push (§7) ne fonctionne
+// QUE si l'app est installée. Capte beforeinstallprompt pour proposer
+// l'installation nous-mêmes plutôt que de compter sur l'icône discrète du
+// navigateur, que la plupart des gens ne remarquent jamais.
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  renderInstallUI();
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  renderInstallUI();
+});
+
+function renderInstallUI(){
+  renderInstallBanner();
+  renderInstallSettingsSection();
+}
+
+function renderInstallBanner(){
+  const container = $('install-banner-container');
+  if(!container) return;
+
+  if(isAppInstalled()){ container.classList.add('hidden'); container.innerHTML = ''; return; }
+
+  let dismissed = false, visitCount = 0;
+  try{
+    dismissed = localStorage.getItem('aylan-install-dismissed') === '1';
+    visitCount = parseInt(localStorage.getItem('aylan-visit-count') || '0', 10);
+  }catch(e){}
+  if(dismissed) { container.classList.add('hidden'); container.innerHTML = ''; return; }
+
+  const isIOS = isIOSStandaloneRequired();
+  // Sur un navigateur qui ne propose pas beforeinstallprompt et n'est pas
+  // iOS (ex. Safari desktop), il n'y a rien d'actionnable à proposer —
+  // mieux vaut rester silencieux que montrer un bouton qui ne fait rien.
+  if(!isIOS && !deferredInstallPrompt){ container.classList.add('hidden'); container.innerHTML = ''; return; }
+  // Laisse le temps de découvrir l'app avant de suggérer l'installation —
+  // pas dès la toute première visite.
+  if(visitCount < 3){ container.classList.add('hidden'); container.innerHTML = ''; return; }
+
+  container.classList.remove('hidden');
+  container.innerHTML = `
+    <div class="install-banner-card">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 18h2"/><path d="M12 6.5v6"/><path d="M9.5 10 12 12.5 14.5 10"/></svg>
+      <div class="install-banner-text">${isIOS
+        ? "Installe l'app pour recevoir les rappels même fermée : appuie sur <b>Partager</b> puis <b>Sur l'écran d'accueil</b>."
+        : "Installe l'app pour un accès plus rapide, et pour que les rappels fonctionnent même app fermée."}</div>
+      ${isIOS ? '' : '<button type="button" class="install-banner-btn" id="install-banner-btn">Installer</button>'}
+      <button type="button" class="install-banner-close" aria-label="Fermer">✕</button>
+    </div>
+  `;
+  container.querySelector('.install-banner-close').addEventListener('click', () => {
+    container.classList.add('hidden');
+    container.innerHTML = '';
+    try{ localStorage.setItem('aylan-install-dismissed', '1'); }catch(e){}
+  });
+  const installBtn = container.querySelector('#install-banner-btn');
+  if(installBtn) installBtn.addEventListener('click', triggerInstallPrompt);
+}
+
+async function triggerInstallPrompt(){
+  if(!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  const choice = await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  if(choice.outcome === 'accepted') showToast('Installation en cours...');
+  renderInstallUI();
+}
+
+function renderInstallSettingsSection(){
+  const btn = $('install-app-btn');
+  const hint = $('install-hint-text');
+  if(!btn || !hint) return;
+
+  if(isAppInstalled()){
+    hint.textContent = '✓ App déjà installée sur cet appareil.';
+    btn.classList.add('hidden');
+    return;
+  }
+  if(isIOSStandaloneRequired()){
+    hint.textContent = "Sur iPhone/iPad : appuie sur Partager puis « Sur l'écran d'accueil ».";
+    btn.classList.add('hidden'); // pas d'invite programmable sur iOS
+    return;
+  }
+  if(deferredInstallPrompt){
+    hint.textContent = "Accès plus rapide, et les rappels fonctionnent même app fermée.";
+    btn.classList.remove('hidden');
+    return;
+  }
+  hint.textContent = "Ton navigateur ne propose pas d'installation directe ici — cherche l'icône d'installation dans la barre d'adresse.";
+  btn.classList.add('hidden');
 }
 
 // true seulement une fois qu'un jeton FCM a réellement été obtenu ET
@@ -2877,6 +2982,55 @@ function renderDayChartSVG(container, days, values, opts){
   });
 
   requestAnimationFrame(() => { container.scrollLeft = container.scrollWidth; });
+}
+
+// Tendance automatique au-dessus du graphique de lait : transforme les
+// données déjà enregistrées en une lecture immédiate ("toutes les X h,
+// plutôt le soir") au lieu de laisser l'utilisateur interpréter des chiffres
+// bruts. Toujours factuel et descriptif, jamais un conseil ou un jugement.
+function computeMilkInsight(){
+  const now = Date.now();
+  const sevenDaysAgo = now - 7 * 24 * 3600000;
+  const recent = entries
+    .filter(e => e.type === 'biberon' && e.timestamp >= sevenDaysAgo)
+    .sort((a, b) => a.timestamp - b.timestamp);
+
+  // Historique trop court pour qu'une moyenne/un créneau soit fiable plutôt
+  // que du bruit statistique.
+  if(recent.length < 5) return null;
+
+  const gaps = [];
+  for(let i = 1; i < recent.length; i++) gaps.push(recent[i].timestamp - recent[i - 1].timestamp);
+  const avgGapMin = Math.round(gaps.reduce((s, g) => s + g, 0) / gaps.length / 60000);
+  const gapH = Math.floor(avgGapMin / 60);
+  const gapM = avgGapMin % 60;
+  const gapTxt = gapH > 0 ? `${gapH} h${gapM ? ' ' + pad(gapM) : ''}` : `${gapM} min`;
+
+  // Créneau de 3h le plus fréquent (0-2h, 3-5h, ... 21-23h).
+  const buckets = new Array(8).fill(0);
+  recent.forEach(e => { buckets[Math.floor(new Date(e.timestamp).getHours() / 3)]++; });
+  const topBucket = buckets.indexOf(Math.max(...buckets));
+  const slotStart = topBucket * 3;
+  const slotEnd = slotStart + 3;
+
+  return { gapTxt, slotTxt: `${pad(slotStart)}h–${pad(slotEnd)}h` };
+}
+
+function renderMilkInsight(){
+  const container = $('milk-insight-container');
+  if(!container) return;
+  const insight = computeMilkInsight();
+  if(!insight){
+    container.innerHTML = '';
+    return;
+  }
+  const name = getChildFirstName() || DEFAULT_SITE_NAME;
+  container.innerHTML = `
+    <div class="insight-card">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.8 10.6c.6.5.8 1 .8 1.4h6c0-.4.2-.9.8-1.4A6 6 0 0 0 12 3z"/></svg>
+      <div class="insight-text">${escapeHtml(name)} tète en moyenne toutes les <b>${insight.gapTxt}</b>, le plus souvent entre <b>${insight.slotTxt}</b> (7 derniers jours).</div>
+    </div>
+  `;
 }
 
 function renderChart(){
@@ -3730,6 +3884,13 @@ resetDiaperForm();
 resetHealthForm();
 resetMilestoneForm();
 renderReminderPrefsUI();
+
+try{
+  const visitCount = parseInt(localStorage.getItem('aylan-visit-count') || '0', 10) + 1;
+  localStorage.setItem('aylan-visit-count', String(visitCount));
+}catch(e){}
+renderInstallUI();
+$('install-app-btn').addEventListener('click', triggerInstallPrompt);
 
 setInterval(() => {
   if(auth.currentUser){

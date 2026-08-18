@@ -174,6 +174,32 @@
     cursor:pointer; padding:6px; border-radius:8px; transition: background-color .15s ease, color .15s ease;
   }
   .daily-summary-close:active{ background: var(--card-hover); color: var(--ink); }
+
+  /* Bannière d'installation PWA — même traitement visuel que le résumé
+     quotidien (glass, dismissible) mais classes dédiées : contenu et
+     interactions différentes (bouton d'action optionnel selon la plateforme). */
+  #install-banner-container.hidden{ display:none; }
+  #install-banner-container{ margin-bottom:14px; }
+  .install-banner-card{
+    display:flex; align-items:center; gap:10px;
+    background: var(--glass-bg); border:1px solid var(--glass-border); border-radius: var(--radius-sm);
+    padding:12px 14px; color: var(--ink-dim);
+    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
+    animation: blockFadeIn .4s cubic-bezier(.22,1,.36,1) backwards;
+  }
+  .install-banner-card svg{ flex-shrink:0; color: var(--milk); }
+  .install-banner-text{ flex:1; min-width:0; font-size:12.5px; line-height:1.45; }
+  .install-banner-text b{ color: var(--ink); }
+  .install-banner-btn{
+    flex-shrink:0; background: var(--milk); color: var(--on-accent); border:none; font-weight:700;
+    font-size:12.5px; font-family:'Plus Jakarta Sans'; padding:8px 14px; border-radius:999px; cursor:pointer;
+  }
+  .install-banner-close{
+    flex-shrink:0; background:none; border:none; color: var(--ink-faint); font-size:13px;
+    cursor:pointer; padding:6px; border-radius:8px; transition: background-color .15s ease, color .15s ease;
+  }
+  .install-banner-close:active{ background: var(--card-hover); color: var(--ink); }
+
   #stat-hero-container{ display:flex; margin-bottom:18px; }
   .stat-hero{
     position:relative; overflow:hidden;
@@ -275,6 +301,15 @@
     font-family:'Plus Jakarta Sans', sans-serif; font-size:13px; font-weight:600; color: var(--ink-dim);
     text-align:center; margin: 10px 4px 20px;
   }
+
+  /* Tendance automatique au-dessus du graphique de lait */
+  .insight-card{
+    display:flex; align-items:flex-start; gap:10px; background: var(--milk-dim);
+    border-radius: var(--radius-sm); padding:12px 14px; margin-bottom:14px; color: var(--ink);
+  }
+  .insight-card svg{ flex-shrink:0; color: var(--milk); margin-top:1px; }
+  .insight-text{ font-size:12.5px; line-height:1.5; }
+  .insight-text b{ font-weight:700; }
 
   .card{
     background: var(--glass-bg); border:1px solid var(--glass-border); border-radius: var(--radius);
