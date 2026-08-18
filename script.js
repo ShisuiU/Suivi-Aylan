@@ -14,7 +14,7 @@ const db = firebase.database();
 // Clé VAPID (Web Push) — Console Firebase > Paramètres du projet > Cloud
 // Messaging > Certificats Web Push > "Générer une paire de clés". Clé
 // publique, sans risque à committer (contrairement à un compte de service).
-const VAPID_KEY = 'PASTE_TA_CLE_VAPID_ICI';
+const VAPID_KEY = 'BACXJiPA4HLxqF3k0PqTSZQxsM9oAym4K2kafrjMiY9_Xyvw9_gMaJQuXtjenjhYCriL3crQdQQdL5OZakfpVgc';
 
 let messaging = null;
 if('serviceWorker' in navigator && 'PushManager' in window){

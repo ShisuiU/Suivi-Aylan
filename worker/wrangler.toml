@@ -1,0 +1,15 @@
+name = "suivi-aylan-reminder-worker"
+main = "reminder-worker.js"
+compatibility_date = "2024-09-23"
+
+# Toutes les 15 minutes — granularité suffisante pour un seuil de rappel
+# exprimé en heures, sans multiplier inutilement les invocations (largement
+# dans le quota gratuit Cloudflare : 96 exécutions/jour).
+[triggers]
+crons = ["*/15 * * * *"]
+
+# Secrets à définir après le déploiement (jamais dans ce fichier, qui est
+# versionné) — voir README.md du dossier pour la marche à suivre :
+#   wrangler secret put FIREBASE_SERVICE_ACCOUNT
+#   wrangler secret put FIREBASE_DATABASE_URL
+#   wrangler secret put MANUAL_TRIGGER_KEY
