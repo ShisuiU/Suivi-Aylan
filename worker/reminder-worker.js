@@ -1,11 +1,16 @@
 /**
- * Suivi Aylan — Worker Cloudflare : rappel de biberon en push réel.
+ * Suivi Aylan — Worker Cloudflare : rappels en push réel.
  *
- * Déclenché par un Cron Trigger (voir wrangler.toml). Pour chaque famille où
- * le rappel est activé (families/{id}/meta/reminder.enabled) : cherche le
- * dernier biberon (tous enfants confondus — voir limitation ci-dessous),
- * compare au seuil réglé, et envoie un push FCM à chaque appareil enregistré
- * si le seuil est dépassé et qu'on n'a pas déjà notifié pour ce biberon.
+ * Déclenché par un Cron Trigger (voir wrangler.toml). Deux rappels
+ * indépendants, chacun avec sa propre condition de déclenchement :
+ *
+ * 1. Rappel de biberon (families/{id}/meta/reminder.enabled) : cherche le
+ *    dernier biberon (tous enfants confondus — voir limitation ci-dessous),
+ *    compare au seuil réglé, envoie un push si dépassé et pas déjà notifié.
+ * 2. Rappel de vaccin à venir : pas de réglage dédié, se déclenche
+ *    automatiquement pour toute famille ayant au moins un appareil avec
+ *    notifications activées, dès qu'un vaccin (tous enfants confondus) a une
+ *    date à moins de 3 jours et n'a pas déjà été notifié.
  *
  * Aucune dépendance npm : tout est écrit avec les APIs natives du runtime
  * Workers (fetch, Web Crypto) pour rester déployable tel quel sans étape de
@@ -107,7 +112,7 @@ async function runReminders(env) {
     summary.checked++;
     try {
       const result = await processFamily(familyId, { databaseURL, accessToken, projectId, now });
-      if (result.sent) summary.notified++;
+      if (result.bottleSent || result.vaccinesSent > 0) summary.notified++;
       summary.details.push({ familyId, ...result });
     } catch (err) {
       console.error(`Erreur famille ${familyId} :`, err);
@@ -131,31 +136,49 @@ async function processFamily(familyId, ctx) {
     rtdbGet(databaseURL, `families/${familyId}/pushTokens`, accessToken),
   ]);
 
-  const reminder = meta && meta.reminder;
+  const reminder = (meta && meta.reminder) || {};
   const tokenEntries = Object.entries(pushTokens || {});
-  const thresholdMinutes = (reminder && reminder.thresholdMinutes > 0) ? reminder.thresholdMinutes : 210;
+  const thresholdMinutes = reminder.thresholdMinutes > 0 ? reminder.thresholdMinutes : 210;
 
   const state = {
-    reminderEnabled: !!(reminder && reminder.enabled),
+    reminderEnabled: !!reminder.enabled,
     tokenCount: tokenEntries.length,
     thresholdMinutes,
     lastBottleTimestamp: null,
     minutesSinceLastBottle: null,
     overdue: false,
     alreadyNotifiedForThisBottle: false,
-    sent: false,
-    reason: null, // pourquoi rien n'a été envoyé, si c'est le cas
+    bottleSent: false,
+    vaccinesSent: 0,
+    reason: null, // pourquoi le rappel de biberon n'a rien envoyé, si c'est le cas
   };
 
-  if (!state.reminderEnabled) { state.reason = 'rappel désactivé pour cette famille'; return state; }
   if (!state.tokenCount) { state.reason = "aucun appareil n'a activé les notifications pour cette famille"; return state; }
 
   const children = await rtdbGet(databaseURL, `families/${familyId}/children`, accessToken);
   if (!children) { state.reason = 'aucun enfant trouvé'; return state; }
 
-  // Dernier biberon tous enfants confondus, par timestamp réel de l'événement
-  // (pas par date de création de l'entrée — une entrée peut être datée
-  // rétroactivement) : même logique que renderStats() côté client.
+  // --- Rappel de biberon (réglage families/{id}/meta/reminder.enabled) ---
+  if (state.reminderEnabled) {
+    await checkBottleReminder(familyId, children, reminder, thresholdMinutes, tokenEntries, ctx, state);
+  } else {
+    state.reason = 'rappel de biberon désactivé pour cette famille';
+  }
+
+  // --- Rappel de vaccin à venir (indépendant du réglage ci-dessus) ---
+  state.vaccinesSent = await checkVaccineReminders(familyId, children, tokenEntries, ctx);
+
+  return state;
+}
+
+// Dernier biberon tous enfants confondus, par timestamp réel de l'événement
+// (pas par date de création de l'entrée — une entrée peut être datée
+// rétroactivement) : même logique que renderStats() côté client. Mute
+// `state` directement plutôt que de retourner un nouvel objet — appelé une
+// seule fois par famille, pas de risque de partage d'état entre appels.
+async function checkBottleReminder(familyId, children, reminder, thresholdMinutes, tokenEntries, ctx, state) {
+  const { databaseURL, accessToken } = ctx;
+
   let lastBottleTimestamp = null;
   let childFirstName = '';
   for (const child of Object.values(children)) {
@@ -170,17 +193,17 @@ async function processFamily(familyId, ctx) {
     }
   }
   state.lastBottleTimestamp = lastBottleTimestamp;
-  if (lastBottleTimestamp === null) { state.reason = 'aucun biberon enregistré'; return state; }
+  if (lastBottleTimestamp === null) { state.reason = 'aucun biberon enregistré'; return; }
 
   const minutesSince = (ctx.now - lastBottleTimestamp) / 60000;
   state.minutesSinceLastBottle = Math.round(minutesSince);
   state.overdue = minutesSince >= thresholdMinutes;
-  if (!state.overdue) { state.reason = `pas encore en retard (${Math.round(minutesSince)} min sur ${thresholdMinutes} requises)`; return state; }
+  if (!state.overdue) { state.reason = `pas encore en retard (${Math.round(minutesSince)} min sur ${thresholdMinutes} requises)`; return; }
 
   // Anti-doublon : ne renotifie pas en boucle toutes les 15 min pour le même
   // biberon en retard — seulement quand un NOUVEAU biberon en retard apparaît.
   state.alreadyNotifiedForThisBottle = reminder.lastNotifiedBottleTimestamp === lastBottleTimestamp;
-  if (state.alreadyNotifiedForThisBottle) { state.reason = 'déjà notifié pour ce biberon (anti-doublon)'; return state; }
+  if (state.alreadyNotifiedForThisBottle) { state.reason = 'déjà notifié pour ce biberon (anti-doublon)'; return; }
 
   const hoursTxt = (thresholdMinutes / 60).toFixed(1).replace('.0', '').replace('.', ',');
   const notification = {
@@ -202,22 +225,85 @@ async function processFamily(familyId, ctx) {
         // retire pour ne pas continuer à payer une tentative d'envoi dessus.
         staleTokenIds.push(tokenId);
       } else {
-        console.error(`Échec envoi push famille ${familyId}, jeton ${tokenId} :`, result.status, result.data);
+        console.error(`Échec envoi push biberon famille ${familyId}, jeton ${tokenId} :`, result.status, result.data);
       }
     }
   }
 
   await rtdbPut(databaseURL, `families/${familyId}/meta/reminder/lastNotifiedBottleTimestamp`, accessToken, lastBottleTimestamp);
-  for (const tokenId of staleTokenIds) {
-    await rtdbPut(databaseURL, `families/${familyId}/pushTokens/${tokenId}`, accessToken, null);
-  }
+  await removeStaleTokens(familyId, staleTokenIds, ctx);
 
-  state.sent = sentCount > 0;
+  state.bottleSent = sentCount > 0;
   state.sentCount = sentCount;
   state.staleTokensRemoved = staleTokenIds.length;
-  if (!state.sent) state.reason = `envoi tenté sur ${tokenEntries.length} jeton(s) mais aucun n'a réussi`;
+  if (!state.bottleSent) state.reason = `envoi tenté sur ${tokenEntries.length} jeton(s) mais aucun n'a réussi`;
+}
 
-  return state;
+// Rappel de vaccin à venir : parcourt les vaccins de tous les enfants,
+// notifie une seule fois par vaccin (jamais en boucle) dès que sa date est à
+// moins de 3 jours. Fenêtre volontairement large plutôt que "exactement la
+// veille" pour rester robuste à la granularité de 15 min du Cron Trigger —
+// le pire cas est une notification 1-2 jours plus tôt que prévu, jamais un
+// vaccin manqué silencieusement.
+const VACCINE_REMINDER_WINDOW_MS = 3 * 24 * 3600000;
+
+async function checkVaccineReminders(familyId, children, tokenEntries, ctx) {
+  const { databaseURL, accessToken } = ctx;
+  const notifiedPath = `families/${familyId}/meta/vaccineReminders/notifiedIds`;
+  const notifiedIds = (await rtdbGet(databaseURL, notifiedPath, accessToken)) || {};
+
+  const staleTokenIds = new Set();
+  const newlyNotified = {};
+  let sentCount = 0;
+
+  for (const child of Object.values(children)) {
+    const vaccines = (child && child.vaccines) || {};
+    const childName = (child.profile && child.profile.firstName) || 'Bébé';
+    for (const [vaccineId, vaccine] of Object.entries(vaccines)) {
+      if (!vaccine || !vaccine.date || notifiedIds[vaccineId]) continue;
+      const vaccineTs = Date.parse(vaccine.date + 'T00:00:00');
+      if (Number.isNaN(vaccineTs)) continue;
+      const msUntil = vaccineTs - ctx.now;
+      if (msUntil < 0 || msUntil > VACCINE_REMINDER_WINDOW_MS) continue;
+
+      const daysTxt = msUntil < 24 * 3600000 ? "aujourd'hui" : `dans ${Math.ceil(msUntil / (24 * 3600000))} jours`;
+      const notification = {
+        title: `Vaccin de ${childName} à venir`,
+        body: `${vaccine.name || 'Vaccin'} prévu ${daysTxt}.`,
+      };
+
+      let anySent = false;
+      for (const [tokenId, entry] of tokenEntries) {
+        if (!entry || !entry.token) continue;
+        const result = await sendFCM(ctx.projectId, ctx.accessToken, entry.token, notification);
+        if (result.ok) {
+          anySent = true;
+        } else {
+          const status = result.data && result.data.error && result.data.error.status;
+          if (status === 'UNREGISTERED' || status === 'NOT_FOUND' || status === 'INVALID_ARGUMENT') staleTokenIds.add(tokenId);
+          else console.error(`Échec envoi push vaccin famille ${familyId}, jeton ${tokenId} :`, result.status, result.data);
+        }
+      }
+
+      if (anySent) {
+        sentCount++;
+        newlyNotified[vaccineId] = true;
+      }
+    }
+  }
+
+  if (Object.keys(newlyNotified).length) {
+    await rtdbPut(databaseURL, notifiedPath, accessToken, { ...notifiedIds, ...newlyNotified });
+  }
+  await removeStaleTokens(familyId, [...staleTokenIds], ctx);
+
+  return sentCount;
+}
+
+async function removeStaleTokens(familyId, staleTokenIds, ctx) {
+  for (const tokenId of staleTokenIds) {
+    await rtdbPut(ctx.databaseURL, `families/${familyId}/pushTokens/${tokenId}`, ctx.accessToken, null);
+  }
 }
 
 // ---------------------------------------------------------------------------
