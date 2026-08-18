@@ -1,0 +1,105 @@
+{
+  "rules": {
+    "userFamilies": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "inviteCodes": {
+      "$code": {
+        ".read": "auth != null",
+        ".write": "auth != null && !data.exists()"
+      }
+    },
+    "families": {
+      "$familyId": {
+        ".read": "auth != null && data.child('members').child(auth.uid).exists()",
+        "meta": {
+          ".write": "auth != null && ( (!data.exists() && newData.child('createdBy').val() === auth.uid) || root.child('families').child($familyId).child('members').child(auth.uid).exists() )",
+          "name": {
+            ".validate": "newData.isString() && newData.val().length <= 60"
+          },
+          "timezone": {
+            ".validate": "newData.isString() && newData.val().length <= 64"
+          },
+          "features": {
+            "sleep": { ".validate": "newData.isBoolean()" },
+            "health": { ".validate": "newData.isBoolean()" },
+            "vaccines": { ".validate": "newData.isBoolean()" }
+          },
+          "reminder": {
+            "enabled": { ".validate": "newData.isBoolean()" },
+            "thresholdMinutes": { ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 1440" }
+          }
+        },
+        "members": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && ( root.child('families').child($familyId).child('meta').child('createdBy').val() === auth.uid || root.child('families').child($familyId).child('joinRequests').child($uid).val() === root.child('families').child($familyId).child('meta').child('inviteCode').val() )"
+          }
+        },
+        "joinRequests": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid"
+          }
+        },
+        "children": {
+          ".read": "auth != null && root.child('families').child($familyId).child('members').child(auth.uid).exists()",
+          ".write": "auth != null && root.child('families').child($familyId).child('members').child(auth.uid).exists()",
+          "$childId": {
+            "profile": {
+              ".validate": "newData.hasChildren(['firstName']) || !newData.exists()",
+              "firstName": { ".validate": "newData.isString() && newData.val().length <= 60" },
+              "lastName": { ".validate": "newData.isString() && newData.val().length <= 60" },
+              "birthDate": { ".validate": "newData.isString() && newData.val().length <= 10" },
+              "gender": { ".validate": "newData.val() == 'M' || newData.val() == 'F' || newData.val() == null" },
+              "avatar": { ".validate": "newData.val() == null || (newData.isString() && newData.val().length <= 300000)" }
+            },
+            "entries": {
+              "$entryId": {
+                ".validate": "newData.hasChildren(['id', 'type', 'timestamp', 'dayKey'])",
+                "type": { ".validate": "newData.val() == 'biberon' || newData.val() == 'diaper' || newData.val() == 'sleep' || newData.val() == 'vomit' || newData.val() == 'health'" },
+                "ml": { ".validate": "newData.val() == null || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000)" },
+                "diaper": { ".validate": "newData.val() == null || newData.val() == 'none' || newData.val() == 'pipi' || newData.val() == 'caca' || newData.val() == 'both'" },
+                "comment": { ".validate": "newData.val() == null || (newData.isString() && newData.val().length <= 500)" },
+                "timestamp": { ".validate": "newData.isNumber()" },
+                "dayKey": { ".validate": "newData.isString() && newData.val().matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/)" },
+                "updatedAt": { ".validate": "newData.val() == null || newData.isNumber()" },
+                "authorEmail": { ".validate": "newData.val() == null || (newData.isString() && newData.val().length <= 254)" }
+              }
+            },
+            "growth": {
+              "$growthId": {
+                "date": { ".validate": "newData.isString() && newData.val().length <= 10" },
+                "weight": { ".validate": "newData.val() == null || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 50)" },
+                "height": { ".validate": "newData.val() == null || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 150)" },
+                "headCirc": { ".validate": "newData.val() == null || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 70)" }
+              }
+            },
+            "vaccines": {
+              "$vaccineId": {
+                "name": { ".validate": "newData.isString() && newData.val().length <= 120" },
+                "date": { ".validate": "newData.val() == null || (newData.isString() && newData.val().length <= 10)" },
+                "done": { ".validate": "newData.val() == null || newData.isBoolean()" }
+              }
+            },
+            "milestones": {
+              "$milestoneId": {
+                "label": { ".validate": "newData.val() == null || (newData.isString() && newData.val().length <= 120)" },
+                "date": { ".validate": "newData.val() == null || (newData.isString() && newData.val().length <= 10)" },
+                "photo": { ".validate": "newData.val() == null || (newData.isString() && newData.val().length <= 500000)" }
+              }
+            }
+          }
+        },
+        "pushTokens": {
+          ".read": "auth != null && root.child('families').child($familyId).child('members').child(auth.uid).exists()",
+          ".write": "auth != null && root.child('families').child($familyId).child('members').child(auth.uid).exists()",
+          "$uid": {
+            ".validate": "newData.val() == null || (newData.isString() && newData.val().length <= 500)"
+          }
+        }
+      }
+    }
+  }
+}
