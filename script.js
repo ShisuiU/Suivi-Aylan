@@ -2063,6 +2063,14 @@ function isIOSStandaloneRequired(){
   return isIOS && !isStandalone;
 }
 
+// true seulement une fois qu'un jeton FCM a réellement été obtenu ET
+// enregistré en base sur CET appareil (pas juste la permission navigateur
+// accordée — les deux peuvent diverger : getToken()/le Service Worker
+// peuvent échouer après coup, en particulier sur Safari/iOS, et la
+// permission seule ne garantit pas que le worker a quelqu'un à qui écrire).
+let pushTokenConfirmed = false;
+let lastPushError = null;
+
 function updateNotifPermissionStatus(){
   const el = $('notif-permission-status');
   if(!el) return;
@@ -2074,9 +2082,21 @@ function updateNotifPermissionStatus(){
     el.textContent = "Sur iPhone/iPad : installe d'abord l'app (Partager → Sur l'écran d'accueil) pour pouvoir activer les notifications.";
     return;
   }
-  if(Notification.permission === 'granted') el.textContent = '✓ Notifications activées sur cet appareil.';
-  else if(Notification.permission === 'denied') el.textContent = 'Notifications bloquées — à réactiver dans les réglages du navigateur.';
-  else el.textContent = 'Notifications pas encore activées sur cet appareil.';
+  if(Notification.permission === 'denied'){
+    el.textContent = 'Notifications bloquées — à réactiver dans les réglages du navigateur.';
+    return;
+  }
+  if(Notification.permission !== 'granted'){
+    el.textContent = 'Notifications pas encore activées sur cet appareil.';
+    return;
+  }
+  if(pushTokenConfirmed){
+    el.textContent = '✓ Notifications activées sur cet appareil.';
+  }else if(lastPushError){
+    el.textContent = `Permission accordée mais l'activation a échoué : ${lastPushError}`;
+  }else{
+    el.textContent = 'Permission accordée — clique à nouveau si besoin pour finaliser.';
+  }
 }
 
 // Active le push sur CET appareil : permission, Service Worker dédié, jeton
@@ -2094,19 +2114,28 @@ async function enablePushNotifications(){
   }
   try{
     const permission = await Notification.requestPermission();
-    updateNotifPermissionStatus();
-    if(permission !== 'granted') return;
+    if(permission !== 'granted'){
+      updateNotifPermissionStatus();
+      return;
+    }
 
     const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
     const token = await messaging.getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: registration });
     if(!token){
+      lastPushError = "aucun jeton renvoyé par Firebase (getToken a résolu sans erreur mais sans valeur)";
+      updateNotifPermissionStatus();
       showToast("Impossible d'activer les notifications — réessaie");
       return;
     }
     await savePushToken(token);
+    pushTokenConfirmed = true;
+    lastPushError = null;
+    updateNotifPermissionStatus();
     showToast('Notifications activées sur cet appareil');
   }catch(e){
     console.error('Erreur activation notifications :', e);
+    lastPushError = (e && e.message) ? e.message : String(e);
+    updateNotifPermissionStatus();
     showToast("Erreur lors de l'activation des notifications");
   }
 }
@@ -2132,10 +2161,16 @@ async function silentlyRefreshPushToken(){
   try{
     const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
     const token = await messaging.getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: registration });
-    if(token) await savePushToken(token);
+    if(token){
+      await savePushToken(token);
+      pushTokenConfirmed = true;
+      lastPushError = null;
+    }
   }catch(e){
     console.error('Erreur de rafraîchissement du jeton push :', e);
+    lastPushError = (e && e.message) ? e.message : String(e);
   }
+  updateNotifPermissionStatus();
 }
 
 // Affiche un toast quand un push arrive alors que l'app est déjà ouverte au
