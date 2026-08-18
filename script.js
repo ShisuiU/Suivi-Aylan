@@ -1422,11 +1422,21 @@ function renderGrowthCharts(){
 }
 
 function exportDataJSON(){
+  // format/version : permet à la restauration de vérifier qu'un fichier est
+  // bien une sauvegarde Suivi Aylan avant d'écraser quoi que ce soit.
+  // vaccines/milestones ajoutés : la sauvegarde ne couvrait auparavant que
+  // biberons/couches/croissance, une omission qui aurait rendu une
+  // restauration incomplète sans qu'on s'en rende compte avant d'en avoir besoin.
   const payload = {
+    format: 'suivi-aylan-backup',
+    version: 1,
     exportedAt: new Date().toISOString(),
+    childName: getChildFirstName() || DEFAULT_SITE_NAME,
     profile: profileData || null,
     entries: entries,
-    growth: growthEntries
+    growth: growthEntries,
+    vaccines: vaccinesList,
+    milestones: milestonesList,
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -3293,6 +3303,82 @@ $('growth-save-btn').addEventListener('click', saveGrowthEntry);
 $('growth-cancel-btn').addEventListener('click', cancelEditGrowth);
 $('export-json-btn').addEventListener('click', exportDataJSON);
 $('export-pdf-btn').addEventListener('click', exportPDF);
+
+// Restauration depuis une sauvegarde — pendant du bouton d'export, jusqu'ici
+// resté un aller simple (télécharger un JSON sans jamais pouvoir le
+// réimporter). Confirmation à deux clics comme deleteCurrentChild(), pour
+// une action irréversible.
+let restorePendingData = null;
+let restoreArmed = false;
+
+$('restore-pick-btn').addEventListener('click', () => $('restore-file-input').click());
+
+$('restore-file-input').addEventListener('change', async (ev) => {
+  const input = ev.target;
+  const file = input.files[0];
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if(data.format !== 'suivi-aylan-backup'){
+      showToast("Ce fichier ne semble pas être une sauvegarde Suivi Aylan");
+      return;
+    }
+    restorePendingData = data;
+    restoreArmed = false;
+    const btn = $('restore-confirm-btn');
+    btn.classList.remove('confirming');
+    btn.textContent = 'Restaurer ces données';
+
+    const nEntries = Array.isArray(data.entries) ? data.entries.length : 0;
+    const nGrowth = Array.isArray(data.growth) ? data.growth.length : 0;
+    const nVaccines = Array.isArray(data.vaccines) ? data.vaccines.length : 0;
+    const nMilestones = Array.isArray(data.milestones) ? data.milestones.length : 0;
+    const exportDateTxt = data.exportedAt ? formatShortDate(data.exportedAt.slice(0, 10)) : '?';
+    $('restore-preview-text').textContent =
+      `${data.childName || 'Enfant'} · ${nEntries} entrée${nEntries > 1 ? 's' : ''}, ${nGrowth} mesure${nGrowth > 1 ? 's' : ''}, ${nVaccines} vaccin${nVaccines > 1 ? 's' : ''}, ${nMilestones} souvenir${nMilestones > 1 ? 's' : ''} · sauvegarde du ${exportDateTxt}`;
+    $('restore-preview').classList.remove('hidden');
+  }catch(e){
+    showToast("Fichier illisible — vérifie qu'il s'agit bien d'un export Suivi Aylan");
+  }finally{
+    input.value = ''; // permet de resélectionner le même fichier si besoin
+  }
+});
+
+$('restore-confirm-btn').addEventListener('click', async () => {
+  if(!restorePendingData) return;
+  const btn = $('restore-confirm-btn');
+  if(!restoreArmed){
+    restoreArmed = true;
+    btn.textContent = 'Confirmer le remplacement ?';
+    btn.classList.add('confirming');
+    return;
+  }
+  btn.disabled = true;
+  try{
+    const data = restorePendingData;
+    const toObj = (arr) => {
+      const obj = {};
+      (Array.isArray(arr) ? arr : []).forEach(item => { if(item && item.id != null) obj[item.id] = item; });
+      return obj;
+    };
+    await Promise.all([
+      childRef('entries').set(toObj(data.entries)),
+      childRef('growth').set(toObj(data.growth)),
+      childRef('vaccines').set(toObj(data.vaccines)),
+      childRef('milestones').set(toObj(data.milestones)),
+      data.profile ? childRef('profile').set(data.profile) : Promise.resolve(),
+    ]);
+    showToast('Données restaurées');
+    $('restore-preview').classList.add('hidden');
+    restorePendingData = null;
+    restoreArmed = false;
+  }catch(e){
+    showToast('Erreur lors de la restauration');
+  }finally{
+    btn.disabled = false;
+  }
+});
 document.querySelectorAll('#pediatric-period-row .period-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     pediatricPeriodDays = Number(btn.getAttribute('data-days'));
@@ -3545,16 +3631,44 @@ $('reminder-toggle-btn').addEventListener('click', toggleReminderEnabled);
 $('reminder-hours-input').addEventListener('change', saveReminderHours);
 $('notif-permission-btn').addEventListener('click', enablePushNotifications);
 
+// "Comme d'habitude" : au lieu de reprendre littéralement la toute dernière
+// entrée (qui peut être une tétée de nuit atypique, ou même — bug latent
+// corrigé au passage — une entrée d'un autre type que biberon puisque
+// l'ancien filtre "type !== vomit" laissait passer couches/sommeil/santé),
+// on reprend la valeur la plus fréquente sur les 7 derniers jours. Historique
+// récent trop court (<5 tétées) -> on élargit aux 10 dernières tétées, toutes
+// dates confondues, plutôt que de retomber sur une valeur unique non fiable.
+function mostFrequentValue(values){
+  if(!values.length) return null;
+  const counts = new Map();
+  for(const v of values) counts.set(v, (counts.get(v) || 0) + 1);
+  let best = values[0], bestCount = 0;
+  for(const [v, c] of counts){ if(c > bestCount){ best = v; bestCount = c; } }
+  return best;
+}
+
+function computeUsualBottleValues(){
+  const allBottles = entries.filter(e => e.type === 'biberon').sort((a, b) => b.timestamp - a.timestamp);
+  if(!allBottles.length) return null;
+
+  const sevenDaysAgo = Date.now() - 7 * 24 * 3600000;
+  let pool = allBottles.filter(e => e.timestamp >= sevenDaysAgo);
+  if(pool.length < 5) pool = allBottles.slice(0, 10);
+
+  const ml = mostFrequentValue(pool.map(e => e.ml).filter(v => v != null)) ?? allBottles[0].ml;
+  const diaper = mostFrequentValue(pool.map(e => e.diaper).filter(v => v != null)) ?? allBottles[0].diaper ?? 'none';
+  return { ml, diaper };
+}
+
 $('same-as-last-btn').addEventListener('click', () => {
-  const bottleEntries = entries.filter(e => e.type !== 'vomit');
-  if(!bottleEntries.length){
+  const usual = computeUsualBottleValues();
+  if(!usual){
     showToast('Aucun biberon précédent trouvé');
     return;
   }
-  const last = [...bottleEntries].sort((a,b) => b.timestamp - a.timestamp)[0];
-  $('ml-input').value = last.ml;
-  selectDiaper(last.diaper);
-  showToast('Quantité et couche reprises');
+  $('ml-input').value = usual.ml;
+  selectDiaper(usual.diaper);
+  showToast('Quantité habituelle reprise');
 });
 
 $('import-toggle').addEventListener('click', () => {
