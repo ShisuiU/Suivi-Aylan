@@ -201,7 +201,7 @@ async function rtdbGet(databaseURL, path, accessToken, opts) {
   const resp = await fetch(`${databaseURL}/${path}.json${qs}`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
-  if (!resp.ok) throw new Error(`RTDB GET ${path} a échoué (${resp.status})`);
+  if (!resp.ok) throw new Error(`RTDB GET ${path} a échoué (${resp.status}) : ${await resp.text()}`);
   return resp.json();
 }
 
@@ -211,7 +211,7 @@ async function rtdbPut(databaseURL, path, accessToken, value) {
     headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(value),
   });
-  if (!resp.ok) throw new Error(`RTDB PUT ${path} a échoué (${resp.status})`);
+  if (!resp.ok) throw new Error(`RTDB PUT ${path} a échoué (${resp.status}) : ${await resp.text()}`);
   return resp.json();
 }
 
