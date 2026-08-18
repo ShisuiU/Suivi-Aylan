@@ -24,7 +24,11 @@
 
 export default {
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(runReminders(env));
+    ctx.waitUntil(
+      runReminders(env).catch((err) => {
+        console.error('Échec du passage planifié :', err && err.message || err, err && err.stack);
+      })
+    );
   },
 
   async fetch(request, env) {
@@ -46,15 +50,39 @@ export default {
         { status: 401 }
       );
     }
-    const summary = await runReminders(env);
-    return new Response(JSON.stringify(summary, null, 2), {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    // Capture toute exception ici plutôt que de la laisser remonter telle
+    // quelle : Cloudflare masque alors le vrai message derrière une page
+    // générique "Error 1101 - Worker threw exception", inutilisable pour
+    // diagnostiquer (JSON du compte de service mal collé, clé privée
+    // invalide, FIREBASE_DATABASE_URL absente...).
+    try {
+      const summary = await runReminders(env);
+      return new Response(JSON.stringify(summary, null, 2), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    } catch (err) {
+      return new Response(
+        JSON.stringify({ error: String(err && err.message || err), stack: err && err.stack }, null, 2),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
   },
 };
 
 async function runReminders(env) {
-  const serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT);
+  if (!env.FIREBASE_SERVICE_ACCOUNT) throw new Error("Le secret FIREBASE_SERVICE_ACCOUNT n'est pas configuré.");
+  if (!env.FIREBASE_DATABASE_URL) throw new Error("Le secret FIREBASE_DATABASE_URL n'est pas configuré.");
+
+  let serviceAccount;
+  try {
+    serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT);
+  } catch (e) {
+    throw new Error("FIREBASE_SERVICE_ACCOUNT n'est pas un JSON valide — vérifie que tout le fichier .json a été collé sans modification (guillemets, retours à la ligne compris).");
+  }
+  if (!serviceAccount.private_key || !serviceAccount.client_email || !serviceAccount.project_id) {
+    throw new Error("FIREBASE_SERVICE_ACCOUNT est un JSON valide mais il manque private_key, client_email ou project_id — vérifie que c'est bien le fichier téléchargé depuis Firebase (Comptes de service > Générer une nouvelle clé privée), pas un autre JSON.");
+  }
+
   const databaseURL = env.FIREBASE_DATABASE_URL.replace(/\/$/, '');
   const projectId = serviceAccount.project_id;
   const now = Date.now();
