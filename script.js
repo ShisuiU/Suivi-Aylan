@@ -201,6 +201,19 @@ let familyFeatures = { sleep: false, health: false, vaccines: false };
 
 const DEFAULT_SITE_NAME = 'Bébé';
 
+// Raccourcis d'icône (manifest.json "shortcuts") : ?shortcut=biberon|couche
+// ouvre directement la fiche d'ajout correspondante dès que le premier enfant
+// est prêt, sans attendre que l'utilisateur navigue jusqu'à l'écran Aujourd'hui.
+const shortcutParam = new URLSearchParams(location.search).get('shortcut');
+let shortcutHandled = false;
+function handleLaunchShortcut(){
+  if(!shortcutParam || shortcutHandled) return;
+  shortcutHandled = true;
+  history.replaceState(null, '', location.pathname);
+  if(shortcutParam === 'biberon') openAddModal();
+  else if(shortcutParam === 'couche') openDiaperModal();
+}
+
 function childRef(subpath){
   const base = 'families/' + currentFamilyId + '/children/' + currentChildId;
   return db.ref(subpath ? base + '/' + subpath : base);
@@ -572,6 +585,7 @@ function startSync(){
         const fallback = (stored && childrenList.find(c => c.id === stored)) || childrenList[0];
         switchToChild(fallback.id);
       }
+      handleLaunchShortcut();
     }, (err) => {
       console.error('Erreur de lecture des enfants :', err);
       showToast('Erreur de synchronisation');
