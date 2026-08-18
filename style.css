@@ -1321,13 +1321,22 @@
     .nav-rail{ display:flex; }
     .bottom-nav{ display:none; }
     .fab{ bottom:28px; }
-    .wrap{ padding-left:104px; }
+    /* Colonne confortablement élargie par défaut (Infos, Profil, Paramètres) —
+       du contenu séquentiel (formulaire, réglages) ne gagne rien à être coupé
+       en colonnes, juste à respirer un peu plus qu'au format mobile. */
+    .wrap{ padding-left:104px; max-width:640px; }
 
+    /* Aujourd'hui et Calendrier exploitent vraiment l'espace en tableau de
+       bord à deux colonnes — cf. galerie de maquettes étape 1/2. */
     .wrap.wide-view{ max-width:1040px; }
     #view-today.active{
       display:grid; grid-template-columns: 1.6fr 1fr; align-items:start; gap:26px;
     }
     .today-col-side{ display:block; }
+
+    #calendar-main-block{
+      display:grid; grid-template-columns: 1fr 1.1fr; align-items:start; gap:20px;
+    }
   }
 
   @media print{

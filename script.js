@@ -1202,9 +1202,13 @@ function renderSimpleLineChart(container, points, opts){
 
   if(!hasWHO){
     const n = points.length;
-    const spacing = 56;
     const leftPad = 34, rightPad = 20, topPad = 24, bottomPad = 28, chartH = 120;
-    const svgW = Math.max(260, leftPad + rightPad + (n - 1) * spacing);
+    const minSpacing = 56;
+    const minSvgW = Math.max(260, leftPad + rightPad + (n - 1) * minSpacing);
+    // Étire l'espacement sur un conteneur plus large que ce minimum (desktop) —
+    // cf. renderDayChartSVG pour le même principe.
+    const svgW = Math.max(minSvgW, container.clientWidth || minSvgW);
+    const spacing = n > 1 ? (svgW - leftPad - rightPad) / (n - 1) : 0;
     const svgH = topPad + chartH + bottomPad;
 
     const values = points.map(p => p.value);
@@ -1254,7 +1258,10 @@ function renderSimpleLineChart(container, points, opts){
   const domainMax = maxAgeMonths * 1.12;
 
   const leftPad = 34, rightPad = 20, topPad = 22, bottomPad = 28, chartH = 150;
-  const plotW = Math.max(260, domainMax * 42);
+  const minPlotW = Math.max(260, domainMax * 42);
+  // Étire le tracé sur un conteneur plus large que ce minimum (desktop) — cf.
+  // renderDayChartSVG pour le même principe.
+  const plotW = Math.max(minPlotW, (container.clientWidth || (leftPad + rightPad + minPlotW)) - leftPad - rightPad);
   const svgW = leftPad + rightPad + plotW;
   const svgH = topPad + chartH + bottomPad;
 
@@ -1845,7 +1852,7 @@ function switchView(view){
         $('settings-summary-email').textContent = email;
       }
       $('fab-btn').classList.toggle('hidden', view === 'profile' || view === 'settings');
-      $('app-wrap').classList.toggle('wide-view', view === 'today');
+      $('app-wrap').classList.toggle('wide-view', view === 'today' || view === 'calendar');
     }finally{
       setTimeout(() => { tabAnimating = false; }, 210);
     }
@@ -2624,13 +2631,19 @@ function renderDayChartSVG(container, days, values, opts){
 
   const todayStr = todayKey(new Date());
   const n = days.length;
-  const spacing = 46;
   const leftPad = 32;
   const rightPad = 20;
   const topPad = 24;
   const bottomPad = 28;
   const chartH = 140;
-  const svgW = Math.max(320, leftPad + rightPad + (n - 1) * spacing);
+  const minSpacing = 46;
+  const minSvgW = Math.max(320, leftPad + rightPad + (n - 1) * minSpacing);
+  // Sur un conteneur plus large que ce minimum (desktop), on étire l'espacement
+  // entre points pour occuper toute la largeur disponible plutôt que de laisser
+  // le graphique flotter, cramponné à gauche, dans une carte trop grande pour
+  // lui — mobile est inchangé puisque son conteneur avoisine déjà ce minimum.
+  const svgW = Math.max(minSvgW, container.clientWidth || minSvgW);
+  const spacing = n > 1 ? (svgW - leftPad - rightPad) / (n - 1) : 0;
   const svgH = topPad + chartH + bottomPad;
 
   const maxVal = Math.max(...values, opts.minScale || 1);
