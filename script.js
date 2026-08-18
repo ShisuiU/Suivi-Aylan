@@ -11,6 +11,38 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
+// --- Garde-fou "écriture en attente" -----------------------------------
+// Sans persistance hors-ligne côté SDK Realtime Database, une écriture
+// tentée pendant une coupure réseau (ou simplement en vol) reste en file
+// UNIQUEMENT en mémoire — fermer/rafraîchir l'onglet à ce moment-là la
+// perd silencieusement, sans que rien ne l'ait signalé. On instrumente donc
+// `db.ref()` une seule fois ici pour compter les écritures en cours (set/
+// update/remove/push), quel que soit l'endroit du code qui les déclenche,
+// et on avertit via beforeunload tant que ce compteur n'est pas retombé à 0.
+let pendingWriteCount = 0;
+const dbRefOriginal = db.ref.bind(db);
+db.ref = function(path){
+  const ref = dbRefOriginal(path);
+  ['set', 'update', 'remove', 'push'].forEach((method) => {
+    const original = ref[method].bind(ref);
+    ref[method] = function(...args){
+      pendingWriteCount++;
+      const result = original(...args);
+      Promise.resolve(result).finally(() => {
+        pendingWriteCount = Math.max(0, pendingWriteCount - 1);
+      });
+      return result;
+    };
+  });
+  return ref;
+};
+window.addEventListener('beforeunload', (e) => {
+  if(pendingWriteCount > 0){
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
 // Clé VAPID (Web Push) — Console Firebase > Paramètres du projet > Cloud
 // Messaging > Certificats Web Push > "Générer une paire de clés". Clé
 // publique, sans risque à committer (contrairement à un compte de service).
@@ -359,6 +391,34 @@ async function saveFamilyName(){
   }
 }
 
+// Fuseau horaire de référence de la famille — utilisé par todayKey() pour que
+// le regroupement par jour reste cohérent entre appareils, même si un parent
+// voyage dans un autre fuseau (au lieu de dépendre du fuseau local de
+// l'appareil qui enregistre chaque entrée). Auto-détecté à la création de la
+// famille, modifiable ici.
+let familyTimezone = null;
+
+function populateTimezoneSelect(){
+  const select = $('settings-timezone-select');
+  if(!select || select.options.length) return; // déjà peuplé, pas besoin de refaire la liste à chaque rendu
+  const deviceTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  let zones;
+  try{ zones = Intl.supportedValuesOf('timeZone'); }catch(e){ zones = null; }
+  if(!zones || !zones.length) zones = [deviceTz]; // navigateur ancien sans Intl.supportedValuesOf — au moins le fuseau de cet appareil
+  select.innerHTML = zones.map(z => `<option value="${escapeHtml(z)}">${escapeHtml(z.replace(/_/g, ' '))}</option>`).join('');
+}
+
+async function saveFamilyTimezone(){
+  const tz = $('settings-timezone-select').value;
+  if(!tz) return;
+  try{
+    await db.ref('families/' + currentFamilyId + '/meta/timezone').set(tz);
+    showToast('Fuseau horaire enregistré');
+  }catch(e){
+    showToast("Erreur d'enregistrement du fuseau");
+  }
+}
+
 function switchToChild(childId){
   if(!childId || childId === currentChildId) return;
   if(entriesRef) entriesRef.off();
@@ -444,7 +504,7 @@ function childChipsMarkup(){
     const fullName = [c.firstName, c.lastName].filter(Boolean).join(' ').trim() || DEFAULT_SITE_NAME;
     const initial = initialLetterFor(c.firstName, c.lastName);
     const active = c.id === currentChildId ? ' active' : '';
-    const avatarContent = c.avatar ? `<img src="${c.avatar}" alt="">` : escapeHtml(initial);
+    const avatarContent = c.avatar ? `<img src="${escapeHtml(c.avatar)}" alt="">` : escapeHtml(initial);
     return `<button type="button" class="child-chip${active}" data-child="${c.id}" title="${escapeHtml(fullName)}" aria-label="${escapeHtml(fullName)}">${avatarContent}</button>`;
   }).join('');
 }
@@ -586,6 +646,11 @@ function startSync(){
     reminderEnabled = !!r.enabled;
     reminderThresholdMinutes = (r.thresholdMinutes > 0) ? r.thresholdMinutes : 210;
     renderReminderPrefsUI();
+
+    familyTimezone = meta.timezone || null;
+    populateTimezoneSelect();
+    const tzSelect = $('settings-timezone-select');
+    if(tzSelect) tzSelect.value = familyTimezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
   }, (err) => {
     console.error('Erreur de lecture de meta :', err);
   });
@@ -658,11 +723,38 @@ function stopSync(){
 }
 
 async function addEntryToDB(entry){
+  // Horodatage systématique de la dernière écriture — sert de base à la
+  // détection de conflit d'édition concurrente (voir checkEditConflict).
+  entry.updatedAt = Date.now();
   try{
     await childRef('entries/' + entry.id).set(entry);
   }catch(e){
     showToast("Erreur d'enregistrement");
+    throw e; // l'appelant ne doit jamais afficher un succès après un échec réel
   }
+}
+
+// Avant d'écraser une entrée en édition, vérifie qu'elle n'a pas été modifiée
+// par quelqu'un d'autre depuis son ouverture (usage multi-parents normal de
+// l'app). `loadedUpdatedAt` est la valeur vue au moment d'ouvrir l'édition ;
+// si elle diffère de celle actuellement en base, l'utilisateur est prévenu
+// avant d'écraser silencieusement le travail de l'autre personne.
+async function checkEditConflict(id, loadedUpdatedAt){
+  if(loadedUpdatedAt == null) return true; // pas de référence connue (entrée jamais modifiée avant cette fonctionnalité) — rien à comparer
+  try{
+    const snap = await childRef('entries/' + id).once('value');
+    const fresh = snap.val();
+    if(!fresh){
+      return confirm("Cette entrée a été supprimée entre-temps par quelqu'un d'autre. Créer quand même une nouvelle entrée avec tes modifications ?");
+    }
+    if(fresh.updatedAt && fresh.updatedAt !== loadedUpdatedAt){
+      return confirm('Cette entrée a été modifiée par quelqu\'un d\'autre depuis que tu l\'as ouverte. Écraser quand même avec tes modifications ?');
+    }
+  }catch(e){
+    // Lecture de vérification impossible (hors-ligne, etc.) — on ne bloque pas
+    // la sauvegarde pour autant, ce serait pire que le risque qu'on couvre.
+  }
+  return true;
 }
 
 async function removeEntryFromDB(id){
@@ -670,6 +762,7 @@ async function removeEntryFromDB(id){
     await childRef('entries/' + id).remove();
   }catch(e){
     showToast("Erreur de suppression");
+    throw e; // l'appelant ne doit jamais afficher un succès après un échec réel
   }
 }
 
@@ -735,7 +828,7 @@ function renderAgeHero(){
     $('age-name-lbl').textContent = 'Suivi(e) actuellement';
     $('age-value').textContent = `${name} · ${computeAge(profileData.birthDate)}`;
     const initial = initialLetterFor(profileData.firstName, profileData.lastName);
-    $('profile-hero-avatar').innerHTML = profileData.avatar ? `<img src="${profileData.avatar}" alt="">` : escapeHtml(initial);
+    $('profile-hero-avatar').innerHTML = profileData.avatar ? `<img src="${escapeHtml(profileData.avatar)}" alt="">` : escapeHtml(initial);
   }else{
     hero.classList.add('hidden');
   }
@@ -1029,7 +1122,7 @@ function renderMilestones(){
   }
   grid.innerHTML = milestonesList.map(m => `
     <div class="milestone-card" data-id="${m.id}">
-      ${m.photo ? `<img class="milestone-photo" src="${m.photo}" alt="${escapeHtml(m.label || '')}">` : ''}
+      ${m.photo ? `<img class="milestone-photo" src="${escapeHtml(m.photo)}" alt="${escapeHtml(m.label || '')}">` : ''}
       <div class="milestone-info">
         <div class="milestone-label">${escapeHtml(m.label || 'Souvenir')}</div>
         <div class="milestone-date">${m.date ? formatShortDate(m.date) : ''}</div>
@@ -1745,7 +1838,7 @@ async function submitCreateFamily(){
   btn.disabled = true;
   btn.textContent = 'Création...';
   try{
-    await db.ref('families/' + familyId + '/meta').set({ name, inviteCode, createdBy: uid, createdAt: Date.now() });
+    await db.ref('families/' + familyId + '/meta').set({ name, inviteCode, createdBy: uid, createdAt: Date.now(), timezone: Intl.DateTimeFormat().resolvedOptions().timeZone });
     await db.ref('families/' + familyId + '/members/' + uid).set(true);
     await db.ref('userFamilies/' + uid).set(familyId);
     await db.ref('inviteCodes/' + inviteCode).set(familyId);
@@ -1803,7 +1896,7 @@ async function submitMigrateLegacy(legacyData){
   btn.disabled = true;
   btn.textContent = 'Récupération...';
   try{
-    await db.ref('families/' + familyId + '/meta').set({ name: 'Ma famille', inviteCode, createdBy: uid, createdAt: Date.now() });
+    await db.ref('families/' + familyId + '/meta').set({ name: 'Ma famille', inviteCode, createdBy: uid, createdAt: Date.now(), timezone: Intl.DateTimeFormat().resolvedOptions().timeZone });
     await db.ref('families/' + familyId + '/members/' + uid).set(true);
     if(legacyData.legacyEntries) await db.ref('families/' + familyId + '/entries').set(legacyData.legacyEntries);
     if(legacyData.legacyProfile) await db.ref('families/' + familyId + '/profile').set(legacyData.legacyProfile);
@@ -1838,8 +1931,21 @@ function diaperIcon(val){
   return { none:'·', pipi:droplet, caca:'●', both }[val] || '·';
 }
 
+// Un objet Date représente un instant précis (son epoch interne) — ses
+// méthodes getFullYear()/getMonth()/getDate() le lisent par défaut dans le
+// fuseau LOCAL de l'appareil qui exécute ce code. Pour qu'une famille voie
+// systématiquement la même date de calendrier pour un même instant, quel que
+// soit l'appareil (ex. un parent en déplacement dans un autre fuseau), on
+// formate plutôt dans le fuseau de référence choisi pour la famille — avec
+// repli sur le fuseau local si la famille n'en a pas encore choisi un
+// (familles créées avant l'introduction de ce réglage).
 function todayKey(dateObj){
-  return dateObj.getFullYear()+'-'+pad(dateObj.getMonth()+1)+'-'+pad(dateObj.getDate());
+  const tz = familyTimezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(dateObj);
+  const y = parts.find(p => p.type === 'year').value;
+  const m = parts.find(p => p.type === 'month').value;
+  const d = parts.find(p => p.type === 'day').value;
+  return `${y}-${m}-${d}`;
 }
 
 function formatDayLabel(key){
@@ -2518,7 +2624,12 @@ function authorInitials(email){
 function escapeHtml(str){
   const div = document.createElement('div');
   div.textContent = str;
-  return div.innerHTML;
+  // Le tour textContent/innerHTML échappe &, < et > mais PAS les guillemets
+  // (ils n'ont pas besoin de l'être dans un nœud texte) — or cette fonction
+  // est aussi utilisée dans des attributs (title="…", src="…"), où un
+  // guillemet non échappé permet de sortir de l'attribut et d'injecter du
+  // HTML arbitraire. On les échappe donc explicitement en plus.
+  return div.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 function healthKindLabel(e){
@@ -3218,6 +3329,7 @@ async function saveHealthEntry(){
 
 let editingDiaperId = null;
 let editingDiaperOriginalAuthor = null;
+let editingDiaperLoadedUpdatedAt = null;
 
 function resetDiaperForm(){
   $('diaper-date-input').value = dateInputVal(new Date());
@@ -3240,6 +3352,7 @@ function startEditDiaper(id){
 
   editingDiaperId = id;
   editingDiaperOriginalAuthor = entry.authorEmail || null;
+  editingDiaperLoadedUpdatedAt = entry.updatedAt || null;
   $('diaper-date-input').value = entry.dayKey;
   $('diaper-time-input').value = entry.time;
   selectDiaperType(entry.diaper);
@@ -3255,6 +3368,7 @@ function startEditDiaper(id){
 function cancelEditDiaper(){
   editingDiaperId = null;
   editingDiaperOriginalAuthor = null;
+  editingDiaperLoadedUpdatedAt = null;
   $('diaper-form-title').textContent = 'Couche seule';
   $('diaper-save-btn').textContent = 'Enregistrer';
   $('diaper-cancel-edit-btn').classList.add('hidden');
@@ -3285,6 +3399,8 @@ async function saveDiaperEntry(){
   };
 
   const btn = $('diaper-save-btn');
+  if(isEditing && !(await checkEditConflict(editingDiaperId, editingDiaperLoadedUpdatedAt))) return;
+
   btn.disabled = true;
   try{
     await addEntryToDB(entry);
@@ -3303,6 +3419,7 @@ async function saveDiaperEntry(){
 
 let editingId = null;
 let editingOriginalAuthor = null;
+let editingLoadedUpdatedAt = null;
 
 function openModal(overlayId){
   const overlay = $(overlayId);
@@ -3346,6 +3463,7 @@ function startEdit(id){
 
   editingId = id;
   editingOriginalAuthor = entry.authorEmail || null;
+  editingLoadedUpdatedAt = entry.updatedAt || null;
   $('date-input').value = entry.dayKey;
   $('time-input').value = entry.time;
   $('ml-input').value = entry.ml;
@@ -3362,6 +3480,7 @@ function startEdit(id){
 function cancelEdit(){
   editingId = null;
   editingOriginalAuthor = null;
+  editingLoadedUpdatedAt = null;
   $('form-title').textContent = "Ajout d'un biberon";
   $('save-btn').textContent = 'Enregistrer';
   $('cancel-edit-btn').classList.add('hidden');
@@ -3401,6 +3520,8 @@ async function saveEntry(){
   };
 
   const saveBtn = $('save-btn');
+  if(isEditing && !(await checkEditConflict(editingId, editingLoadedUpdatedAt))) return;
+
   saveBtn.disabled = true;
   try{
   await addEntryToDB(entry);
@@ -3748,6 +3869,7 @@ $('settings-logout-btn').addEventListener('click', doLogout);
 $('settings-invite-reveal-btn').addEventListener('click', toggleInviteCodeReveal);
 $('settings-invite-copy-btn').addEventListener('click', () => copyInviteCode());
 $('settings-family-name-save-btn').addEventListener('click', saveFamilyName);
+$('settings-timezone-save-btn').addEventListener('click', saveFamilyTimezone);
 $('settings-family-name-input').addEventListener('keydown', (e) => { if(e.key === 'Enter') saveFamilyName(); });
 $('theme-toggle-switch').addEventListener('click', toggleTheme);
 

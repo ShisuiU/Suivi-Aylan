@@ -15,10 +15,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-messaging-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.13.0/firebase-messaging-compat.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -497,6 +497,13 @@
         </div>
         <button class="save-btn" id="settings-family-name-save-btn" type="button" style="margin-top:10px;">Enregistrer le nom</button>
 
+        <label class="field-label" style="margin-top:16px;">Fuseau horaire de référence</label>
+        <div class="time-row">
+          <select class="login-field" id="settings-timezone-select" style="margin-bottom:0;"></select>
+        </div>
+        <p class="backup-hint" style="margin-top:6px;">Sert à regrouper les entrées par jour de façon cohérente entre les appareils, même si un parent voyage dans un autre fuseau.</p>
+        <button class="save-btn" id="settings-timezone-save-btn" type="button" style="margin-top:10px;">Enregistrer le fuseau</button>
+
         <div class="invite-code-display">
           <div class="label">Code d'invitation</div>
           <div class="invite-code-row">
@@ -697,6 +704,6 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div id="print-summary"></div>
 
-<script src="script.js"></script>
+<script defer src="script.js"></script>
 </body>
 </html>
