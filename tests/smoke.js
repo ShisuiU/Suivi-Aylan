@@ -120,6 +120,13 @@ async function newPage(browser, store, opts) {
           update: async (val) => { await window.__bridgeSet(p, val); return true; },
           push: async (val) => { const key = 'push_' + Math.random().toString(36).slice(2); await window.__bridgeSet(p + '/' + key, val); return { key }; },
           remove: async () => { await window.__bridgeSet(p, null); },
+          transaction: async (updateFn) => {
+            const current = await window.__bridgeGet(p);
+            const newVal = updateFn(current);
+            if (newVal === undefined) return { committed: false, snapshot: { val: () => current } };
+            await window.__bridgeSet(p, newVal);
+            return { committed: true, snapshot: { val: () => newVal } };
+          },
           off: () => {},
           orderByChild: () => ({ equalTo: () => ({ once: async () => ({ exists: () => false }) }) }),
         }),
@@ -242,6 +249,47 @@ async function run() {
     await page.waitForTimeout(400);
     const entry = getPath(store, 'families/fam1/children/c1/entries/e1');
     assert(entry.ml === 999, 'La donnée de l\'autre personne n\'est pas écrasée sans confirmation');
+    await page.close();
+  }
+
+  console.log('\n8. Démarrage puis arrêt d\'une sieste (verrou transactionnel)');
+  {
+    const store = baseStore();
+    setPath(store, 'families/fam1/meta/features/sleep', true);
+    const page = await newPage(browser, store);
+    await page.click('#sleep-log-btn');
+    await page.waitForTimeout(300);
+    const lockAfterStart = getPath(store, 'families/fam1/children/c1/activeSleep');
+    assert(!!(lockAfterStart && lockAfterStart.id), 'Le verrou activeSleep est posé au démarrage');
+    const entriesAfterStart = getPath(store, 'families/fam1/children/c1/entries');
+    const activeEntry = Object.values(entriesAfterStart).find(e => e.type === 'sleep' && e.end == null);
+    assert(!!activeEntry, 'Une entrée sommeil "en cours" (end: null) est créée');
+
+    await page.click('#sleep-log-btn');
+    await page.waitForTimeout(300);
+    const lockAfterStop = getPath(store, 'families/fam1/children/c1/activeSleep');
+    assert(lockAfterStop == null, 'Le verrou activeSleep est libéré à l\'arrêt');
+    const entriesAfterStop = getPath(store, 'families/fam1/children/c1/entries');
+    const closedEntry = entriesAfterStop[activeEntry.id];
+    assert(!!(closedEntry && closedEntry.end != null && closedEntry.durationMin >= 0), 'La même entrée est refermée (end renseigné) plutôt qu\'une deuxième créée');
+    assert(page.consoleErrors.length === 0, 'Aucune erreur JS pendant le cycle sommeil');
+    await page.close();
+  }
+
+  console.log('\n9. RÉGRESSION — édition concurrente d\'une mesure de croissance doit être signalée');
+  {
+    const store = baseStore();
+    setPath(store, 'families/fam1/children/c1/growth/g1', { id: 'g1', date: '2026-06-01', weight: 7.2, height: null, headCirc: null, updatedAt: 1000 });
+    const page = await newPage(browser, store, { confirmResult: false });
+    // Une autre personne modifie la mesure après son chargement initial.
+    setPath(store, 'families/fam1/children/c1/growth/g1', { id: 'g1', date: '2026-06-01', weight: 9.9, height: null, headCirc: null, updatedAt: 5000 });
+    await page.evaluate(() => { switchView('profile'); });
+    await page.waitForTimeout(200);
+    await page.evaluate(() => { editingGrowthId = 'g1'; editingGrowthLoadedUpdatedAt = 1000; document.getElementById('growth-weight-input').value = '7.5'; });
+    await page.evaluate(() => saveGrowthEntry());
+    await page.waitForTimeout(400);
+    const growth = getPath(store, 'families/fam1/children/c1/growth/g1');
+    assert(growth.weight === 9.9, 'La mesure de l\'autre personne n\'est pas écrasée sans confirmation');
     await page.close();
   }
 

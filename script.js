@@ -163,30 +163,67 @@ function getActiveSleepEntry(){
   return entries.find(e => e.type === 'sleep' && e.end == null) || null;
 }
 
+// Démarrer/arrêter une sieste passe par un verrou transactionnel Firebase
+// (children/{id}/activeSleep) plutôt que par l'état local `entries` — celui-ci
+// vient d'un listener asynchrone qui peut avoir quelques centaines de ms de
+// retard. Sans ce verrou, deux parents cliquant "Sommeil" à quelques instants
+// d'écart (avant que l'un ne voie l'action de l'autre) créeraient chacun une
+// sieste active distincte : deux entrées avec `end: null` en même temps, l'une
+// des deux restant bloquée en "En cours" indéfiniment. La transaction rend la
+// décision démarrer/arrêter atomique côté serveur, quel que soit l'état local.
 async function toggleSleep(){
-  const active = getActiveSleepEntry();
-  if(active){
-    const now = Date.now();
-    const updated = Object.assign({}, active, {
-      end: now,
-      durationMin: Math.max(1, Math.round((now - active.start) / 60000))
+  const lockRef = childRef('activeSleep');
+  let outcome = null; // 'starting' | 'stopping'
+  let sleepId = null;
+  let sleepStart = null;
+
+  let result;
+  try{
+    result = await lockRef.transaction((current) => {
+      if(current && current.id){
+        outcome = 'stopping';
+        sleepId = current.id;
+        sleepStart = current.start;
+        return null; // libère le verrou
+      }
+      outcome = 'starting';
+      sleepId = generateId('sleep');
+      sleepStart = Date.now();
+      return { id: sleepId, start: sleepStart };
     });
-    await addEntryToDB(updated);
-    showToast('Sommeil enregistré');
-  }else{
-    const now = new Date();
+  }catch(e){
+    showToast("Erreur d'enregistrement");
+    return;
+  }
+  if(!result.committed) return; // transaction annulée côté serveur — l'utilisateur peut recliquer
+
+  if(outcome === 'starting'){
     const entry = {
-      id: Date.now(),
+      id: sleepId,
       type: 'sleep',
-      start: now.getTime(),
+      start: sleepStart,
       end: null,
-      timestamp: now.getTime(),
-      dayKey: todayKey(now),
-      time: nowTimeStr(),
+      timestamp: sleepStart,
+      dayKey: todayKey(new Date(sleepStart)),
+      time: formatTimeFromTimestamp(sleepStart),
       authorEmail: auth.currentUser ? auth.currentUser.email : null
     };
     await addEntryToDB(entry);
     showToast('Sieste démarrée');
+  }else{
+    const now = Date.now();
+    const known = entries.find(e => String(e.id) === String(sleepId));
+    const base = known || {
+      id: sleepId, type: 'sleep', start: sleepStart, dayKey: todayKey(new Date(sleepStart)),
+      time: formatTimeFromTimestamp(sleepStart), timestamp: sleepStart,
+      authorEmail: auth.currentUser ? auth.currentUser.email : null
+    };
+    const updated = Object.assign({}, base, {
+      end: now,
+      durationMin: Math.max(1, Math.round((now - sleepStart) / 60000))
+    });
+    await addEntryToDB(updated);
+    showToast('Sommeil enregistré');
   }
   updateSleepButton();
 }
@@ -495,7 +532,7 @@ function switchToChild(childId){
     renderProfileForm();
     renderAgeHero();
     updateSiteTitle();
-  });
+  }, () => showToast("Erreur de synchronisation"));
 
   growthRef = childRef('growth');
   growthRef.on('value', (snapshot) => {
@@ -509,21 +546,21 @@ function switchToChild(childId){
     // après celui des entrées (aucun ordre garanti entre deux écouteurs
     // Firebase distincts), jusqu'au prochain render() déclenché ailleurs.
     renderTodaySidebar();
-  });
+  }, () => showToast("Erreur de synchronisation"));
 
   vaccinesRef = childRef('vaccines');
   vaccinesRef.on('value', (snapshot) => {
     const val = snapshot.val() || {};
     vaccinesList = Object.values(val).sort((a, b) => (a.date || '').localeCompare(b.date || ''));
     renderVaccinesList();
-  });
+  }, () => showToast("Erreur de synchronisation"));
 
   milestonesRef = childRef('milestones');
   milestonesRef.on('value', (snapshot) => {
     const val = snapshot.val() || {};
     milestonesList = Object.values(val).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     renderMilestones();
-  });
+  }, () => showToast("Erreur de synchronisation"));
 
   refreshChildrenUI();
 }
@@ -781,10 +818,13 @@ async function addEntryToDB(entry){
 // l'app). `loadedUpdatedAt` est la valeur vue au moment d'ouvrir l'édition ;
 // si elle diffère de celle actuellement en base, l'utilisateur est prévenu
 // avant d'écraser silencieusement le travail de l'autre personne.
-async function checkEditConflict(id, loadedUpdatedAt){
+// `subpath` est le chemin relatif à l'enfant courant (ex. "entries/123" ou
+// "growth/456") — généralisé pour servir tous les types d'édition, pas
+// seulement les entrées journalières.
+async function checkEditConflict(subpath, loadedUpdatedAt){
   if(loadedUpdatedAt == null) return true; // pas de référence connue (entrée jamais modifiée avant cette fonctionnalité) — rien à comparer
   try{
-    const snap = await childRef('entries/' + id).once('value');
+    const snap = await childRef(subpath).once('value');
     const fresh = snap.val();
     if(!fresh){
       return confirm("Cette entrée a été supprimée entre-temps par quelqu'un d'autre. Créer quand même une nouvelle entrée avec tes modifications ?");
@@ -858,7 +898,7 @@ function initialLetterFor(firstName, lastName){
 function renderAvatarEditPreview(){
   const preview = $('profile-avatar-preview');
   const initial = initialLetterFor($('profile-firstname').value, $('profile-lastname').value);
-  preview.innerHTML = profileAvatarDataUrl ? `<img src="${profileAvatarDataUrl}" alt="">` : escapeHtml(initial);
+  preview.innerHTML = profileAvatarDataUrl ? `<img src="${escapeHtml(profileAvatarDataUrl)}" alt="">` : escapeHtml(initial);
   $('profile-avatar-remove-btn').classList.toggle('hidden', !profileAvatarDataUrl);
 }
 
@@ -973,12 +1013,14 @@ function resetGrowthForm(){
 }
 
 let editingGrowthId = null;
+let editingGrowthLoadedUpdatedAt = null;
 
 function startEditGrowth(id){
   const g = growthEntries.find(x => String(x.id) === String(id));
   if(!g) return;
 
   editingGrowthId = id;
+  editingGrowthLoadedUpdatedAt = g.updatedAt || null;
   $('growth-date-input').value = g.date;
   $('growth-weight-input').value = g.weight != null ? g.weight : '';
   $('growth-height-input').value = g.height != null ? g.height : '';
@@ -995,6 +1037,7 @@ function startEditGrowth(id){
 
 function cancelEditGrowth(){
   editingGrowthId = null;
+  editingGrowthLoadedUpdatedAt = null;
   $('growth-form-title').textContent = 'Ajouter une mesure';
   $('growth-save-btn').textContent = 'Enregistrer la mesure';
   $('growth-cancel-btn').classList.add('hidden');
@@ -1044,12 +1087,15 @@ async function saveGrowthEntry(){
 
   const isEditing = editingGrowthId !== null;
   const entry = {
-    id: isEditing ? editingGrowthId : Date.now(),
+    id: isEditing ? editingGrowthId : generateId('gr'),
     date: dateVal,
     weight: weight.value,
     height: height.value,
-    headCirc: headCirc.value
+    headCirc: headCirc.value,
+    updatedAt: Date.now()
   };
+
+  if(isEditing && !(await checkEditConflict('growth/' + editingGrowthId, editingGrowthLoadedUpdatedAt))) return;
 
   const btn = $('growth-save-btn');
   btn.disabled = true;
@@ -1727,7 +1773,35 @@ function showScreen(id){
 }
 
 async function resolveFamily(uid){
-  const userFamilySnap = await db.ref('userFamilies/' + uid).once('value');
+  // Pendant cet appel, l'écran encore visible est celui affiché avant que
+  // l'auth ne se résolve (login-screen le plus souvent) — on y montre l'état
+  // de chargement/erreur plutôt que de laisser l'utilisateur face à un écran
+  // figé sans aucun indice de ce qui se passe.
+  const errEl = $('login-error');
+  if(errEl) errEl.textContent = 'Chargement de ton espace famille…';
+
+  let userFamilySnap;
+  try{
+    userFamilySnap = await db.ref('userFamilies/' + uid).once('value');
+  }catch(e){
+    if(errEl){
+      errEl.textContent = '';
+      const msg = document.createElement('span');
+      msg.textContent = 'Impossible de charger ton espace famille (connexion instable). ';
+      const retryBtn = document.createElement('button');
+      retryBtn.type = 'button';
+      retryBtn.className = 'auth-toggle-link';
+      retryBtn.style.display = 'inline';
+      retryBtn.style.padding = '0';
+      retryBtn.textContent = 'Réessayer';
+      retryBtn.addEventListener('click', () => resolveFamily(uid));
+      errEl.appendChild(msg);
+      errEl.appendChild(retryBtn);
+    }
+    return;
+  }
+  if(errEl) errEl.textContent = '';
+
   const familyId = userFamilySnap.val();
 
   if(familyId){
@@ -2920,15 +2994,29 @@ function renderCalendar(){
     if(key === todayStr) classes.push('is-today');
     if(key === selectedCalDay) classes.push('selected');
     const dotsHtml = has ? `<span class="dots">${dayDotClasses(dayEntries).map(c => `<span class="dot ${c}"></span>`).join('')}</span>` : '';
-    html += `<div class="${classes.join(' ')}" data-day="${key}">${d}${dotsHtml}</div>`;
+    const dayLabel = escapeHtml(dateObj.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) + (has ? ', avec des entrées' : ''));
+    html += `<div class="${classes.join(' ')}" data-day="${key}" tabindex="0" role="button" aria-label="${dayLabel}">${d}${dotsHtml}</div>`;
   }
 
   $('cal-grid').innerHTML = html;
   $('cal-grid').querySelectorAll('[data-day]').forEach(el => {
-    el.addEventListener('click', () => {
+    const selectDay = () => {
       selectedCalDay = el.getAttribute('data-day');
       renderCalendar();
       renderCalDayDetail();
+      // renderCalendar() vient de reconstruire toute la grille (innerHTML) —
+      // sans ceci, le focus clavier serait perdu après chaque sélection.
+      const reselected = $('cal-grid').querySelector(`[data-day="${selectedCalDay}"]`);
+      if(reselected) reselected.focus();
+    };
+    el.addEventListener('click', selectDay);
+    // Cellules en <div> (pas <button>) pour rester dans le style de grille déjà
+    // en place — on leur redonne l'activation clavier standard d'un bouton.
+    el.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        selectDay();
+      }
     });
   });
 
@@ -3211,7 +3299,7 @@ async function logVomit(){
   try{
     const now = new Date();
     const entry = {
-      id: Date.now(),
+      id: generateId('e'),
       type: 'vomit',
       time: nowTimeStr(),
       timestamp: now.getTime(),
@@ -3289,7 +3377,7 @@ async function saveHealthEntry(){
   }
 
   const entry = {
-    id: Date.now(),
+    id: generateId('e'),
     type: 'health',
     kind: selectedHealthKind,
     value: value,
@@ -3371,7 +3459,7 @@ async function saveDiaperEntry(){
   const currentEmail = auth.currentUser ? auth.currentUser.email : null;
 
   const entry = {
-    id: isEditing ? editingDiaperId : Date.now(),
+    id: isEditing ? editingDiaperId : generateId('e'),
     type: 'diaper',
     time: timeVal,
     diaper: selectedDiaperType,
@@ -3382,7 +3470,7 @@ async function saveDiaperEntry(){
   };
 
   const btn = $('diaper-save-btn');
-  if(isEditing && !(await checkEditConflict(editingDiaperId, editingDiaperLoadedUpdatedAt))) return;
+  if(isEditing && !(await checkEditConflict('entries/' + editingDiaperId, editingDiaperLoadedUpdatedAt))) return;
 
   btn.disabled = true;
   try{
@@ -3404,19 +3492,82 @@ let editingId = null;
 let editingOriginalAuthor = null;
 let editingLoadedUpdatedAt = null;
 
+// Fonction de fermeture "propre" (annule l'édition en cours, etc.) associée
+// à chaque overlay — sert à la fois à la fermeture par clic extérieur (déjà
+// en place) et à la fermeture par la touche Échap (ci-dessous).
+const MODAL_CLOSERS = {
+  'add-modal-overlay': () => cancelEdit(),
+  'diaper-modal-overlay': () => cancelEditDiaper(),
+  'health-modal-overlay': () => closeHealthModal(),
+  'milestone-modal-overlay': () => closeMilestoneModal(),
+  'add-child-modal-overlay': () => closeAddChildModal(),
+};
+
+function getOpenModalOverlayId(){
+  return Object.keys(MODAL_CLOSERS).find(id => {
+    const el = $(id);
+    return el && !el.classList.contains('hidden');
+  }) || null;
+}
+
+function getModalFocusables(container){
+  return Array.from(container.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  )).filter(el => el.offsetParent !== null);
+}
+
+// Échap ferme la modale ouverte ; Tab reste piégé à l'intérieur (pattern
+// standard des dialogues accessibles — sans ça, un utilisateur au clavier
+// peut tabuler "à travers" la modale jusque dans l'écran resté en dessous).
+document.addEventListener('keydown', (e) => {
+  const openId = getOpenModalOverlayId();
+  if(!openId) return;
+  if(e.key === 'Escape'){
+    e.preventDefault();
+    MODAL_CLOSERS[openId]();
+    return;
+  }
+  if(e.key === 'Tab'){
+    const panel = $(openId).querySelector('.modal-panel');
+    const focusables = getModalFocusables(panel);
+    if(!focusables.length) return;
+    const first = focusables[0], last = focusables[focusables.length - 1];
+    if(e.shiftKey && document.activeElement === first){
+      e.preventDefault(); last.focus();
+    }else if(!e.shiftKey && document.activeElement === last){
+      e.preventDefault(); first.focus();
+    }
+  }
+});
+
+let modalReturnFocusEl = null;
+
 function openModal(overlayId){
   const overlay = $(overlayId);
   const panel = overlay.querySelector('.modal-panel');
+  modalReturnFocusEl = document.activeElement;
   overlay.classList.remove('hidden');
   panel.classList.remove('modal-pop');
   void panel.offsetWidth;
   panel.classList.add('modal-pop');
+  panel.setAttribute('role', 'dialog');
+  panel.setAttribute('aria-modal', 'true');
+  if(!panel.hasAttribute('tabindex')) panel.setAttribute('tabindex', '-1');
+  const focusables = getModalFocusables(panel);
+  (focusables[0] || panel).focus();
 }
 
 function closeModal(overlayId){
   const overlay = $(overlayId);
   overlay.classList.add('hidden');
   overlay.querySelector('.modal-panel').classList.remove('modal-pop');
+  // Rend le focus à ce qui l'avait avant l'ouverture (le bouton "+", "✕"
+  // d'une entrée, etc.) — sans ça un utilisateur au clavier/lecteur d'écran
+  // perd son point de repère à la fermeture.
+  if(modalReturnFocusEl && document.body.contains(modalReturnFocusEl) && typeof modalReturnFocusEl.focus === 'function'){
+    modalReturnFocusEl.focus();
+  }
+  modalReturnFocusEl = null;
 }
 
 function openAddModal(){
@@ -3493,7 +3644,7 @@ async function saveEntry(){
   const currentEmail = auth.currentUser ? auth.currentUser.email : null;
 
   const entry = {
-    id: isEditing ? editingId : Date.now(),
+    id: isEditing ? editingId : generateId('e'),
     type: 'biberon',
     time: timeVal,
     ml: ml,
@@ -3505,7 +3656,7 @@ async function saveEntry(){
   };
 
   const saveBtn = $('save-btn');
-  if(isEditing && !(await checkEditConflict(editingId, editingLoadedUpdatedAt))) return;
+  if(isEditing && !(await checkEditConflict('entries/' + editingId, editingLoadedUpdatedAt))) return;
 
   saveBtn.disabled = true;
   try{
@@ -3607,7 +3758,8 @@ $('restore-file-input').addEventListener('change', async (ev) => {
     const nMilestones = Array.isArray(data.milestones) ? data.milestones.length : 0;
     const exportDateTxt = data.exportedAt ? formatShortDate(data.exportedAt.slice(0, 10)) : '?';
     $('restore-preview-text').textContent =
-      `${data.childName || 'Enfant'} · ${nEntries} entrée${nEntries > 1 ? 's' : ''}, ${nGrowth} mesure${nGrowth > 1 ? 's' : ''}, ${nVaccines} vaccin${nVaccines > 1 ? 's' : ''}, ${nMilestones} souvenir${nMilestones > 1 ? 's' : ''} · sauvegarde du ${exportDateTxt}`;
+      `${data.childName || 'Enfant'} · ${nEntries} entrée${nEntries > 1 ? 's' : ''}, ${nGrowth} mesure${nGrowth > 1 ? 's' : ''}, ${nVaccines} vaccin${nVaccines > 1 ? 's' : ''}, ${nMilestones} souvenir${nMilestones > 1 ? 's' : ''} · sauvegarde du ${exportDateTxt}. `
+      + `Tout ce qui a été ajouté après cette date sera perdu si tu restaures.`;
     $('restore-preview').classList.remove('hidden');
   }catch(e){
     showToast("Fichier illisible — vérifie qu'il s'agit bien d'un export Suivi Aylan");

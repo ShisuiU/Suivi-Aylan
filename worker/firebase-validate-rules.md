@@ -1,3 +1,20 @@
+> **Mise à jour (2e round d'audit) — déjà répercutée dans `firebase-rules-complete.json`.**
+> Trois changements par rapport à la version publiée précédemment :
+> 1. **`authorEmail` lié à l'auteur réel de l'écriture** (`families/$familyId/children/$childId/entries/$entryId/authorEmail`) —
+>    jusqu'ici n'importe quel membre de la famille pouvait écrire n'importe quelle adresse dans ce champ (attribution "qui a
+>    fait quoi" falsifiable). Nouvelle règle : `newData.val() == auth.token.email || newData.val() == data.val()` — un membre
+>    ne peut désormais s'attribuer que sa propre adresse à la création, et une édition ne peut que laisser inchangée
+>    l'adresse déjà enregistrée (jamais l'attribuer à un tiers).
+> 2. **Champs obligatoires ajoutés** sur `growth/$growthId` (`id`, `date`), `vaccines/$vaccineId` (`id`, `name`) et
+>    `milestones/$milestoneId` (`id`, `label`, `date`) — jusqu'ici seul `entries/$entryId` l'imposait.
+> 3. **Nouveau nœud `activeSleep`** sous `children/$childId` (verrou transactionnel démarrage/arrêt de sieste, évite que deux
+>    parents créent chacun une sieste active en cliquant presque simultanément) — couvert par le `.write` déjà en place sur
+>    `children`, avec juste une validation de forme (`{id, start}` ou vide).
+>
+> **À republier** : recopie l'intégralité de `firebase-rules-complete.json` dans la console (méthode déjà utilisée la
+> dernière fois), pas seulement les extraits ci-dessous — ce document reste la référence explicative détaillée, mais
+> `firebase-rules-complete.json` est la source de vérité complète à coller.
+
 # Règles `.validate` — à ajouter aux règles Realtime Database
 
 Complète l'audit technique (constat 🟠 "Aucune règle `.validate` côté

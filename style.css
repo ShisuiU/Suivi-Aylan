@@ -1117,6 +1117,7 @@
     transition: transform .1s ease, background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
   }
   .cal-day.empty-cell{ background:none; cursor:default; }
+  .cal-day:focus-visible{ outline:none; box-shadow: var(--focus-ring); }
   .cal-day.has-entries{ color: var(--ink); background: var(--glass-bg); }
   .cal-day .dots{ display:flex; align-items:center; gap:3px; }
   .cal-day .dot{

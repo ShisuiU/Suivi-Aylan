@@ -65,19 +65,24 @@
                 "timestamp": { ".validate": "newData.isNumber()" },
                 "dayKey": { ".validate": "newData.isString() && newData.val().matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/)" },
                 "updatedAt": { ".validate": "newData.val() == null || newData.isNumber()" },
-                "authorEmail": { ".validate": "newData.val() == null || (newData.isString() && newData.val().length <= 254)" }
+                "authorEmail": {
+                  ".validate": "newData.val() == null || (newData.isString() && newData.val().length <= 254 && (newData.val() == auth.token.email || newData.val() == data.val()))"
+                }
               }
             },
             "growth": {
               "$growthId": {
+                ".validate": "newData.hasChildren(['id', 'date'])",
                 "date": { ".validate": "newData.isString() && newData.val().length <= 10" },
                 "weight": { ".validate": "newData.val() == null || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 50)" },
                 "height": { ".validate": "newData.val() == null || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 150)" },
-                "headCirc": { ".validate": "newData.val() == null || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 70)" }
+                "headCirc": { ".validate": "newData.val() == null || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 70)" },
+                "updatedAt": { ".validate": "newData.val() == null || newData.isNumber()" }
               }
             },
             "vaccines": {
               "$vaccineId": {
+                ".validate": "newData.hasChildren(['id', 'name'])",
                 "name": { ".validate": "newData.isString() && newData.val().length <= 120" },
                 "date": { ".validate": "newData.val() == null || (newData.isString() && newData.val().length <= 10)" },
                 "done": { ".validate": "newData.val() == null || newData.isBoolean()" }
@@ -85,10 +90,16 @@
             },
             "milestones": {
               "$milestoneId": {
+                ".validate": "newData.hasChildren(['id', 'label', 'date'])",
                 "label": { ".validate": "newData.val() == null || (newData.isString() && newData.val().length <= 120)" },
                 "date": { ".validate": "newData.val() == null || (newData.isString() && newData.val().length <= 10)" },
                 "photo": { ".validate": "newData.val() == null || (newData.isString() && newData.val().length <= 500000)" }
               }
+            },
+            "activeSleep": {
+              ".validate": "newData.val() == null || newData.hasChildren(['id', 'start'])",
+              "id": { ".validate": "newData.isString()" },
+              "start": { ".validate": "newData.isNumber()" }
             }
           }
         },
