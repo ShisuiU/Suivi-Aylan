@@ -86,7 +86,7 @@ async function runReminders(env) {
   const databaseURL = env.FIREBASE_DATABASE_URL.replace(/\/$/, '');
   const projectId = serviceAccount.project_id;
   const now = Date.now();
-  const summary = { checked: 0, notified: 0, errors: [] };
+  const summary = { checked: 0, notified: 0, errors: [], details: [] };
 
   const accessToken = await getGoogleAccessToken(serviceAccount, [
     // userinfo.email est exigé par la Realtime Database REST API en plus de
@@ -106,8 +106,9 @@ async function runReminders(env) {
   for (const familyId of Object.keys(familyIds)) {
     summary.checked++;
     try {
-      const notified = await processFamily(familyId, { databaseURL, accessToken, projectId, now });
-      if (notified) summary.notified++;
+      const result = await processFamily(familyId, { databaseURL, accessToken, projectId, now });
+      if (result.sent) summary.notified++;
+      summary.details.push({ familyId, ...result });
     } catch (err) {
       console.error(`Erreur famille ${familyId} :`, err);
       summary.errors.push({ familyId, message: String(err && err.message || err) });
@@ -117,28 +118,40 @@ async function runReminders(env) {
   return summary;
 }
 
+// Retourne toujours un état détaillé (pas juste vrai/faux) : sert de
+// diagnostic direct via le déclenchement manuel (?key=...) quand quelque
+// chose ne se passe pas comme attendu côté app — sans ça, la seule façon de
+// savoir où ça bloque (rappel désactivé ? aucun jeton enregistré ? pas
+// encore en retard ? déjà notifié ?) serait d'inspecter la base à la main.
 async function processFamily(familyId, ctx) {
   const { databaseURL, accessToken } = ctx;
 
-  // Réglage + jetons d'abord (petit volume) — on ne lit les entrées (gros
-  // volume potentiel) que si la famille a réellement un rappel actif ET au
-  // moins un appareil enregistré, pour ne pas payer le coût d'une lecture
-  // complète de l'historique à chaque passage pour toutes les familles.
   const [meta, pushTokens] = await Promise.all([
     rtdbGet(databaseURL, `families/${familyId}/meta`, accessToken),
     rtdbGet(databaseURL, `families/${familyId}/pushTokens`, accessToken),
   ]);
 
   const reminder = meta && meta.reminder;
-  if (!reminder || !reminder.enabled) return false;
-
   const tokenEntries = Object.entries(pushTokens || {});
-  if (!tokenEntries.length) return false;
+  const thresholdMinutes = (reminder && reminder.thresholdMinutes > 0) ? reminder.thresholdMinutes : 210;
 
-  const thresholdMinutes = reminder.thresholdMinutes > 0 ? reminder.thresholdMinutes : 210;
+  const state = {
+    reminderEnabled: !!(reminder && reminder.enabled),
+    tokenCount: tokenEntries.length,
+    thresholdMinutes,
+    lastBottleTimestamp: null,
+    minutesSinceLastBottle: null,
+    overdue: false,
+    alreadyNotifiedForThisBottle: false,
+    sent: false,
+    reason: null, // pourquoi rien n'a été envoyé, si c'est le cas
+  };
+
+  if (!state.reminderEnabled) { state.reason = 'rappel désactivé pour cette famille'; return state; }
+  if (!state.tokenCount) { state.reason = "aucun appareil n'a activé les notifications pour cette famille"; return state; }
 
   const children = await rtdbGet(databaseURL, `families/${familyId}/children`, accessToken);
-  if (!children) return false;
+  if (!children) { state.reason = 'aucun enfant trouvé'; return state; }
 
   // Dernier biberon tous enfants confondus, par timestamp réel de l'événement
   // (pas par date de création de l'entrée — une entrée peut être datée
@@ -156,14 +169,18 @@ async function processFamily(familyId, ctx) {
       }
     }
   }
-  if (lastBottleTimestamp === null) return false;
+  state.lastBottleTimestamp = lastBottleTimestamp;
+  if (lastBottleTimestamp === null) { state.reason = 'aucun biberon enregistré'; return state; }
 
   const minutesSince = (ctx.now - lastBottleTimestamp) / 60000;
-  if (minutesSince < thresholdMinutes) return false;
+  state.minutesSinceLastBottle = Math.round(minutesSince);
+  state.overdue = minutesSince >= thresholdMinutes;
+  if (!state.overdue) { state.reason = `pas encore en retard (${Math.round(minutesSince)} min sur ${thresholdMinutes} requises)`; return state; }
 
   // Anti-doublon : ne renotifie pas en boucle toutes les 15 min pour le même
   // biberon en retard — seulement quand un NOUVEAU biberon en retard apparaît.
-  if (reminder.lastNotifiedBottleTimestamp === lastBottleTimestamp) return false;
+  state.alreadyNotifiedForThisBottle = reminder.lastNotifiedBottleTimestamp === lastBottleTimestamp;
+  if (state.alreadyNotifiedForThisBottle) { state.reason = 'déjà notifié pour ce biberon (anti-doublon)'; return state; }
 
   const hoursTxt = (thresholdMinutes / 60).toFixed(1).replace('.0', '').replace('.', ',');
   const notification = {
@@ -172,10 +189,13 @@ async function processFamily(familyId, ctx) {
   };
 
   const staleTokenIds = [];
+  let sentCount = 0;
   for (const [tokenId, entry] of tokenEntries) {
     if (!entry || !entry.token) continue;
     const result = await sendFCM(ctx.projectId, ctx.accessToken, entry.token, notification);
-    if (!result.ok) {
+    if (result.ok) {
+      sentCount++;
+    } else {
       const status = result.data && result.data.error && result.data.error.status;
       if (status === 'UNREGISTERED' || status === 'NOT_FOUND' || status === 'INVALID_ARGUMENT') {
         // Jeton mort (app désinstallée, permission révoquée...) — on le
@@ -192,7 +212,12 @@ async function processFamily(familyId, ctx) {
     await rtdbPut(databaseURL, `families/${familyId}/pushTokens/${tokenId}`, accessToken, null);
   }
 
-  return true;
+  state.sent = sentCount > 0;
+  state.sentCount = sentCount;
+  state.staleTokensRemoved = staleTokenIds.length;
+  if (!state.sent) state.reason = `envoi tenté sur ${tokenEntries.length} jeton(s) mais aucun n'a réussi`;
+
+  return state;
 }
 
 // ---------------------------------------------------------------------------
