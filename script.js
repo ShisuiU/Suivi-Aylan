@@ -196,6 +196,7 @@ function updateSleepButton(){
 
 function setNow(){
   $('time-input').value = nowTimeStr();
+  updateTimeFieldDisplay();
 }
 
 function dateInputVal(dateObj){
@@ -206,6 +207,29 @@ function setDateOffset(daysAgo){
   const d = new Date();
   d.setDate(d.getDate() - daysAgo);
   $('date-input').value = dateInputVal(d);
+  updateDateFieldDisplay();
+}
+
+// Étiquette lisible par-dessus les <input type="date">/<input type="time">
+// natifs de la modale biberon — l'input natif reste la source de vérité
+// (accessible, focusable au clavier, c'est lui qui porte la valeur), seul
+// son rendu visuel (police système, format mm/dd/yyyy, horloge 12h — cf.
+// audit technique) est masqué au profit d'un texte cohérent avec le reste
+// de l'app. Un clic sur la zone stylée ouvre le sélecteur natif normalement.
+function updateDateFieldDisplay(){
+  const input = $('date-input');
+  const display = $('date-input-display');
+  if(!input || !display) return;
+  display.textContent = input.value ? formatDayLabel(input.value) : 'Choisir une date';
+}
+function updateTimeFieldDisplay(){
+  const input = $('time-input');
+  const display = $('time-input-display');
+  if(!input || !display) return;
+  display.textContent = input.value || '--:--';
+}
+function openNativePicker(input){
+  try{ input.showPicker(); }catch(e){ input.focus(); }
 }
 
 function showToast(msg, opts){
@@ -3407,6 +3431,8 @@ function startEdit(id){
   editingLoadedUpdatedAt = entry.updatedAt || null;
   $('date-input').value = entry.dayKey;
   $('time-input').value = entry.time;
+  updateDateFieldDisplay();
+  updateTimeFieldDisplay();
   $('ml-input').value = entry.ml;
   selectDiaper(entry.diaper);
   $('comment-input').value = entry.comment || '';
@@ -3488,6 +3514,17 @@ async function saveEntry(){
 // init
 $('now-btn').addEventListener('click', setNow);
 $('save-btn').addEventListener('click', saveEntry);
+
+// Champs date/heure de la modale biberon : l'input natif reste la source de
+// vérité et le sélecteur normal, la zone stylée par-dessus ouvre ce même
+// sélecteur au clic et affiche un texte lisible ("Aujourd'hui", "14:44"...)
+// au lieu du rendu système brut (voir updateDateFieldDisplay ci-dessus).
+$('date-input').addEventListener('input', updateDateFieldDisplay);
+$('date-field-wrap').addEventListener('click', () => openNativePicker($('date-input')));
+$('time-input').addEventListener('input', updateTimeFieldDisplay);
+$('time-field-wrap').addEventListener('click', () => openNativePicker($('time-input')));
+updateDateFieldDisplay();
+updateTimeFieldDisplay();
 $('cancel-edit-btn').addEventListener('click', cancelEdit);
 
 $('profile-save-btn').addEventListener('click', saveProfile);

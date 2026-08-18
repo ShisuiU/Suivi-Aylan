@@ -309,6 +309,7 @@
   label.field-label:first-child{ margin-top:0; }
 
   .time-row{ display:flex; gap:10px; align-items:center; }
+  .time-row .date-field{ flex:1; padding:15px 18px; }
   input[type="time"]{
     flex:1; background: var(--bg-2); border:1px solid var(--line); color: var(--ink);
     font-family:'IBM Plex Sans'; font-size:17px; font-weight:500; padding:15px 18px; border-radius:var(--radius-input);
@@ -317,7 +318,7 @@
   input[type="time"]:focus{ outline:none; border-color: var(--milk); box-shadow: var(--focus-ring); }
   .date-field{
     width:100%; background: var(--bg-2); border:1px solid var(--line); border-radius:var(--radius-input);
-    padding: 15px 18px; box-sizing:border-box;
+    padding: 15px 18px; box-sizing:border-box; position:relative;
     transition: border-color .15s ease, box-shadow .15s ease;
   }
   .date-field:focus-within{ border-color: var(--milk); box-shadow: var(--focus-ring); }
@@ -326,6 +327,26 @@
     font-family:'IBM Plex Sans'; font-size:16px; font-weight:500; padding:0; margin:0;
   }
   .date-field input[type="date"]:focus{ outline:none; }
+
+  /* Champs date/heure "habillés" (modale biberon) : l'input natif reste
+     présent et fonctionnel (focusable, source de vérité) mais invisible et
+     étiré sur toute la zone cliquable — seul le texte de .date-field-display
+     est visible, mis à jour en JS (voir updateDateFieldDisplay/
+     updateTimeFieldDisplay). Évite le rendu système brut (police OS, format
+     mm/dd/yyyy, horloge 12h) sans rien retirer à l'accessibilité clavier. */
+  .date-field-native{
+    position:absolute; inset:0; width:100%; height:100%; opacity:0; box-sizing:border-box;
+    border:none; margin:0; padding:0; cursor:pointer;
+  }
+  .date-field-display{
+    display:block; position:relative; pointer-events:none;
+    font-family:'IBM Plex Sans'; font-size:16px; font-weight:600; color: var(--ink);
+    padding-right:20px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .date-field-chevron{
+    position:absolute; right:16px; top:50%; transform:translateY(-50%);
+    color: var(--ink-faint); pointer-events:none;
+  }
   .now-btn{
     background: var(--bg-2); border:1px solid var(--line); color: var(--ink-dim);
     width:50px; height:50px; border-radius:var(--radius-md); cursor:pointer; flex-shrink:0;
