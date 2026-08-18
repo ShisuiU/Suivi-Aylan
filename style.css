@@ -937,6 +937,7 @@
   .mini-cal-grid .day.today{ background: var(--milk); color: var(--on-accent); font-weight:700; }
   .mini-cal-grid .day.today.has::after{ background: var(--on-accent); }
   .today-growth-card{
+    display:block; width:100%; text-align:left; font-family:'Plus Jakarta Sans', sans-serif;
     background: var(--glass-bg); border:1px solid var(--glass-border); border-radius: var(--radius);
     padding:16px; box-shadow: var(--shadow-card); cursor:pointer;
     -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
@@ -1310,17 +1311,17 @@
   .import-result{ font-size:12px; color: var(--ink-faint); margin-top:8px; }  #print-summary{ display:none; }
 
   /* ==========================================================================
-     Desktop (≥900px) — Étape 1 de la mise en page desktop dédiée : rail de
-     navigation fixe à gauche + écran "Aujourd'hui" en tableau de bord à deux
-     colonnes. Les autres écrans (Calendrier, Infos, Profil, Paramètres) ne
-     sont pas concernés à cette étape et gardent leur colonne mobile centrée,
-     juste décalée par le rail — leur propre traitement desktop viendra dans
-     une étape suivante, pas de régression entre-temps.
+     Desktop (≥900px) — rail de navigation fixe à gauche partout ; Aujourd'hui
+     et Calendrier en tableau de bord à deux colonnes (exploitent vraiment
+     l'espace disponible) ; Infos/Profil/Paramètres gardent une colonne
+     unique, juste élargie (contenu séquentiel, un découpage en colonnes n'y
+     apporterait rien) — cf. galerie de maquettes étapes 1 et 2.
      ========================================================================== */
   @media (min-width: 900px){
     .nav-rail{ display:flex; }
     .bottom-nav{ display:none; }
     .fab{ bottom:28px; }
+    .toast{ bottom:28px; } /* plus besoin de dégager la nav du bas, absente sur desktop */
     /* Colonne confortablement élargie par défaut (Infos, Profil, Paramètres) —
        du contenu séquentiel (formulaire, réglages) ne gagne rien à être coupé
        en colonnes, juste à respirer un peu plus qu'au format mobile. */

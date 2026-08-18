@@ -401,6 +401,12 @@ function switchToChild(childId){
     growthEntries = val ? Object.values(val) : [];
     renderGrowthList();
     renderGrowthCharts();
+    // La carte "Croissance" du tableau de bord desktop (renderTodaySidebar,
+    // appelée normalement depuis render()) dépend de growthEntries — sans cet
+    // appel, elle resterait vide au premier chargement si ce listener répond
+    // après celui des entrées (aucun ordre garanti entre deux écouteurs
+    // Firebase distincts), jusqu'au prochain render() déclenché ailleurs.
+    renderTodaySidebar();
   });
 
   vaccinesRef = childRef('vaccines');
@@ -439,7 +445,7 @@ function childChipsMarkup(){
     const initial = initialLetterFor(c.firstName, c.lastName);
     const active = c.id === currentChildId ? ' active' : '';
     const avatarContent = c.avatar ? `<img src="${c.avatar}" alt="">` : escapeHtml(initial);
-    return `<button type="button" class="child-chip${active}" data-child="${c.id}" title="${escapeHtml(fullName)}">${avatarContent}</button>`;
+    return `<button type="button" class="child-chip${active}" data-child="${c.id}" title="${escapeHtml(fullName)}" aria-label="${escapeHtml(fullName)}">${avatarContent}</button>`;
   }).join('');
 }
 
@@ -745,11 +751,15 @@ async function saveProfile(){
     return;
   }
 
+  const btn = $('profile-save-btn');
+  btn.disabled = true;
   try{
     await childRef('profile').set({ firstName, lastName, birthDate, gender: selectedGender || null, avatar: profileAvatarDataUrl || null });
     showToast('Informations enregistrées');
   }catch(e){
     showToast("Erreur d'enregistrement");
+  }finally{
+    btn.disabled = false;
   }
 }
 
@@ -1954,11 +1964,11 @@ function renderTodaySidebar(){
     const ageM = ageInMonths(profileData.birthDate, last.date);
     const pct = estimatePercentile(table, ageM, last.weight);
     growthEl.innerHTML = `
-      <div class="today-growth-card" id="today-growth-card-btn">
+      <button type="button" class="today-growth-card" id="today-growth-card-btn">
         <div class="val">${last.weight} kg</div>
         <div class="pct">~${pct}ᵉ percentile OMS</div>
         <div class="date">${formatShortDateNoYear(last.date)}</div>
-      </div>
+      </button>
     `;
     $('today-growth-card-btn').addEventListener('click', () => {
       switchView('chart');
@@ -2047,7 +2057,12 @@ async function toggleReminderEnabled(){
 
 async function saveReminderHours(){
   const val = parseFloat($('reminder-hours-input').value);
-  if(isNaN(val) || val <= 0 || !currentFamilyId) return;
+  if(isNaN(val) || val <= 0){
+    showToast('Seuil invalide — vérifie la valeur (1 à 8 h)');
+    renderReminderPrefsUI(); // remet la dernière valeur connue plutôt que de laisser la saisie invalide affichée
+    return;
+  }
+  if(!currentFamilyId) return;
   try{
     await db.ref('families/' + currentFamilyId + '/meta/reminder/thresholdMinutes').set(val * 60);
   }catch(e){
