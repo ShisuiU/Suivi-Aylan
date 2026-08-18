@@ -11,20 +11,36 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
+// Clé VAPID (Web Push) — Console Firebase > Paramètres du projet > Cloud
+// Messaging > Certificats Web Push > "Générer une paire de clés". Clé
+// publique, sans risque à committer (contrairement à un compte de service).
+const VAPID_KEY = 'PASTE_TA_CLE_VAPID_ICI';
+
+let messaging = null;
+if('serviceWorker' in navigator && 'PushManager' in window){
+  try{ messaging = firebase.messaging(); }catch(e){ messaging = null; }
+}
+
 db.ref('.info/connected').on('value', (snap) => {
   const connected = snap.val() === true;
   const banner = document.getElementById('offline-banner');
   if(banner) banner.classList.toggle('off-hidden', connected);
 });
 
-// Aucun sw.js n'est fourni par cette app (pas de mode hors-ligne avec cache).
-// On désinscrit activement tout service worker resté enregistré depuis une
-// ancienne version, sinon il continue de servir une version de l'app figée
-// dans le temps à chaque visite, même après une mise à jour du site.
+// Cette app ne met rien en cache côté service worker (pas de mode hors-ligne
+// avec cache) — donc aucun service worker ne doit jamais intercepter les
+// requêtes de pages, sous peine de servir une version figée de l'app à
+// chaque visite, même après une mise à jour du site. On désinscrit donc tout
+// service worker résiduel, à une seule exception : firebase-messaging-sw.js,
+// qui n'a aucun gestionnaire "fetch" (uniquement push/notificationclick) et
+// sert à recevoir les rappels de biberon même app fermée.
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
     navigator.serviceWorker.getRegistrations()
-      .then(regs => regs.forEach(reg => reg.unregister()))
+      .then(regs => regs.forEach(reg => {
+        const url = (reg.active && reg.active.scriptURL) || (reg.installing && reg.installing.scriptURL) || (reg.waiting && reg.waiting.scriptURL) || '';
+        if(!url.endsWith('/firebase-messaging-sw.js')) reg.unregister();
+      }))
       .catch(() => {});
   });
 }
@@ -556,9 +572,19 @@ function startSync(){
     const val = meta.features || {};
     familyFeatures = { sleep: !!val.sleep, health: !!val.health, vaccines: !!val.vaccines };
     applyFeatureVisibility();
+
+    // Réglage du rappel de biberon : partagé par toute la famille (pas par
+    // appareil comme avant) — un parent qui règle un seuil le voit s'appliquer
+    // partout, y compris côté worker qui envoie le push planifié (§ Cloudflare).
+    const r = meta.reminder || {};
+    reminderEnabled = !!r.enabled;
+    reminderThresholdMinutes = (r.thresholdMinutes > 0) ? r.thresholdMinutes : 210;
+    renderReminderPrefsUI();
   }, (err) => {
     console.error('Erreur de lecture de meta :', err);
   });
+
+  silentlyRefreshPushToken();
 
   migrateFamilyToChildren(currentFamilyId).then(() => {
     lastMigrationError = null;
@@ -1996,56 +2022,130 @@ let reminderEnabled = false;
 let reminderThresholdMinutes = 210;
 let lastNotifiedBottleTimestamp = null;
 
-function loadReminderPrefs(){
-  try{
-    reminderEnabled = localStorage.getItem('aylan-reminder-enabled') === '1';
-    const hours = parseFloat(localStorage.getItem('aylan-reminder-hours'));
-    reminderThresholdMinutes = (!isNaN(hours) && hours > 0) ? hours * 60 : 210;
-  }catch(e){
-    reminderEnabled = false;
-    reminderThresholdMinutes = 210;
-  }
+// Reflète reminderEnabled/reminderThresholdMinutes (synchronisés depuis
+// families/{id}/meta/reminder, cf. startSync()) sur les contrôles des
+// Paramètres. Ne lit/n'écrit plus jamais localStorage pour ce réglage — une
+// seule source de vérité partagée par toute la famille.
+function renderReminderPrefsUI(){
   const btn = $('reminder-toggle-btn');
   if(btn) btn.classList.toggle('active', reminderEnabled);
   const hoursInput = $('reminder-hours-input');
-  if(hoursInput) hoursInput.value = reminderThresholdMinutes / 60;
+  if(hoursInput && document.activeElement !== hoursInput) hoursInput.value = reminderThresholdMinutes / 60;
+  if(!reminderEnabled) lastNotifiedBottleTimestamp = null;
   updateNotifPermissionStatus();
 }
 
-function toggleReminderEnabled(){
-  reminderEnabled = !reminderEnabled;
-  try{ localStorage.setItem('aylan-reminder-enabled', reminderEnabled ? '1' : '0'); }catch(e){}
-  $('reminder-toggle-btn').classList.toggle('active', reminderEnabled);
-  if(!reminderEnabled) lastNotifiedBottleTimestamp = null;
-  renderStats();
+async function toggleReminderEnabled(){
+  if(!currentFamilyId) return;
+  const next = !reminderEnabled;
+  try{
+    await db.ref('families/' + currentFamilyId + '/meta/reminder/enabled').set(next);
+  }catch(e){
+    showToast("Erreur lors de l'enregistrement du réglage");
+  }
 }
 
-function saveReminderHours(){
+async function saveReminderHours(){
   const val = parseFloat($('reminder-hours-input').value);
-  if(!isNaN(val) && val > 0){
-    reminderThresholdMinutes = val * 60;
-    try{ localStorage.setItem('aylan-reminder-hours', String(val)); }catch(e){}
+  if(isNaN(val) || val <= 0 || !currentFamilyId) return;
+  try{
+    await db.ref('families/' + currentFamilyId + '/meta/reminder/thresholdMinutes').set(val * 60);
+  }catch(e){
+    showToast("Erreur lors de l'enregistrement du réglage");
   }
+}
+
+// true uniquement sur les plateformes qui exigent une PWA installée pour le
+// push web (Safari/iOS) — sert juste à afficher le bon message d'aide.
+function isIOSStandaloneRequired(){
+  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  return isIOS && !isStandalone;
 }
 
 function updateNotifPermissionStatus(){
   const el = $('notif-permission-status');
   if(!el) return;
-  if(!('Notification' in window)){
+  if(!('Notification' in window) || !messaging){
     el.textContent = "Les notifications ne sont pas prises en charge sur cet appareil.";
     return;
   }
-  if(Notification.permission === 'granted') el.textContent = '✓ Notifications autorisées.';
-  else if(Notification.permission === 'denied') el.textContent = 'Notifications bloquées — à réactiver dans les réglages Safari.';
-  else el.textContent = 'Notifications pas encore autorisées.';
+  if(isIOSStandaloneRequired()){
+    el.textContent = "Sur iPhone/iPad : installe d'abord l'app (Partager → Sur l'écran d'accueil) pour pouvoir activer les notifications.";
+    return;
+  }
+  if(Notification.permission === 'granted') el.textContent = '✓ Notifications activées sur cet appareil.';
+  else if(Notification.permission === 'denied') el.textContent = 'Notifications bloquées — à réactiver dans les réglages du navigateur.';
+  else el.textContent = 'Notifications pas encore activées sur cet appareil.';
 }
 
-function requestNotifPermission(){
-  if(!('Notification' in window)){
+// Active le push sur CET appareil : permission, Service Worker dédié, jeton
+// FCM, puis enregistrement du jeton en base pour que le worker planifié
+// puisse l'utiliser. Chaque appareil d'une même famille doit l'activer
+// séparément (le jeton est propre au couple navigateur/appareil).
+async function enablePushNotifications(){
+  if(!messaging){
     updateNotifPermissionStatus();
     return;
   }
-  Notification.requestPermission().then(() => updateNotifPermissionStatus());
+  if(isIOSStandaloneRequired()){
+    updateNotifPermissionStatus();
+    return;
+  }
+  try{
+    const permission = await Notification.requestPermission();
+    updateNotifPermissionStatus();
+    if(permission !== 'granted') return;
+
+    const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    const token = await messaging.getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: registration });
+    if(!token){
+      showToast("Impossible d'activer les notifications — réessaie");
+      return;
+    }
+    await savePushToken(token);
+    showToast('Notifications activées sur cet appareil');
+  }catch(e){
+    console.error('Erreur activation notifications :', e);
+    showToast("Erreur lors de l'activation des notifications");
+  }
+}
+
+async function savePushToken(token){
+  if(!currentFamilyId) return;
+  const tokensRef = db.ref('families/' + currentFamilyId + '/pushTokens');
+  const existing = await tokensRef.orderByChild('token').equalTo(token).once('value');
+  if(existing.exists()) return;
+  await tokensRef.push({
+    token,
+    childId: currentChildId,
+    updatedAt: Date.now(),
+    ua: navigator.userAgent.slice(0, 120),
+  });
+}
+
+// Si la permission a déjà été accordée lors d'une session précédente, on
+// revalide silencieusement le jeton au démarrage (les jetons FCM peuvent
+// tourner) — jamais de nouvelle demande de permission ici.
+async function silentlyRefreshPushToken(){
+  if(!messaging || !('Notification' in window) || Notification.permission !== 'granted') return;
+  try{
+    const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    const token = await messaging.getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: registration });
+    if(token) await savePushToken(token);
+  }catch(e){
+    console.error('Erreur de rafraîchissement du jeton push :', e);
+  }
+}
+
+// Affiche un toast quand un push arrive alors que l'app est déjà ouverte au
+// premier plan (FCM ne déclenche pas nativement showNotification() dans ce
+// cas, contrairement à l'app fermée/arrière-plan gérée par le Service Worker).
+if(messaging){
+  messaging.onMessage((payload) => {
+    const title = (payload.notification && payload.notification.title) || 'Suivi Aylan';
+    showToast(title);
+  });
 }
 
 function checkReminderNotification(overdue, lastBottleTimestamp){
@@ -3393,7 +3493,7 @@ document.querySelectorAll('[data-section-toggle]').forEach(btn => {
 
 $('reminder-toggle-btn').addEventListener('click', toggleReminderEnabled);
 $('reminder-hours-input').addEventListener('change', saveReminderHours);
-$('notif-permission-btn').addEventListener('click', requestNotifPermission);
+$('notif-permission-btn').addEventListener('click', enablePushNotifications);
 
 $('same-as-last-btn').addEventListener('click', () => {
   const bottleEntries = entries.filter(e => e.type !== 'vomit');
@@ -3465,7 +3565,7 @@ $('growth-date-input').value = dateInputVal(new Date());
 resetDiaperForm();
 resetHealthForm();
 resetMilestoneForm();
-loadReminderPrefs();
+renderReminderPrefsUI();
 
 setInterval(() => {
   if(auth.currentUser){

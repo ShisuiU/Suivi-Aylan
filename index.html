@@ -18,6 +18,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-messaging-compat.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -573,7 +574,7 @@
           <span class="chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
         <div class="settings-section-content">
-          <p class="backup-hint">Alerte visuelle (et notification si autorisée) quand ça fait longtemps. Ne fonctionne que pendant que l'app est ouverte à l'écran — iOS suspend les pages en arrière-plan.</p>
+          <p class="backup-hint">Réglage commun à toute la famille. Alerte visuelle dès que ça fait longtemps, et notification push même app fermée sur les appareils où elle est activée ci-dessous.</p>
           <div class="reminder-row">
             <button class="quick-ml-btn-toggle" id="reminder-toggle-btn" type="button">Activer les rappels</button>
             <div class="reminder-threshold-wrap">
@@ -581,7 +582,7 @@
               <span class="ml-unit">h</span>
             </div>
           </div>
-          <button class="same-as-last-btn" id="notif-permission-btn" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5a5 5 0 0 0-5 5c0 5.2-2 6.5-2 7.5h14c0-1-2-2.3-2-7.5a5 5 0 0 0-5-5z"/><path d="M10.3 19.5a1.8 1.8 0 0 0 3.4 0"/></svg> Autoriser les notifications</button>
+          <button class="same-as-last-btn" id="notif-permission-btn" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5a5 5 0 0 0-5 5c0 5.2-2 6.5-2 7.5h14c0-1-2-2.3-2-7.5a5 5 0 0 0-5-5z"/><path d="M10.3 19.5a1.8 1.8 0 0 0 3.4 0"/></svg> Activer les notifications sur cet appareil</button>
           <div class="backup-hint" id="notif-permission-status" style="margin-top:6px;"></div>
         </div>
       </div>
