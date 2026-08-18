@@ -89,6 +89,11 @@ async function runReminders(env) {
   const summary = { checked: 0, notified: 0, errors: [] };
 
   const accessToken = await getGoogleAccessToken(serviceAccount, [
+    // userinfo.email est exigé par la Realtime Database REST API en plus de
+    // firebase.database (documenté par Firebase, facile à manquer) — sans
+    // lui, chaque requête RTDB échoue en 401 "Unauthorized request." malgré
+    // un jeton par ailleurs valide.
+    'https://www.googleapis.com/auth/userinfo.email',
     'https://www.googleapis.com/auth/firebase.database',
     'https://www.googleapis.com/auth/firebase.messaging',
   ]);
