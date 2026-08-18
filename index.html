@@ -80,6 +80,27 @@
     </button>
   </nav>
 
+  <!-- Rail de navigation desktop (≥900px) — remplace la nav flottante du bas,
+       mêmes boutons/data-view donc le câblage de clic existant s'applique tel quel. -->
+  <nav class="nav-rail" id="nav-rail">
+    <div class="nav-rail-brand">B</div>
+    <button class="bottom-nav-btn active" data-view="today" type="button" aria-label="Aujourd'hui">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
+    </button>
+    <button class="bottom-nav-btn" data-view="calendar" type="button" aria-label="Calendrier">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><line x1="3" y1="9.5" x2="21" y2="9.5"/><line x1="8" y1="2.5" x2="8" y2="6.5"/><line x1="16" y1="2.5" x2="16" y2="6.5"/></svg>
+    </button>
+    <button class="bottom-nav-btn" data-view="chart" type="button" aria-label="Infos">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="13"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="10"/></svg>
+    </button>
+    <button class="bottom-nav-btn" data-view="profile" type="button" aria-label="Enfant(s)">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>
+    </button>
+    <button class="bottom-nav-btn" data-view="settings" type="button" aria-label="Paramètres">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </nav>
+
   <div class="modal-overlay hidden" id="add-modal-overlay">
     <div class="modal-panel">
       <button class="modal-close-btn" id="modal-close-btn" aria-label="Fermer">✕</button>
@@ -221,38 +242,49 @@
   </header>
 
   <div class="view active" id="view-today">
-    <div class="child-chip-row hidden" id="children-list-today"></div>
-    <div id="daily-summary-container" class="hidden"></div>
-    <div id="stat-hero-container"></div>
+    <div class="today-col-main">
+      <div class="child-chip-row hidden" id="children-list-today"></div>
+      <div id="daily-summary-container" class="hidden"></div>
+      <div id="stat-hero-container"></div>
 
-    <div class="quick-action-bar">
-      <button class="qa-btn diaper-log-btn" id="diaper-log-btn" type="button">
-        <span class="qa-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-3 4-6 8-6 11.5A6 6 0 0 0 12 21a6 6 0 0 0 6-6.5C18 11 15 7 12 3z"/></svg><span class="qa-badge hidden" id="diaper-qa-badge">0</span></span>
-        Couche
-      </button>
-      <button class="qa-btn vomit-log-btn" id="vomit-log-btn" type="button">
-        <span class="qa-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/><path d="M3 17c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/></svg><span class="qa-badge hidden" id="vomit-qa-badge">0</span></span>
-        Vomi
-      </button>
-      <button class="qa-btn sleep-log-btn hidden" id="sleep-log-btn" type="button">
-        <span class="qa-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></span>
-        <span id="sleep-log-btn-label">Sommeil</span>
-      </button>
-      <button class="qa-btn health-log-btn hidden" id="health-log-btn" type="button">
-        <span class="qa-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg></span>
-        Santé
-      </button>
+      <div class="quick-action-bar">
+        <button class="qa-btn diaper-log-btn" id="diaper-log-btn" type="button">
+          <span class="qa-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-3 4-6 8-6 11.5A6 6 0 0 0 12 21a6 6 0 0 0 6-6.5C18 11 15 7 12 3z"/></svg><span class="qa-badge hidden" id="diaper-qa-badge">0</span></span>
+          Couche
+        </button>
+        <button class="qa-btn vomit-log-btn" id="vomit-log-btn" type="button">
+          <span class="qa-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/><path d="M3 17c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/></svg><span class="qa-badge hidden" id="vomit-qa-badge">0</span></span>
+          Vomi
+        </button>
+        <button class="qa-btn sleep-log-btn hidden" id="sleep-log-btn" type="button">
+          <span class="qa-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></span>
+          <span id="sleep-log-btn-label">Sommeil</span>
+        </button>
+        <button class="qa-btn health-log-btn hidden" id="health-log-btn" type="button">
+          <span class="qa-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg></span>
+          Santé
+        </button>
+      </div>
+
+      <div class="today-timeline-head">
+        <div class="day-label">Aujourd'hui</div>
+        <button class="share-summary-btn" id="share-summary-btn" type="button">
+          Partager
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>
+        </button>
+      </div>
+
+      <div id="timeline-container"></div>
     </div>
 
-    <div class="today-timeline-head">
-      <div class="day-label">Aujourd'hui</div>
-      <button class="share-summary-btn" id="share-summary-btn" type="button">
-        Partager
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>
-      </button>
+    <!-- Colonne latérale desktop uniquement (≥900px, cf. CSS) — aperçus du mois et de
+         la croissance qu'un parent devrait sinon aller chercher sur un autre écran. -->
+    <div class="today-col-side">
+      <div class="today-side-lbl">Ce mois</div>
+      <div class="mini-cal" id="today-mini-cal"></div>
+      <div class="today-side-lbl" id="today-growth-lbl" style="display:none;">Croissance</div>
+      <div id="today-growth-snapshot"></div>
     </div>
-
-    <div id="timeline-container"></div>
   </div>
 
   <div class="view" id="view-calendar">

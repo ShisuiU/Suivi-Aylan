@@ -520,6 +520,25 @@
   }
   .bottom-nav-btn:active{ transform: scale(0.88); }
 
+  /* Rail de navigation desktop — masqué par défaut, affiché à partir de 900px
+     (cf. media query en bas de fichier) à la place de la nav flottante du bas.
+     Réutilise .bottom-nav-btn (mêmes boutons, même câblage de clic) : seule la
+     disposition change via ce sélecteur descendant, la classe de base n'est pas
+     modifiée puisqu'elle reste utilisée telle quelle par la nav mobile. */
+  .nav-rail{
+    display:none; position:fixed; left:0; top:0; bottom:0; z-index:20; width:84px;
+    flex-direction:column; align-items:center; padding: calc(20px + env(safe-area-inset-top)) 0 20px;
+    gap:6px; background: var(--glass-bg-strong); border-right:1px solid var(--glass-border);
+    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
+  }
+  .nav-rail-brand{
+    width:38px; height:38px; border-radius:13px; margin-bottom:16px;
+    background: linear-gradient(145deg, var(--milk-light), var(--milk-deep)); color: var(--on-accent);
+    display:flex; align-items:center; justify-content:center; box-shadow: var(--shadow-gloss);
+    font-family:'Cormorant Garamond', serif; font-style:italic; font-weight:700; font-size:17px;
+  }
+  .nav-rail .bottom-nav-btn{ width:48px; height:48px; }
+
   .modal-overlay{
     position:fixed; inset:0; background:rgba(10,20,35,.5); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
     z-index:50; display:flex; align-items:flex-end; justify-content:center;
@@ -889,6 +908,46 @@
     cursor:pointer; display:flex; align-items:center; gap:4px; padding:0;
   }
 
+  /* Colonne latérale "Aujourd'hui" (desktop uniquement, cf. media query plus bas) :
+     aperçu du mois + dernière mesure de croissance, pour éviter d'avoir à changer
+     d'écran pour vérifier une info déjà disponible ailleurs dans l'app. */
+  .today-col-side{ display:none; }
+  .today-side-lbl{
+    font-size:10px; letter-spacing:.1em; text-transform:uppercase; color: var(--ink-faint);
+    font-weight:700; margin:0 0 9px 4px;
+  }
+  .mini-cal{
+    background: var(--glass-bg); border:1px solid var(--glass-border); border-radius: var(--radius);
+    padding:16px; box-shadow: var(--shadow-card);
+    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
+  }
+  .mini-cal-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .mini-cal-head .m{ font-size:12.5px; font-weight:700; color: var(--ink); text-transform:capitalize; }
+  .mini-cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+  .mini-cal-grid .dow{ font-size:9px; text-align:center; color: var(--ink-faint); font-weight:700; padding-bottom:4px; }
+  .mini-cal-grid .day{
+    aspect-ratio:1; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    font-size:10.5px; color: var(--ink-dim); position:relative; cursor:pointer; background:none; border:none;
+    font-family:'Plus Jakarta Sans'; transition: background-color .15s ease;
+  }
+  .mini-cal-grid .day:hover{ background: var(--bg-2); }
+  .mini-cal-grid .day.has::after{
+    content:''; position:absolute; bottom:3px; width:4px; height:4px; border-radius:50%; background: var(--milk);
+  }
+  .mini-cal-grid .day.today{ background: var(--milk); color: var(--on-accent); font-weight:700; }
+  .mini-cal-grid .day.today.has::after{ background: var(--on-accent); }
+  .today-growth-card{
+    background: var(--glass-bg); border:1px solid var(--glass-border); border-radius: var(--radius);
+    padding:16px; box-shadow: var(--shadow-card); cursor:pointer;
+    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
+  }
+  .today-growth-card .val{ font-size:19px; font-weight:800; color: var(--ink); }
+  .today-growth-card .pct{
+    display:inline-block; margin-top:5px; font-size:10.5px; font-weight:700; color: var(--milk);
+    background: var(--milk-dim); padding:3px 9px; border-radius:999px;
+  }
+  .today-growth-card .date{ font-size:10.5px; color: var(--ink-faint); margin-top:6px; }
+
   /* Filtres de recherche */
   .filter-chip-row{ display:flex; gap:6px; overflow-x:auto; margin:10px 0 4px; scrollbar-width:none; }
   .filter-chip-row::-webkit-scrollbar{ display:none; }
@@ -1249,6 +1308,27 @@
   }
   .import-box textarea:focus{ outline:none; border-color: var(--milk); box-shadow: var(--focus-ring); }
   .import-result{ font-size:12px; color: var(--ink-faint); margin-top:8px; }  #print-summary{ display:none; }
+
+  /* ==========================================================================
+     Desktop (≥900px) — Étape 1 de la mise en page desktop dédiée : rail de
+     navigation fixe à gauche + écran "Aujourd'hui" en tableau de bord à deux
+     colonnes. Les autres écrans (Calendrier, Infos, Profil, Paramètres) ne
+     sont pas concernés à cette étape et gardent leur colonne mobile centrée,
+     juste décalée par le rail — leur propre traitement desktop viendra dans
+     une étape suivante, pas de régression entre-temps.
+     ========================================================================== */
+  @media (min-width: 900px){
+    .nav-rail{ display:flex; }
+    .bottom-nav{ display:none; }
+    .fab{ bottom:28px; }
+    .wrap{ padding-left:104px; }
+
+    .wrap.wide-view{ max-width:1040px; }
+    #view-today.active{
+      display:grid; grid-template-columns: 1.6fr 1fr; align-items:start; gap:26px;
+    }
+    .today-col-side{ display:block; }
+  }
 
   @media print{
     body *{ visibility:hidden; }

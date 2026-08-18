@@ -619,6 +619,7 @@ function stopSync(){
   currentView = 'today';
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-today'));
   document.querySelectorAll('.bottom-nav-btn[data-view]').forEach(b => b.classList.toggle('active', b.getAttribute('data-view') === 'today'));
+  $('app-wrap').classList.add('wide-view');
   const viewLabelEl = $('current-view-label');
   if(viewLabelEl) viewLabelEl.textContent = VIEW_LABELS.today;
   $('fab-btn').classList.remove('hidden');
@@ -1844,6 +1845,7 @@ function switchView(view){
         $('settings-summary-email').textContent = email;
       }
       $('fab-btn').classList.toggle('hidden', view === 'profile' || view === 'settings');
+      $('app-wrap').classList.toggle('wide-view', view === 'today');
     }finally{
       setTimeout(() => { tabAnimating = false; }, 210);
     }
@@ -1855,8 +1857,84 @@ function render(){
   renderTodayTimeline();
   updateSleepButton();
   maybeShowDailySummary();
+  renderTodaySidebar();
   if(currentView === 'calendar') renderCalendar();
   if(currentView === 'chart'){ renderChart(); renderVomitChart(); }
+}
+
+// Colonne latérale "Aujourd'hui" (desktop ≥900px, cf. media query CSS) : aperçu
+// du mois en cours et dernière mesure de croissance, pour éviter d'avoir à
+// changer d'écran pour vérifier une info déjà disponible ailleurs dans l'app.
+// Toujours calculé (coût négligeable, mêmes tableaux déjà en mémoire) — le CSS
+// masque juste la colonne sur mobile, donc le contenu est prêt si la fenêtre
+// est redimensionnée au-delà du seuil desktop sans recharger la page.
+function renderTodaySidebar(){
+  const calEl = $('today-mini-cal');
+  if(calEl){
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const monthLabel = now.toLocaleDateString('fr-FR', { month:'long', year:'numeric' });
+    const entriesByDay = {};
+    entries.forEach(e => { (entriesByDay[e.dayKey] || (entriesByDay[e.dayKey] = [])).push(e); });
+    const firstOfMonth = new Date(year, month, 1);
+    let startOffset = firstOfMonth.getDay() - 1; // lundi = 0
+    if(startOffset < 0) startOffset = 6;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const todayStr = todayKey(now);
+    const dowLabels = ['L','M','M','J','V','S','D'];
+
+    let html = `<div class="mini-cal-head"><span class="m">${monthLabel}</span></div><div class="mini-cal-grid">`;
+    html += dowLabels.map(d => `<div class="dow">${d}</div>`).join('');
+    for(let i=0; i<startOffset; i++) html += `<div></div>`;
+    for(let d=1; d<=daysInMonth; d++){
+      const key = todayKey(new Date(year, month, d));
+      const has = !!entriesByDay[key];
+      const isToday = key === todayStr;
+      html += `<button type="button" class="day${has ? ' has' : ''}${isToday ? ' today' : ''}" data-day="${key}">${d}</button>`;
+    }
+    html += `</div>`;
+    calEl.innerHTML = html;
+    calEl.querySelectorAll('[data-day]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.getAttribute('data-day');
+        selectedCalDay = key;
+        const [y, m] = key.split('-').map(Number);
+        calMonthDate = new Date(y, m - 1, 1);
+        switchView('calendar');
+      });
+    });
+  }
+
+  const growthEl = $('today-growth-snapshot');
+  const growthLbl = $('today-growth-lbl');
+  if(growthEl){
+    const sorted = [...growthEntries].filter(g => g.weight != null).sort((a, b) => a.date.localeCompare(b.date));
+    if(!sorted.length || !profileData || !profileData.birthDate){
+      growthEl.innerHTML = '';
+      if(growthLbl) growthLbl.style.display = 'none';
+      return;
+    }
+    if(growthLbl) growthLbl.style.display = '';
+    const last = sorted[sorted.length - 1];
+    const table = (profileData.gender === 'F') ? WHO_WEIGHT_GIRLS : WHO_WEIGHT_BOYS;
+    const ageM = ageInMonths(profileData.birthDate, last.date);
+    const pct = estimatePercentile(table, ageM, last.weight);
+    growthEl.innerHTML = `
+      <div class="today-growth-card" id="today-growth-card-btn">
+        <div class="val">${last.weight} kg</div>
+        <div class="pct">~${pct}ᵉ percentile OMS</div>
+        <div class="date">${formatShortDateNoYear(last.date)}</div>
+      </div>
+    `;
+    $('today-growth-card-btn').addEventListener('click', () => {
+      switchView('chart');
+      setTimeout(() => {
+        const tabBtn = document.querySelector('.tab-btn[data-tab-group="chart"][data-tab="growth"]');
+        if(tabBtn) tabBtn.click();
+      }, 220);
+    });
+  }
 }
 
 // --- Résumé "Hier" : un rappel bref au premier retour de la journée, pour
