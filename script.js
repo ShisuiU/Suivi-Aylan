@@ -1695,24 +1695,6 @@ async function resolveFamily(uid){
     return;
   }
 
-  const claimedSnap = await db.ref('legacyMigration/claimed').once('value').catch(() => ({ val: () => true }));
-  if(!claimedSnap.val()){
-    try{
-      const [legacyEntries, legacyProfile, legacyGrowth] = await Promise.all([
-        db.ref('entries').once('value'),
-        db.ref('profile').once('value'),
-        db.ref('growth').once('value')
-      ]);
-      if(legacyEntries.exists() || legacyProfile.exists() || legacyGrowth.exists()){
-        renderFamilySetup('legacy', { legacyEntries: legacyEntries.val(), legacyProfile: legacyProfile.val(), legacyGrowth: legacyGrowth.val() });
-        showScreen('family-setup-screen');
-        return;
-      }
-    }catch(e){
-      // Anciennes données inaccessibles (règles verrouillées) : pas de souci, on continue normalement.
-    }
-  }
-
   renderFamilySetup('choice');
   showScreen('family-setup-screen');
 }
@@ -1726,7 +1708,6 @@ function renderFamilySetup(mode, data){
   const familyIc = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="7" r="3"/><path d="M3 20c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="17.5" cy="8.5" r="2.3"/><path d="M14.8 20c.3-2.2 1.6-3.8 3.6-3.8"/></svg>';
   const plusIc = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="5"/><line x1="12" y1="8.5" x2="12" y2="15.5"/><line x1="8.5" y1="12" x2="15.5" y2="12"/></svg>';
   const keyIc = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4.2"/><path d="M11 12 19.5 3.5"/><path d="M16.5 6.5 19 9"/><path d="M14 9 16.2 11.2"/></svg>';
-  const historyIc = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>';
   const checkIc = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.5 2.5 5-5"/></svg>';
 
   const heroHtml = (icon, sub) => `
@@ -1785,19 +1766,6 @@ function renderFamilySetup(mode, data){
     `;
     $('fs-join-submit').addEventListener('click', () => submitJoinFamily());
     $('fs-back').addEventListener('click', () => renderFamilySetup('choice'));
-    return;
-  }
-
-  if(mode === 'legacy'){
-    hero.innerHTML = heroHtml(historyIc, 'Anciennes données détectées');
-    sheet.innerHTML = `
-      <p class="backup-hint">On a retrouvé un suivi existant sur ce compte. Créer votre espace famille avec ces données ?</p>
-      <button class="login-btn" id="fs-migrate-submit">Récupérer nos données</button>
-      <button class="family-back-link" id="fs-skip-legacy">Non, commencer une nouvelle famille</button>
-      <div class="login-error" id="fs-error"></div>
-    `;
-    $('fs-migrate-submit').addEventListener('click', () => submitMigrateLegacy(data));
-    $('fs-skip-legacy').addEventListener('click', () => renderFamilySetup('choice'));
     return;
   }
 
@@ -1882,33 +1850,6 @@ async function submitJoinFamily(){
     errEl.textContent = "Erreur : " + (e.message || e.code || e);
     btn.disabled = false;
     btn.textContent = 'Rejoindre';
-  }
-}
-
-async function submitMigrateLegacy(legacyData){
-  const errEl = $('fs-error');
-  const btn = $('fs-migrate-submit');
-  const uid = auth.currentUser.uid;
-
-  const familyId = generateId('family');
-  const inviteCode = generateInviteCode();
-
-  btn.disabled = true;
-  btn.textContent = 'Récupération...';
-  try{
-    await db.ref('families/' + familyId + '/meta').set({ name: 'Ma famille', inviteCode, createdBy: uid, createdAt: Date.now(), timezone: Intl.DateTimeFormat().resolvedOptions().timeZone });
-    await db.ref('families/' + familyId + '/members/' + uid).set(true);
-    if(legacyData.legacyEntries) await db.ref('families/' + familyId + '/entries').set(legacyData.legacyEntries);
-    if(legacyData.legacyProfile) await db.ref('families/' + familyId + '/profile').set(legacyData.legacyProfile);
-    if(legacyData.legacyGrowth) await db.ref('families/' + familyId + '/growth').set(legacyData.legacyGrowth);
-    await db.ref('userFamilies/' + uid).set(familyId);
-    await db.ref('inviteCodes/' + inviteCode).set(familyId);
-    await db.ref('legacyMigration/claimed').set(true);
-    renderFamilySetup('created', { familyId, inviteCode });
-  }catch(e){
-    errEl.textContent = "Erreur : " + (e.message || e.code || e);
-    btn.disabled = false;
-    btn.textContent = 'Récupérer nos données';
   }
 }
 
