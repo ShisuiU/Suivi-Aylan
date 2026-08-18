@@ -7,6 +7,25 @@ indépendamment du reste de l'app (pas de lien avec le déploiement Vercel).
 Pas besoin d'installer quoi que ce soit en local — tout se fait depuis le
 tableau de bord Cloudflare, dans le navigateur.
 
+## 0. Préalable côté règles de sécurité Firebase
+
+Le client écrit le jeton push de chaque appareil dans
+`families/{familyId}/pushTokens`. Si les règles de la Realtime Database
+listent explicitement chaque enfant autorisé sous `families/$familyId`
+(`entries`, `profile`, `growth`, `children`...) plutôt qu'un `.write`
+générique, ce chemin doit y être ajouté explicitement — sinon Firebase
+refuse l'écriture (`PERMISSION_DENIED`) et le Worker ne trouvera jamais
+aucun appareil à notifier, sans qu'aucune erreur ne soit visible côté app.
+Vérifie que ce bloc existe (au même niveau que `entries`/`profile`/... dans
+Console Firebase > Realtime Database > Règles) :
+
+```json
+"pushTokens": {
+  ".read": "auth != null && root.child('families').child($familyId).child('members').child(auth.uid).exists()",
+  ".write": "auth != null && root.child('families').child($familyId).child('members').child(auth.uid).exists()"
+}
+```
+
 ## 1. Récupérer la clé de compte de service Firebase
 
 Console Firebase → ⚙️ **Paramètres du projet** → onglet **Comptes de
