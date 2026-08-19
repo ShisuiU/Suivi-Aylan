@@ -1,3 +1,10 @@
+> **Mise à jour (3e round) — nouveau champ `lastEditedBy`** sur
+> `entries/$entryId` (`families/$familyId/children/$childId/entries/$entryId/lastEditedBy`) : contrairement à
+> `authorEmail` (préservé tel quel à l'édition), ce champ est réécrit à chaque sauvegarde avec l'email de la personne qui
+> vient d'éditer — `newData.val() == auth.token.email` uniquement, pas de branche "valeur inchangée". Permet d'afficher
+> "Ajouté par X · modifié par Y" dans l'info-bulle de la pastille d'auteur quand les deux diffèrent, sans perdre la trace
+> de qui a créé l'entrée à l'origine.
+
 > **Mise à jour (2e round d'audit) — déjà répercutée dans `firebase-rules-complete.json`.**
 > Trois changements par rapport à la version publiée précédemment :
 > 1. **`authorEmail` lié à l'auteur réel de l'écriture** (`families/$familyId/children/$childId/entries/$entryId/authorEmail`) —

@@ -67,6 +67,9 @@
                 "updatedAt": { ".validate": "newData.val() == null || newData.isNumber()" },
                 "authorEmail": {
                   ".validate": "newData.val() == null || (newData.isString() && newData.val().length <= 254 && (newData.val() == auth.token.email || newData.val() == data.val()))"
+                },
+                "lastEditedBy": {
+                  ".validate": "newData.val() == null || (newData.isString() && newData.val().length <= 254 && newData.val() == auth.token.email)"
                 }
               }
             },

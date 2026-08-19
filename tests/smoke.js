@@ -293,6 +293,38 @@ async function run() {
     await page.close();
   }
 
+  console.log('\n10. Édition d\'un biberon créé par quelqu\'un d\'autre — lastEditedBy renseigné, authorEmail préservé');
+  {
+    const store = baseStore();
+    setPath(store, 'families/fam1/children/c1/entries/e1', { id: 'e1', type: 'biberon', ml: 120, diaper: 'none', timestamp: Date.now(), dayKey: todayKeyFor(TEST_TZ), time: '09:00', updatedAt: 1000, authorEmail: 'autre-parent@example.com' });
+    const page = await newPage(browser, store);
+    await page.evaluate(() => startEdit('e1'));
+    await page.waitForTimeout(200);
+    await page.fill('#ml-input', '140');
+    await page.click('#save-btn');
+    await page.waitForTimeout(400);
+    const entry = getPath(store, 'families/fam1/children/c1/entries/e1');
+    assert(entry.authorEmail === 'autre-parent@example.com', 'authorEmail (créateur d\'origine) reste inchangé après édition par quelqu\'un d\'autre');
+    assert(entry.lastEditedBy === 'test@example.com', 'lastEditedBy porte bien l\'email de la personne qui vient d\'éditer');
+    await page.close();
+  }
+
+  console.log('\n11. Suppression d\'une mesure de croissance — annulation restaure la donnée');
+  {
+    const store = baseStore();
+    setPath(store, 'families/fam1/children/c1/growth/g1', { id: 'g1', date: '2026-06-01', weight: 7.2, height: null, headCirc: null, updatedAt: 1000 });
+    const page = await newPage(browser, store);
+    await page.evaluate(() => deleteGrowthEntry('g1'));
+    await page.waitForTimeout(200);
+    const goneAfterDelete = getPath(store, 'families/fam1/children/c1/growth/g1') == null;
+    assert(goneAfterDelete, 'La mesure est bien supprimée');
+    await page.click('.toast .toast-action');
+    await page.waitForTimeout(200);
+    const restored = getPath(store, 'families/fam1/children/c1/growth/g1');
+    assert(!!(restored && restored.weight === 7.2), 'Le bouton "Annuler" du toast restaure la mesure supprimée');
+    await page.close();
+  }
+
   await browser.close();
 
   console.log(`\n${'='.repeat(60)}`);

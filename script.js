@@ -1113,9 +1113,10 @@ async function saveGrowthEntry(){
 }
 
 async function deleteGrowthEntry(id){
+  const removed = growthEntries.find(g => String(g.id) === String(id));
   try{
     await childRef('growth/' + id).remove();
-    showToast('Mesure supprimée');
+    showToast('Mesure supprimée', removed ? { actionLabel: 'Annuler', onAction: () => childRef('growth/' + id).set(removed) } : undefined);
   }catch(e){
     showToast('Erreur de suppression');
   }
@@ -1192,9 +1193,10 @@ async function toggleVaccineDone(id){
 }
 
 async function deleteVaccine(id){
+  const removed = vaccinesList.find(v => String(v.id) === String(id));
   try{
     await childRef('vaccines/' + id).remove();
-    showToast('Supprimé');
+    showToast('Supprimé', removed ? { actionLabel: 'Annuler', onAction: () => childRef('vaccines/' + id).set(removed) } : undefined);
   }catch(e){
     showToast('Erreur de suppression');
   }
@@ -1237,9 +1239,10 @@ function renderMilestones(){
 }
 
 async function deleteMilestone(id){
+  const removed = milestonesList.find(m => String(m.id) === String(id));
   try{
     await childRef('milestones/' + id).remove();
-    showToast('Souvenir supprimé');
+    showToast('Souvenir supprimé', removed ? { actionLabel: 'Annuler', onAction: () => childRef('milestones/' + id).set(removed) } : undefined);
   }catch(e){
     showToast('Erreur de suppression');
   }
@@ -2678,6 +2681,18 @@ function authorInitials(email){
   return namePart.slice(0, 2).toUpperCase();
 }
 
+// La pastille d'auteur affiche toujours les initiales de la personne qui a
+// créé l'entrée (comportement inchangé) — mais si quelqu'un d'autre l'a
+// modifiée depuis, l'info-bulle le précise désormais explicitement plutôt que
+// de laisser croire que l'auteur d'origine est aussi le dernier à y avoir
+// touché.
+function entryAuthorBadgeHtml(e){
+  if(!e.authorEmail) return '';
+  const editedByOther = e.lastEditedBy && e.lastEditedBy !== e.authorEmail;
+  const title = editedByOther ? `Ajouté par ${e.authorEmail} · modifié par ${e.lastEditedBy}` : e.authorEmail;
+  return `<div class="entry-author" title="${escapeHtml(title)}">${authorInitials(e.authorEmail)}</div>`;
+}
+
 function escapeHtml(str){
   const div = document.createElement('div');
   div.textContent = str;
@@ -2713,7 +2728,7 @@ function entryRowHtml(e){
           </div>
         </div>
         <div class="entry-actions">
-          ${e.authorEmail ? `<div class="entry-author" title="${e.authorEmail}">${authorInitials(e.authorEmail)}</div>` : ''}
+          ${entryAuthorBadgeHtml(e)}
           <button class="entry-del" data-del="${e.id}">✕</button>
         </div>
       </div>
@@ -2732,7 +2747,7 @@ function entryRowHtml(e){
           </div>
         </div>
         <div class="entry-actions">
-          ${e.authorEmail ? `<div class="entry-author" title="${e.authorEmail}">${authorInitials(e.authorEmail)}</div>` : ''}
+          ${entryAuthorBadgeHtml(e)}
           <button class="entry-del" data-del="${e.id}">✕</button>
         </div>
       </div>
@@ -2750,7 +2765,7 @@ function entryRowHtml(e){
           </div>
         </div>
         <div class="entry-actions">
-          ${e.authorEmail ? `<div class="entry-author" title="${e.authorEmail}">${authorInitials(e.authorEmail)}</div>` : ''}
+          ${entryAuthorBadgeHtml(e)}
           <button class="entry-del" data-del="${e.id}">✕</button>
         </div>
       </div>
@@ -2769,7 +2784,7 @@ function entryRowHtml(e){
           </div>
         </div>
         <div class="entry-actions">
-          ${e.authorEmail ? `<div class="entry-author" title="${e.authorEmail}">${authorInitials(e.authorEmail)}</div>` : ''}
+          ${entryAuthorBadgeHtml(e)}
           <button class="entry-del" data-del="${e.id}">✕</button>
         </div>
       </div>
@@ -2788,7 +2803,7 @@ function entryRowHtml(e){
           </div>
         </div>
         <div class="entry-actions">
-          ${e.authorEmail ? `<div class="entry-author" title="${e.authorEmail}">${authorInitials(e.authorEmail)}</div>` : ''}
+          ${entryAuthorBadgeHtml(e)}
           <button class="entry-del" data-del="${e.id}">✕</button>
         </div>
       </div>
@@ -3466,7 +3481,8 @@ async function saveDiaperEntry(){
     comment: comment,
     timestamp: entryDate.getTime(),
     dayKey: dateVal,
-    authorEmail: isEditing ? (editingDiaperOriginalAuthor || currentEmail) : currentEmail
+    authorEmail: isEditing ? (editingDiaperOriginalAuthor || currentEmail) : currentEmail,
+    lastEditedBy: isEditing ? currentEmail : null
   };
 
   const btn = $('diaper-save-btn');
@@ -3652,7 +3668,8 @@ async function saveEntry(){
     comment: comment,
     timestamp: entryDate.getTime(),
     dayKey: dateVal,
-    authorEmail: isEditing ? (editingOriginalAuthor || currentEmail) : currentEmail
+    authorEmail: isEditing ? (editingOriginalAuthor || currentEmail) : currentEmail,
+    lastEditedBy: isEditing ? currentEmail : null
   };
 
   const saveBtn = $('save-btn');
