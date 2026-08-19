@@ -913,7 +913,7 @@ function renderTodayHeader(){
   const avatarEl = $('today-hero-avatar');
   if(!nameEl || !avatarEl) return;
   const name = getChildFirstName() || DEFAULT_SITE_NAME;
-  nameEl.textContent = name + ' ❤️';
+  nameEl.textContent = name;
   const initial = initialLetterFor(profileData && profileData.firstName, profileData && profileData.lastName);
   avatarEl.innerHTML = (profileData && profileData.avatar) ? `<img src="${escapeHtml(profileData.avatar)}" alt="">` : escapeHtml(initial);
 }

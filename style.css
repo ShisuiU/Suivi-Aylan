@@ -184,19 +184,21 @@
   }
   .install-banner-close:active{ background: var(--card-hover); color: var(--ink); }
 
-  /* En-tête "Aujourd'hui" — prénom + avatar, remplace le générique .app-header
-     (masqué sur cet écran, voir switchView) par une identité centrée sur
-     l'enfant plutôt qu'un titre d'application. */
+  /* En-tête "Aujourd'hui" — prénom seul, centré, remplace le générique
+     .app-header (masqué sur cet écran, voir switchView) par une identité
+     construite autour de l'enfant plutôt qu'un titre d'application.
+     L'avatar reste ancré à droite en position absolue pour que le prénom
+     puisse être vraiment centré sur toute la largeur de l'écran. */
   .today-hero-header{
-    display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
-    margin-bottom:16px; padding-top: calc(4px + env(safe-area-inset-top));
+    position:relative; display:flex; justify-content:center; align-items:center;
+    min-height:48px; margin-bottom:16px; padding-top: calc(4px + env(safe-area-inset-top));
   }
   .today-hero-name{
     font-family:'Fraunces', serif; font-style:italic; font-weight:600;
-    font-size:24px; margin:0; color: var(--ink); letter-spacing:-.01em;
+    font-size:24px; margin:0; color: var(--ink); letter-spacing:-.01em; text-align:center;
   }
-  .today-hero-greeting{ font-size:12.5px; color: var(--ink-dim); margin-top:3px; }
   .today-hero-avatar{
+    position:absolute; right:0; top: calc(4px + env(safe-area-inset-top));
     flex-shrink:0; width:48px; height:48px; border-radius:50%; overflow:hidden;
     background: var(--milk-dim); color: var(--milk-deep);
     display:flex; align-items:center; justify-content:center;
