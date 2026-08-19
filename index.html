@@ -241,7 +241,7 @@
     </div>
   </div>
 
-  <header class="app-header">
+  <header class="app-header hidden" id="app-header">
     <div class="app-header-title">
       <h1 id="app-title">Bébé</h1>
       <div class="subtitle" id="current-view-label">Aujourd'hui</div>
@@ -250,6 +250,13 @@
 
   <div class="view active" id="view-today">
     <div class="today-col-main">
+      <div class="today-hero-header" id="today-hero-header">
+        <div class="today-hero-header-text">
+          <h2 class="today-hero-name" id="today-hero-name"></h2>
+          <div class="today-hero-greeting">Il va bien aujourd'hui ☀️</div>
+        </div>
+        <div class="today-hero-avatar" id="today-hero-avatar"></div>
+      </div>
       <div class="child-chip-row hidden" id="children-list-today"></div>
       <div id="daily-summary-container" class="hidden"></div>
       <div id="install-banner-container" class="hidden"></div>

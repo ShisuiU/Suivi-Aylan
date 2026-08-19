@@ -532,6 +532,7 @@ function switchToChild(childId){
     renderProfileForm();
     renderAgeHero();
     updateSiteTitle();
+    renderTodayHeader();
   }, () => showToast("Erreur de synchronisation"));
 
   growthRef = childRef('growth');
@@ -902,6 +903,21 @@ function renderAvatarEditPreview(){
   $('profile-avatar-remove-btn').classList.toggle('hidden', !profileAvatarDataUrl);
 }
 
+// En-tête chaleureux de l'écran "Aujourd'hui" — remplace le générique
+// .app-header (masqué sur cet écran, voir switchView) par une identité
+// construite autour de l'enfant : son prénom + un avatar, pas un titre
+// d'application. Même logique d'avatar que renderAgeHero() (photo si
+// définie, sinon initiale).
+function renderTodayHeader(){
+  const nameEl = $('today-hero-name');
+  const avatarEl = $('today-hero-avatar');
+  if(!nameEl || !avatarEl) return;
+  const name = getChildFirstName() || DEFAULT_SITE_NAME;
+  nameEl.textContent = name + ' ❤️';
+  const initial = initialLetterFor(profileData && profileData.firstName, profileData && profileData.lastName);
+  avatarEl.innerHTML = (profileData && profileData.avatar) ? `<img src="${escapeHtml(profileData.avatar)}" alt="">` : escapeHtml(initial);
+}
+
 function renderAgeHero(){
   const hero = $('age-hero');
   if(profileData && profileData.birthDate){
@@ -955,7 +971,7 @@ function growthRowHtml(g){
   if(g.headCirc != null) parts.push(`PC ${g.headCirc} cm`);
   return `
     <div class="entry" data-id="${g.id}">
-      <div class="node">·</div>
+      <div class="node growth-node"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg></div>
       <div class="entry-card">
         <div class="entry-main">
           <div class="entry-time">${formatShortDate(g.date)}</div>
@@ -2065,6 +2081,11 @@ function switchView(view){
       }
       $('fab-btn').classList.toggle('hidden', view === 'profile' || view === 'settings');
       $('app-wrap').classList.toggle('wide-view', view === 'today' || view === 'calendar');
+      // L'écran "Aujourd'hui" a son propre en-tête chaleureux (prénom + avatar,
+      // voir renderTodayHeader) ; le générique .app-header ne sert que sur les
+      // autres écrans, d'où le hidden statique dans index.html + ce toggle ici.
+      const appHeaderEl = $('app-header');
+      if(appHeaderEl) appHeaderEl.classList.toggle('hidden', view === 'today');
     }finally{
       setTimeout(() => { tabAnimating = false; }, 210);
     }
@@ -2072,6 +2093,7 @@ function switchView(view){
 }
 
 function render(){
+  renderTodayHeader();
   renderStats();
   renderTodayTimeline();
   updateSleepButton();
@@ -2584,8 +2606,17 @@ function renderStats(){
     ? `<div class="bento-spark">${sparkBars.map(e => `<i style="height:${Math.max(18, Math.round((e.ml || 0) / maxMl * 100))}%"></i>`).join('')}</div>`
     : '';
 
+  // Prochain repas estimé : simple projection lastBottleTimestamp + seuil de
+  // rappel, affichée seulement quand le rappel est actif et qu'on a une
+  // dernière prise — sinon la ligne n'a pas de sens (pas de seuil, ou aucun
+  // biberon jamais enregistré).
+  const nextMealHtml = (reminderEnabled && lastBottleTimestamp)
+    ? `<div class="hero-next-meal">Prochain repas estimé <b>${formatTimeFromTimestamp(lastBottleTimestamp + reminderThresholdMinutes * 60000)}</b></div>`
+    : '';
+
   $('stat-hero-container').innerHTML = `
     <div class="stat-hero${overdue ? ' overdue' : ''}">
+      <img class="stat-hero-photo" src="images/bottle-hero.webp" alt="" aria-hidden="true">
       <div class="today-hero-top">
         <div class="today-hero-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h4"/><path d="M10.5 2v3c0 .7-.4 1.1-.9 1.6-1 .9-1.6 1.9-1.6 3.4v9c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-9c0-1.5-.6-2.5-1.6-3.4-.5-.5-.9-.9-.9-1.6V2"/><line x1="8.5" y1="12.5" x2="15.5" y2="12.5"/></svg>
@@ -2594,6 +2625,7 @@ function renderStats(){
           <div class="lbl">Dernier biberon</div>
           <div class="num">${lastAgo}</div>
           ${progressHtml}
+          ${nextMealHtml}
         </div>
         ${overdue ? `<span class="overdue-pill"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>En retard</span>` : ''}
       </div>
@@ -2774,7 +2806,7 @@ function entryRowHtml(e){
   if(e.type === 'diaper'){
     return `
     <div class="entry" data-id="${e.id}">
-      <div class="node">${diaperIcon(e.diaper)}</div>
+      <div class="node diaper-node">${diaperIcon(e.diaper)}</div>
       <div class="entry-card entry-card-clickable" data-edit-diaper-row="${e.id}">
         <div class="entry-main">
           <div class="entry-time">${e.time}</div>
@@ -2792,7 +2824,7 @@ function entryRowHtml(e){
   }
   return `
     <div class="entry" data-id="${e.id}">
-      <div class="node">${diaperIcon(e.diaper)}</div>
+      <div class="node biberon-node">${diaperIcon(e.diaper)}</div>
       <div class="entry-card entry-card-clickable" data-edit-row="${e.id}">
         <div class="entry-main">
           <div class="entry-time">${e.time}</div>
