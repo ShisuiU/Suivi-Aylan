@@ -205,17 +205,20 @@
   }
   .today-hero-avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
 
-  #stat-hero-container{ display:flex; margin-bottom:18px; }
+  /* Depuis l'étape 3 : la carte "Dernier biberon" (photo) et le bento-row
+     (stats du jour) sont deux blocs frères indépendants — plus de bento
+     imbriqué dans la carte héro, ce qui laisse la photo respirer et
+     s'agrandir sans avoir à réserver de place pour les mini-cartes. */
+  #stat-hero-container{ display:flex; flex-direction:column; gap:12px; margin-bottom:18px; }
   .stat-hero{
     position:relative; overflow:hidden;
     background: linear-gradient(135deg, var(--milk-dim) 0%, var(--card) 62%);
     color: var(--ink); border-radius: var(--radius);
-    padding: 20px 104px 18px 20px; display:flex; flex-direction:column; align-items:flex-start;
-    flex:1;
+    padding: 20px 92px 18px 20px; display:flex; flex-direction:column; align-items:flex-start;
     box-shadow: var(--shadow-card);
   }
   .stat-hero-photo{
-    position:absolute; right:-16px; bottom:-14px; width:132px; height:auto;
+    position:absolute; right:-20px; bottom:-16px; width:168px; height:auto;
     pointer-events:none; filter: drop-shadow(0 14px 14px rgba(58,30,20,.28));
   }
   .stat-hero.stat-hero-welcome{ padding-right:20px; }
@@ -235,7 +238,7 @@
   }
   #stat-hero-container .stat-hero.overdue{ border-color: var(--warning-deep); }
   .today-hero-top{
-    position:relative; display:flex; align-items:center; gap:14px; width:100%; margin-bottom:20px;
+    position:relative; display:flex; align-items:center; gap:14px; width:100%; margin-bottom:0;
     cursor:pointer; -webkit-tap-highlight-color:transparent; transition: transform .12s ease;
   }
   .today-hero-top:active{ transform: scale(0.985); }
@@ -245,7 +248,7 @@
     display:flex; align-items:center; justify-content:center;
     box-shadow: var(--shadow-card);
   }
-  .stat-hero.stat-hero-welcome .today-hero-top{ margin-bottom:0; }
+  .stat-hero.stat-hero-welcome .today-hero-top{ margin-bottom:16px; }
   .bento-row{ position:relative; width:100%; display:grid; grid-template-columns:1.5fr 1fr; gap:9px; }
   .bento-wide{
     grid-row: span 2; background: var(--card); border:1px solid var(--line); border-radius:var(--radius-md); padding:13px 15px;
