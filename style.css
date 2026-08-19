@@ -226,9 +226,10 @@
     pointer-events:none; filter: drop-shadow(0 14px 14px rgba(58,30,20,.28));
   }
   .stat-hero.stat-hero-welcome{ padding-right:20px; }
-  .stat-hero .num{ position:relative; font-family:'Karla', sans-serif; font-size: 34px; font-weight:700; letter-spacing:-.01em; }
+  .stat-hero .num{ position:relative; font-family:'Karla', sans-serif; font-size: 34px; font-weight:700; letter-spacing:-.01em; white-space:nowrap; }
   .stat-hero .lbl{
     position:relative; font-size: 11px; text-transform:uppercase; letter-spacing:.1em; color: var(--ink-dim); font-weight:600;
+    white-space:nowrap;
   }
   .stat-hero-welcome-hint{
     position:relative; margin:16px 0 0; font-size:12.5px; line-height:1.5; color: var(--ink-dim);
@@ -792,8 +793,14 @@
     0%, 100%{ box-shadow: 0 0 0 0 rgba(160,106,36,.5); }
     50%{ box-shadow: 0 0 0 8px rgba(160,106,36,0); }
   }
+  /* Le badge "En retard" partage la ligne du libellé ("Dernier biberon"),
+     pas celle de la grande valeur ("X h Y min") — cette dernière a besoin
+     de toute la largeur disponible pour rester sur une ligne, alors que le
+     libellé (petit texte) a largement la place d'accueillir le badge à côté
+     de lui sans se couper. */
+  .hero-lbl-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
   .overdue-pill{
-    margin-left:auto; align-self:flex-start; flex-shrink:0;
+    flex-shrink:0;
     background:rgba(255,255,255,.18);
     color: var(--on-accent); font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.05em;
     padding:5px 9px; border-radius:999px; display:flex; align-items:center; gap:4px;
