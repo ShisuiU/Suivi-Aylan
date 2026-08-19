@@ -2629,17 +2629,17 @@ function renderStats(){
         </div>
         ${overdue ? `<span class="overdue-pill"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>En retard</span>` : ''}
       </div>
-    </div>
-    <div class="bento-row">
-      <div class="bento-wide">
-        <div>
-          <div class="v">${totalMl} ml</div>
-          <div class="l">Aujourd'hui${mlDeltaHtml}</div>
+      <div class="bento-row">
+        <div class="bento-wide">
+          <div>
+            <div class="v">${totalMl} ml</div>
+            <div class="l">Aujourd'hui${mlDeltaHtml}</div>
+          </div>
+          ${sparkHtml}
         </div>
-        ${sparkHtml}
+        <div class="bento-small"><div class="v">${feedCount} / ${diaperCount}</div><div class="l">Bib. / Couches</div></div>
+        <div class="bento-small"><div class="v">${vomitCount}</div><div class="l">Vomissements</div></div>
       </div>
-      <div class="bento-small"><div class="v">${feedCount} / ${diaperCount}</div><div class="l">Bib. / Couches</div></div>
-      <div class="bento-small"><div class="v">${vomitCount}</div><div class="l">Vomissements</div></div>
     </div>
   `;
 
