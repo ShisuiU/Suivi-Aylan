@@ -214,7 +214,13 @@
      pour rester lisibles comme un même bloc plutôt que des cartes empilées. */
   #stat-hero-container{ display:flex; margin-bottom:18px; }
   .stat-hero{
-    position:relative; overflow:hidden; transform:translateZ(0);
+    position:relative; overflow:hidden;
+    /* overflow:hidden seul ne suffit pas partout : un enfant avec un
+       filter (le drop-shadow de la photo ci-dessous) peut faire ignorer le
+       border-radius du parent lors du clip dans certains moteurs de rendu.
+       clip-path avec la même valeur de rayon force un découpage explicite,
+       indépendant de ce comportement — belt & suspenders avec overflow. */
+    clip-path: inset(0 round var(--radius));
     background: linear-gradient(135deg, var(--milk-dim) 0%, var(--card) 62%);
     color: var(--ink); border-radius: var(--radius);
     padding: 20px 104px 18px 20px; display:flex; flex-direction:column; align-items:flex-start;
