@@ -978,10 +978,6 @@
     flex-shrink:0; width:38px; height:38px; border-radius:12px;
     background: var(--bg-2); display:flex; align-items:center; justify-content:center; font-size:18px;
   }
-  /* Pastille photo (plutôt qu'icône SVG) pour certaines fonctionnalités —
-     même gabarit 38px, juste le contenu qui change. Objet réel détouré au
-     lieu d'un pictogramme générique, à l'échelle d'une icône uniquement. */
-  .feature-page-ic-photo img{ width:30px; height:30px; object-fit:contain; }
   .feature-page-card-name{ flex:1; font-size:14.5px; font-weight:600; color: var(--ink); }
   .feature-page-card-desc{ font-size:12.5px; color: var(--ink-dim); line-height:1.5; margin:12px 0 0; }
   .switch{
