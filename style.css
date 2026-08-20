@@ -980,6 +980,22 @@
   }
   .feature-page-card-name{ flex:1; font-size:14.5px; font-weight:600; color: var(--ink); }
   .feature-page-card-desc{ font-size:12.5px; color: var(--ink-dim); line-height:1.5; margin:12px 0 0; }
+
+  /* Cartes "habillées" d'une photo qui déborde du coin — même geste que la
+     photo du biberon sur .stat-hero (Aujourd'hui), reproduit ici à
+     l'identique : dégradé clair, clip-path en plus de overflow:hidden
+     (bug de rendu Chromium avec un filter enfant, voir .stat-hero), texte
+     qui réserve de la place à droite pour ne jamais chevaucher la photo. */
+  .feature-page-card-photo{
+    position:relative; overflow:hidden; clip-path: inset(0 round var(--radius));
+    background: linear-gradient(135deg, var(--milk-dim) 0%, var(--card) 62%);
+  }
+  .feature-page-photo{
+    position:absolute; right:-16px; bottom:-14px; width:128px; height:auto;
+    pointer-events:none; filter: drop-shadow(0 12px 12px rgba(58,30,20,.22));
+  }
+  .feature-page-card-photo .feature-page-card-head,
+  .feature-page-card-photo .feature-page-card-desc{ position:relative; padding-right:88px; }
   .switch{
     flex-shrink:0; position:relative; width:44px; height:26px; border-radius:999px;
     background: var(--bg-2); border:1px solid var(--line); cursor:pointer;
@@ -1281,6 +1297,14 @@
     display:block;
   }
   .auth-hero-wave path{ fill: var(--bg); }
+  /* Même geste que la photo du biberon sur .stat-hero : un objet qui déborde
+     du coin, en fond. Ici pas de z-index — la vague (z-index:1) et le badge
+     (z-index:2) restent au-dessus, la photo se glisse "derrière" comme les
+     deux halos décoratifs déjà présents (::before/::after). */
+  .auth-hero-photo{
+    position:absolute; right:-18px; bottom:-8px; width:118px; height:auto;
+    pointer-events:none; opacity:.92;
+  }
   .auth-hero-badge{
     position:relative; z-index:2; width:64px; height:64px; margin:0 auto 16px; border-radius:50%;
     background: rgba(255,255,255,.14); border:1.5px solid rgba(255,255,255,.4);
