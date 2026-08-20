@@ -1252,6 +1252,17 @@ function renderMilestones(){
       }, 3000);
     });
   });
+
+  // Toucher/cliquer la photo l'ouvre en plein écran (lightbox) — sinon
+  // aucun moyen de la consulter en grand une fois enregistrée, la vignette
+  // carrée de la grille la recadre systématiquement.
+  grid.querySelectorAll('.milestone-photo').forEach(img => {
+    img.addEventListener('click', () => {
+      const id = img.closest('.milestone-card').getAttribute('data-id');
+      const m = milestonesList.find(x => String(x.id) === String(id));
+      if(m && m.photo) openPhotoLightbox(m.photo, m.label);
+    });
+  });
 }
 
 async function deleteMilestone(id){
@@ -3551,6 +3562,7 @@ const MODAL_CLOSERS = {
   'health-modal-overlay': () => closeHealthModal(),
   'milestone-modal-overlay': () => closeMilestoneModal(),
   'add-child-modal-overlay': () => closeAddChildModal(),
+  'photo-lightbox-overlay': () => closePhotoLightbox(),
 };
 
 function getOpenModalOverlayId(){
@@ -3618,6 +3630,23 @@ function closeModal(overlayId){
     modalReturnFocusEl.focus();
   }
   modalReturnFocusEl = null;
+}
+
+// Visionneuse plein écran pour une photo de souvenir — réutilise le
+// mécanisme des modales (Échap, piège du focus au Tab, retour du focus à
+// la fermeture) mais avec un habillage visuel dédié (fond sombre, image
+// centrée sans recadrage) plutôt que le bottom-sheet standard, voir le
+// scoping #photo-lightbox-overlay dans style.css.
+function openPhotoLightbox(src, label){
+  const img = $('photo-lightbox-img');
+  img.src = src;
+  img.alt = label ? `Souvenir : ${label}` : 'Souvenir';
+  openModal('photo-lightbox-overlay');
+}
+
+function closePhotoLightbox(){
+  closeModal('photo-lightbox-overlay');
+  $('photo-lightbox-img').src = '';
 }
 
 function openAddModal(){
@@ -4015,6 +4044,18 @@ $('milestone-modal-overlay').addEventListener('click', (e) => {
   if(e.target.id === 'milestone-modal-overlay') closeMilestoneModal();
 });
 $('milestone-save-btn').addEventListener('click', saveMilestone);
+
+// --- Visionneuse plein écran (photo de souvenir) ---
+$('photo-lightbox-close-btn').addEventListener('click', closePhotoLightbox);
+// Contrairement aux autres modales (bottom-sheet ne couvrant pas tout
+// l'overlay), .modal-panel occupe ici 100% de l'écran — un clic "en dehors"
+// n'existe donc plus au sens strict. On ferme sur tout clic qui n'est ni la
+// photo elle-même ni le bouton ✕ (qui a déjà son propre écouteur).
+$('photo-lightbox-overlay').addEventListener('click', (e) => {
+  if(e.target.id === 'photo-lightbox-img' || e.target.closest('.modal-close-btn')) return;
+  closePhotoLightbox();
+});
+
 $('milestone-photo-input').addEventListener('change', async () => {
   const file = $('milestone-photo-input').files[0];
   if(!file) return;
