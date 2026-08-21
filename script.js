@@ -3719,6 +3719,13 @@ async function saveEntry(){
   const [y,mo,d] = dateVal.split('-').map(Number);
 
   const entryDate = new Date(y, mo-1, d, h, m);
+  // Un biberon "dans le futur" fausserait le calcul du temps écoulé sur
+  // "Dernier biberon" (minutesSinceLast négatif) — refusé explicitement
+  // plutôt que de laisser un nombre négatif s'afficher silencieusement.
+  if(entryDate.getTime() > Date.now()){
+    showToast("Impossible d'enregistrer un biberon à une heure qui n'est pas encore passée");
+    return;
+  }
   const isEditing = editingId !== null;
   const currentEmail = auth.currentUser ? auth.currentUser.email : null;
 

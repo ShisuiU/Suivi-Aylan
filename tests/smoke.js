@@ -325,6 +325,39 @@ async function run() {
     await page.close();
   }
 
+  console.log('\n12. RÉGRESSION — refuse un biberon à une heure future (pas de temps négatif sur "Dernier biberon")');
+  {
+    const store = baseStore();
+    const page = await newPage(browser, store);
+    await page.click('#fab-btn');
+    await page.waitForTimeout(200);
+    await page.evaluate(() => {
+      const tomorrow = new Date(Date.now() + 24 * 3600000);
+      const y = tomorrow.getFullYear(), m = String(tomorrow.getMonth() + 1).padStart(2, '0'), d = String(tomorrow.getDate()).padStart(2, '0');
+      const dateInput = document.getElementById('date-input');
+      dateInput.value = `${y}-${m}-${d}`;
+      dateInput.dispatchEvent(new Event('input'));
+    });
+    await page.fill('#ml-input', '120');
+    const entriesBefore = Object.keys(getPath(store, 'families/fam1/children/c1/entries')).length;
+    await page.click('#save-btn');
+    await page.waitForTimeout(400);
+    const toastText = await page.evaluate(() => document.querySelector('.toast')?.textContent.trim() || '');
+    const modalStillOpen = await page.evaluate(() => !document.getElementById('add-modal-overlay')?.classList.contains('hidden'));
+    const entriesAfter = Object.keys(getPath(store, 'families/fam1/children/c1/entries')).length;
+    assert(toastText.includes('pas encore') || toastText.toLowerCase().includes('futur'), 'Un message explique que l\'heure n\'est pas encore passée');
+    assert(modalStillOpen, 'La modale reste ouverte (rien n\'est enregistré silencieusement)');
+    assert(entriesAfter === entriesBefore, 'Aucune entrée future n\'est écrite en base');
+
+    // Un biberon "maintenant" (aujourd'hui, heure actuelle) doit lui passer.
+    await page.evaluate(() => { setDateOffset(0); document.getElementById('now-btn').click(); });
+    await page.click('#save-btn');
+    await page.waitForTimeout(400);
+    const modalClosedAfterValid = await page.evaluate(() => document.getElementById('add-modal-overlay')?.classList.contains('hidden'));
+    assert(modalClosedAfterValid, 'Un biberon à l\'heure actuelle est bien accepté');
+    await page.close();
+  }
+
   await browser.close();
 
   console.log(`\n${'='.repeat(60)}`);
