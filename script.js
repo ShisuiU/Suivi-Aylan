@@ -3911,6 +3911,17 @@ function wireTabs(groupName){
       const tab = btn.getAttribute('data-tab');
       buttons.forEach(b => b.classList.toggle('active', b === btn));
       panels.forEach(p => p.classList.toggle('active', p.getAttribute('data-tab') === tab));
+      // Les courbes (.chart-scroll) sont scrollées vers la droite (valeur la
+      // plus récente) au rendu — mais un onglet masqué (display:none) a un
+      // scrollWidth de 0 au moment du rendu, donc ce scroll ne "prend" pas
+      // tant que l'onglet n'a jamais été affiché. On le refait ici, une fois
+      // le panneau réellement visible, pour les courbes qu'il contient.
+      const activePanel = document.querySelector(`.tab-panel[data-tab-group="${groupName}"].active`);
+      if(activePanel){
+        activePanel.querySelectorAll('.chart-scroll').forEach(el => {
+          requestAnimationFrame(() => { el.scrollLeft = el.scrollWidth; });
+        });
+      }
     });
   });
 }
