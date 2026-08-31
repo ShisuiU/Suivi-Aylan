@@ -192,7 +192,7 @@ async function toggleSleep(){
       return { id: sleepId, start: sleepStart };
     });
   }catch(e){
-    showToast("Erreur d'enregistrement");
+    showToast("Erreur d'enregistrement" + errorDetail(e), { duration: 4000 });
     return;
   }
   if(!result.committed) return; // transaction annulée côté serveur — l'utilisateur peut recliquer
@@ -285,6 +285,15 @@ function updateTimeFieldDisplay(){
 }
 function openNativePicker(input){
   try{ input.showPicker(); }catch(e){ input.focus(); }
+}
+
+// Extrait un identifiant lisible d'une erreur Firebase (ex. "PERMISSION_DENIED")
+// pour l'afficher dans le toast — sur Safari mobile il n'y a pas de console
+// développeur accessible, ce détail est donc la seule façon de diagnostiquer
+// un rejet serveur (règle .validate, permission, etc.) sans capture d'écran.
+function errorDetail(e){
+  const d = e && (e.code || e.message);
+  return d ? ` (${d})` : '';
 }
 
 function showToast(msg, opts){
@@ -466,7 +475,7 @@ async function saveFamilyName(){
     await db.ref('families/' + currentFamilyId + '/meta/name').set(name);
     showToast('Nom de la famille enregistré');
   }catch(e){
-    showToast("Erreur d'enregistrement du nom");
+    showToast("Erreur d'enregistrement du nom" + errorDetail(e), { duration: 4000 });
   }
 }
 
@@ -494,7 +503,7 @@ async function saveFamilyTimezone(){
     await db.ref('families/' + currentFamilyId + '/meta/timezone').set(tz);
     showToast('Fuseau horaire enregistré');
   }catch(e){
-    showToast("Erreur d'enregistrement du fuseau");
+    showToast("Erreur d'enregistrement du fuseau" + errorDetail(e), { duration: 4000 });
   }
 }
 
@@ -809,7 +818,7 @@ async function addEntryToDB(entry){
   try{
     await childRef('entries/' + entry.id).set(entry);
   }catch(e){
-    showToast("Erreur d'enregistrement");
+    showToast("Erreur d'enregistrement" + errorDetail(e), { duration: 4000 });
     throw e; // l'appelant ne doit jamais afficher un succès après un échec réel
   }
 }
@@ -948,7 +957,7 @@ async function saveProfile(){
     await childRef('profile').set({ firstName, lastName, birthDate, gender: selectedGender || null, avatar: profileAvatarDataUrl || null });
     showToast('Informations enregistrées');
   }catch(e){
-    showToast("Erreur d'enregistrement");
+    showToast("Erreur d'enregistrement" + errorDetail(e), { duration: 4000 });
   }finally{
     btn.disabled = false;
   }
@@ -1119,7 +1128,7 @@ async function saveGrowthEntry(){
     await childRef('growth/' + entry.id).set(entry);
     showToast(isEditing ? 'Mesure modifiée' : 'Mesure enregistrée');
   }catch(e){
-    showToast("Erreur d'enregistrement");
+    showToast("Erreur d'enregistrement" + errorDetail(e), { duration: 4000 });
   }finally{
     btn.disabled = false;
   }
@@ -1192,7 +1201,7 @@ async function addVaccine(){
     $('vaccine-date-input').value = '';
     showToast('Ajouté');
   }catch(e){
-    showToast("Erreur d'enregistrement");
+    showToast("Erreur d'enregistrement" + errorDetail(e), { duration: 4000 });
   }finally{
     btn.disabled = false;
   }
@@ -1335,7 +1344,7 @@ async function saveMilestone(){
     showToast('Souvenir enregistré');
     closeMilestoneModal();
   }catch(e){
-    showToast("Erreur d'enregistrement (photo peut-être trop lourde)");
+    showToast("Erreur d'enregistrement (photo peut-être trop lourde)" + errorDetail(e), { duration: 4000 });
   }finally{
     btn.disabled = false;
   }
