@@ -358,6 +358,31 @@ async function run() {
     await page.close();
   }
 
+  console.log('\n13. "Pas de couche" à l\'ajout d\'un biberon — n\'est pas compté comme un changement de couche');
+  {
+    const store = baseStore();
+    const page = await newPage(browser, store);
+    await page.click('#fab-btn');
+    await page.waitForTimeout(200);
+    await page.click('[data-val="skip"]');
+    await page.fill('#ml-input', '110');
+    await page.click('#save-btn');
+    await page.waitForTimeout(400);
+    const entries = getPath(store, 'families/fam1/children/c1/entries');
+    const saved = Object.values(entries).find((e) => e.ml === 110);
+    assert(!!saved && saved.diaper === 'skip', 'L\'entrée est bien enregistrée avec diaper:"skip"');
+    const logic = await page.evaluate(() => ({
+      label: diaperLabel('skip'),
+      isChangeSkip: isDiaperChange('skip'),
+      isChangeNone: isDiaperChange('none'),
+      isChangePipi: isDiaperChange('pipi'),
+    }));
+    assert(logic.label === 'Pas de couche', 'diaperLabel("skip") affiche "Pas de couche"');
+    assert(logic.isChangeSkip === false && logic.isChangeNone === false, '"skip" et "none" ne comptent pas comme un changement de couche');
+    assert(logic.isChangePipi === true, '"pipi" compte bien comme un changement de couche (pas de régression)');
+    await page.close();
+  }
+
   await browser.close();
 
   console.log(`\n${'='.repeat(60)}`);

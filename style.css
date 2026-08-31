@@ -426,6 +426,10 @@
   .quick-ml button.active{ background: var(--milk-dim); color: var(--milk); border-color: var(--milk-dim); }
 
   .diaper-row{ display:grid; grid-template-columns: repeat(4,1fr); gap:8px; }
+  /* #diaper-row seul a un 5e bouton ("Pas de couche") — scopé par id pour ne
+     pas retoucher .diaper-row, partagée avec #diaper-type-row (modale
+     couche), #health-stool-row et #profile-gender-row (voir §4.3). */
+  #diaper-row{ grid-template-columns: repeat(5,1fr); gap:6px; }
   .diaper-btn{
     background: var(--bg-2); border:1px solid var(--line); color: var(--ink-dim);
     padding: 12px 4px; border-radius:var(--radius-md); cursor:pointer; font-family:'Karla'; font-size:12px;

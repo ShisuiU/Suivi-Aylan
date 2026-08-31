@@ -1694,7 +1694,7 @@ function exportPDF(){
     const dayEntries = entries.filter(e => e.dayKey === dayKey);
     const bottles = dayEntries.filter(e => e.type === 'biberon');
     const totalMl = bottles.reduce((s,e) => s + (e.ml||0), 0);
-    const bottleDiapers = bottles.filter(e => e.diaper !== 'none').length;
+    const bottleDiapers = bottles.filter(e => isDiaperChange(e.diaper)).length;
     const standaloneDiapers = dayEntries.filter(e => e.type === 'diaper').length;
     const diaperCount = bottleDiapers + standaloneDiapers;
     const vomitCount = dayEntries.filter(e => e.type === 'vomit').length;
@@ -2010,12 +2010,19 @@ auth.onAuthStateChanged((user) => {
 });
 
 function diaperLabel(val){
-  return { none:'Couche sèche', pipi:'Pipi', caca:'Caca', both:'Pipi + caca' }[val] || '';
+  return { none:'Couche sèche', pipi:'Pipi', caca:'Caca', both:'Pipi + caca', skip:'Pas de couche' }[val] || '';
 }
 function diaperIcon(val){
   const droplet = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3c-3 4-6 8-6 11.5A6 6 0 0 0 12 21a6 6 0 0 0 6-6.5C18 11 15 7 12 3z"/></svg>';
   const both = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8.5 4c-1.8 2.2-3.5 4.6-3.5 6.8A3.5 3.5 0 0 0 8.5 14a3.5 3.5 0 0 0 3.5-3.2C12 8.6 10.3 6.2 8.5 4z"/><path d="M15.5 9c-1.5 1.9-3 3.9-3 5.8a3 3 0 0 0 3 3 3 3 0 0 0 3-3c0-1.9-1.5-3.9-3-5.8z" opacity=".55"/></svg>';
-  return { none:'·', pipi:droplet, caca:'●', both }[val] || '·';
+  return { none:'·', pipi:droplet, caca:'●', both, skip:'–' }[val] || '·';
+}
+// "none" (couche sèche) et "skip" (couche pas changée) décrivent deux
+// situations différentes mais aucune des deux n'est un changement de couche
+// à proprement parler — regroupées ici pour que les compteurs/statistiques
+// de couches n'aient qu'un seul endroit à tenir à jour si un 3e cas apparaît.
+function isDiaperChange(val){
+  return !!val && val !== 'none' && val !== 'skip';
 }
 
 // Un objet Date représente un instant précis (son epoch interne) — ses
@@ -2210,7 +2217,7 @@ function maybeShowDailySummary(){
 
   const bottles = yEntries.filter(e => e.type === 'biberon');
   const totalMl = bottles.reduce((s,e) => s + (e.ml || 0), 0);
-  const bottleDiaperCount = bottles.filter(e => e.diaper && e.diaper !== 'none').length;
+  const bottleDiaperCount = bottles.filter(e => isDiaperChange(e.diaper)).length;
   const diaperCount = bottleDiaperCount + yEntries.filter(e => e.type === 'diaper').length;
   const vomitCount = yEntries.filter(e => e.type === 'vomit').length;
   const sleepEntries = yEntries.filter(e => e.type === 'sleep' && (e.durationMin != null || e.end != null));
@@ -2563,7 +2570,7 @@ function renderStats(){
   const bottlesToday = todays.filter(e => e.type === 'biberon');
   const totalMl = bottlesToday.reduce((s,e)=> s + (e.ml||0), 0);
   const feedCount = bottlesToday.length;
-  const bottleDiaperCount = bottlesToday.filter(e => e.diaper !== 'none').length;
+  const bottleDiaperCount = bottlesToday.filter(e => isDiaperChange(e.diaper)).length;
   const standaloneDiaperCount = todays.filter(e => e.type === 'diaper').length;
   const diaperCount = bottleDiaperCount + standaloneDiaperCount;
   const vomitCount = todays.filter(e => e.type === 'vomit').length;
@@ -2679,7 +2686,7 @@ function buildDailySummaryText(){
   const bottlesToday = todays.filter(e => e.type === 'biberon');
   const totalMl = bottlesToday.reduce((s,e)=> s + (e.ml||0), 0);
   const feedCount = bottlesToday.length;
-  const bottleDiaperCount = bottlesToday.filter(e => e.diaper !== 'none').length;
+  const bottleDiaperCount = bottlesToday.filter(e => isDiaperChange(e.diaper)).length;
   const standaloneDiaperCount = todays.filter(e => e.type === 'diaper').length;
   const diaperCount = bottleDiaperCount + standaloneDiaperCount;
   const vomitCount = todays.filter(e => e.type === 'vomit').length;
@@ -2920,7 +2927,7 @@ function selectFilterType(type){
 }
 
 function entrySearchSummaryLabel(e){
-  if(e.type === 'biberon') return `🍼 ${e.ml} ml` + (e.diaper !== 'none' ? ' · ' + diaperLabel(e.diaper) : '');
+  if(e.type === 'biberon') return `🍼 ${e.ml} ml` + (isDiaperChange(e.diaper) ? ' · ' + diaperLabel(e.diaper) : '');
   if(e.type === 'diaper') return `💧 ${diaperLabel(e.diaper)}`;
   if(e.type === 'vomit') return '🤮 Vomissement';
   if(e.type === 'sleep') return '🌙 Sommeil' + (e.end != null ? ' · ' + formatDuration(e.durationMin != null ? e.durationMin : (e.end - e.start) / 60000) : ' · en cours');
@@ -3022,7 +3029,7 @@ function renderCalendar(){
   const monthBottles = monthEntries.filter(e => e.type === 'biberon');
   const monthMl = monthBottles.reduce((s, e) => s + (e.ml || 0), 0);
   const monthDiaperCount = monthEntries.filter(e => e.type === 'diaper').length
-    + monthBottles.filter(e => e.diaper !== 'none').length;
+    + monthBottles.filter(e => isDiaperChange(e.diaper)).length;
   $('cal-month-stats').innerHTML = monthEntries.length ? `
     <span><b>${monthBottles.length}</b> biberon${monthBottles.length > 1 ? 's' : ''}</span>
     <span><b>${monthMl}</b> ml</span>

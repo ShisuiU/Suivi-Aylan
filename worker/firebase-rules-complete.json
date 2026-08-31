@@ -60,7 +60,7 @@
                 ".validate": "newData.hasChildren(['id', 'type', 'timestamp', 'dayKey'])",
                 "type": { ".validate": "newData.val() == 'biberon' || newData.val() == 'diaper' || newData.val() == 'sleep' || newData.val() == 'vomit' || newData.val() == 'health'" },
                 "ml": { ".validate": "newData.val() == null || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000)" },
-                "diaper": { ".validate": "newData.val() == null || newData.val() == 'none' || newData.val() == 'pipi' || newData.val() == 'caca' || newData.val() == 'both'" },
+                "diaper": { ".validate": "newData.val() == null || newData.val() == 'none' || newData.val() == 'pipi' || newData.val() == 'caca' || newData.val() == 'both' || newData.val() == 'skip'" },
                 "comment": { ".validate": "newData.val() == null || (newData.isString() && newData.val().length <= 500)" },
                 "timestamp": { ".validate": "newData.isNumber()" },
                 "dayKey": { ".validate": "newData.isString() && newData.val().matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/)" },

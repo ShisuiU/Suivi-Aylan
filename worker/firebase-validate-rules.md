@@ -1,3 +1,9 @@
+> **Mise à jour (4e round) — nouvelle valeur `'skip'` pour `diaper`** sur
+> `entries/$entryId/diaper` : jusqu'ici cette énumération ne couvrait que ce qui a été *trouvé* dans la couche au moment
+> du biberon (`none`/`pipi`/`caca`/`both`, toutes impliquant qu'un contrôle a eu lieu). `'skip'` couvre le cas où la
+> couche n'a tout simplement pas été changée — un 5e bouton "Pas de couche" dans la modale d'ajout d'un biberon.
+> **À republier** : recopie l'intégralité de `firebase-rules-complete.json`.
+
 > **Mise à jour (3e round) — nouveau champ `lastEditedBy`** sur
 > `entries/$entryId` (`families/$familyId/children/$childId/entries/$entryId/lastEditedBy`) : contrairement à
 > `authorEmail` (préservé tel quel à l'édition), ce champ est réécrit à chaque sauvegarde avec l'email de la personne qui
