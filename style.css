@@ -579,6 +579,38 @@
     }
   }
 
+  /* "Dernier biberon" respire doucement en continu, en plus de son apparition
+     initiale — combiné au sweep déjà en place, c'est la carte la plus vivante
+     de l'écran (cohérent avec son rôle de pièce maîtresse). */
+  .stat-hero{
+    animation: blockFadeIn .4s cubic-bezier(.22,1,.36,1) backwards, heroBreathe 4.5s ease-in-out 1.2s infinite;
+  }
+  @keyframes heroBreathe{
+    0%,100%{ box-shadow: var(--shadow-card), var(--shadow-hero); }
+    50%{ box-shadow: var(--shadow-card), var(--shadow-lift), 0 0 36px -4px var(--milk-light); }
+  }
+  @media (prefers-reduced-motion: reduce){ .stat-hero{ animation:none; } }
+
+  /* Rebond léger des chiffres à chaque rendu (ajout d'une entrée, retour sur
+     Aujourd'hui...) — le conteneur étant recréé via innerHTML à chaque fois,
+     l'animation se rejoue à chaque changement de données, pas seulement au
+     premier chargement. */
+  @keyframes numPop{
+    0%{ opacity:0; transform: scale(.75); }
+    65%{ opacity:1; transform: scale(1.06); }
+    100%{ opacity:1; transform: scale(1); }
+  }
+  .stat-hero .num, .bento-wide .v, .bento-small .v, .stat .num, .cs-stat .v{
+    display:inline-block; animation: numPop .45s cubic-bezier(.22,1.4,.36,1) backwards;
+  }
+  .stat-hero .num{ animation-delay:.08s; }
+  .bento-wide .v{ animation-delay:.14s; }
+  .bento-small:nth-of-type(2) .v{ animation-delay:.18s; }
+  .bento-small:nth-of-type(3) .v{ animation-delay:.22s; }
+  @media (prefers-reduced-motion: reduce){
+    .stat-hero .num, .bento-wide .v, .bento-small .v, .stat .num, .cs-stat .v{ animation:none; }
+  }
+
   /* ===========================================================
      AURORE DE FOND — signature animée de "Halo" : trois halos flous qui
      dérivent lentement derrière les cartes en verre (--glass-*). Un seul
@@ -591,16 +623,19 @@
     position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none;
   }
   .aurora-bg i{
-    position:absolute; display:block; border-radius:50%; filter: blur(70px);
-    opacity: .4;
+    position:absolute; display:block; border-radius:50%; filter: blur(64px);
+    opacity: .5;
   }
-  html[data-theme="dark"] .aurora-bg i{ opacity:.5; }
-  .aurora-bg i:nth-child(1){ width:320px; height:320px; background: var(--aurora-1); top:-110px; left:-90px; animation: auroraDrift1 17s ease-in-out infinite; }
-  .aurora-bg i:nth-child(2){ width:300px; height:300px; background: var(--aurora-2); top:26%; right:-130px; animation: auroraDrift2 20s ease-in-out infinite; }
-  .aurora-bg i:nth-child(3){ width:280px; height:280px; background: var(--aurora-3); bottom:-100px; left:18%; animation: auroraDrift3 15s ease-in-out infinite; }
-  @keyframes auroraDrift1{ 0%,100%{ transform: translate(0,0) scale(1); } 50%{ transform: translate(40px,-36px) scale(1.14); } }
-  @keyframes auroraDrift2{ 0%,100%{ transform: translate(0,0) scale(1); } 50%{ transform: translate(-34px,42px) scale(1.1); } }
-  @keyframes auroraDrift3{ 0%,100%{ transform: translate(0,0) scale(1); } 50%{ transform: translate(28px,26px) scale(1.08); } }
+  html[data-theme="dark"] .aurora-bg i{ opacity:.62; }
+  .aurora-bg i:nth-child(1){ width:340px; height:340px; background: var(--aurora-1); top:-110px; left:-90px; animation: auroraDrift1 13s ease-in-out infinite; }
+  .aurora-bg i:nth-child(2){ width:320px; height:320px; background: var(--aurora-2); top:26%; right:-140px; animation: auroraDrift2 15s ease-in-out infinite; }
+  .aurora-bg i:nth-child(3){ width:300px; height:300px; background: var(--aurora-3); bottom:-110px; left:18%; animation: auroraDrift3 11s ease-in-out infinite; }
+  .aurora-bg i:nth-child(4){ width:220px; height:220px; background: var(--aurora-2); top:52%; left:38%; opacity:.35; animation: auroraDrift4 18s ease-in-out infinite; }
+  html[data-theme="dark"] .aurora-bg i:nth-child(4){ opacity:.4; }
+  @keyframes auroraDrift1{ 0%,100%{ transform: translate(0,0) scale(1); } 50%{ transform: translate(52px,-46px) scale(1.22); } }
+  @keyframes auroraDrift2{ 0%,100%{ transform: translate(0,0) scale(1); } 50%{ transform: translate(-46px,54px) scale(1.16); } }
+  @keyframes auroraDrift3{ 0%,100%{ transform: translate(0,0) scale(1); } 50%{ transform: translate(38px,34px) scale(1.14); } }
+  @keyframes auroraDrift4{ 0%,100%{ transform: translate(0,0) scale(1); } 50%{ transform: translate(-30px,-24px) scale(1.2); } }
 
   /* Anneau de pulsation — avatar de l'enfant et bouton d'ajout (.fab) :
      l'app "respire" au lieu de rester figée. */
@@ -628,14 +663,21 @@
   .fab{
     position:fixed; right:20px; bottom: calc(94px + env(safe-area-inset-bottom));
     width:58px; height:58px; border-radius:19px;
-    background: var(--milk); color: var(--on-accent);
+    background: radial-gradient(circle at 30% 25%, var(--milk-light), var(--milk) 65%);
+    color: var(--on-accent);
     border:none; box-shadow: var(--shadow-hero); display:flex; align-items:center;
     justify-content:center; cursor:pointer; z-index:20;
     transition: background-color .3s ease, transform .28s cubic-bezier(.34,1.56,.64,1);
+    animation: fabBreathe 3.2s ease-in-out infinite;
   }
-  .fab:active{ transform: scale(0.9); }
+  .fab:active{ transform: scale(0.9); animation-play-state:paused; }
   .fab svg{ transition: transform .3s cubic-bezier(.34,1.56,.64,1); }
   .fab.is-open svg{ transform: rotate(45deg); }
+  @keyframes fabBreathe{
+    0%,100%{ box-shadow: var(--shadow-hero); }
+    50%{ box-shadow: var(--shadow-card), 0 0 0 10px rgba(139,107,255,.16), 0 22px 50px -14px rgba(139,107,255,.6); }
+  }
+  @media (prefers-reduced-motion: reduce){ .fab{ animation:none; } }
 
   /* Navigation flottante du bas */
   .bottom-nav{
@@ -656,11 +698,17 @@
   .bottom-nav-btn svg{ position:relative; z-index:1; transition: transform .2s cubic-bezier(.34,1.56,.64,1); }
   .bottom-nav-btn.active{ color: var(--on-accent); }
   .bottom-nav-btn.active svg{ transform: scale(1.08); }
-  .bottom-nav-btn.active::before{
+  /* Pastille toujours présente (masquée) plutôt qu'apparue seulement via
+     .active — permet un vrai "pop" ressort au changement d'onglet au lieu
+     d'un simple bloc qui apparaît/disparaît instantanément. */
+  .bottom-nav-btn::before{
     content:''; position:absolute; inset:0; border-radius:999px;
     background: var(--milk);
     box-shadow: var(--shadow-gloss), 0 4px 10px -4px rgba(110,86,214,.5);
+    opacity:0; transform: scale(.55);
+    transition: opacity .3s ease, transform .38s cubic-bezier(.34,1.56,.64,1);
   }
+  .bottom-nav-btn.active::before{ opacity:1; transform: scale(1); }
   .bottom-nav-btn:active{ transform: scale(0.88); }
 
   /* Rail de navigation desktop — masqué par défaut, affiché à partir de 900px
