@@ -1022,7 +1022,12 @@ function bindGrowthButtons(container){
 function renderGrowthList(){
   const container = $('growth-list');
   if(!growthEntries.length){
-    container.innerHTML = `<div class="empty">Aucune mesure enregistrée pour l'instant.</div>`;
+    container.innerHTML = `
+      <div class="empty-rich">
+        <img src="images/pacifier-hero.webp" alt="" aria-hidden="true">
+        <h4>Pas encore de mesure</h4>
+        <p>Poids, taille, périmètre crânien : la première mesure trace le début de la courbe.</p>
+      </div>`;
     return;
   }
   const sorted = [...growthEntries].sort((a,b) => b.date.localeCompare(a.date));
@@ -1232,7 +1237,13 @@ function renderMilestones(){
   const grid = $('milestone-grid');
   if(!grid) return;
   if(!milestonesList.length){
-    grid.innerHTML = '';
+    // Auparavant : conteneur vidé, donc écran totalement nu sous le titre.
+    grid.innerHTML = `
+      <div class="empty-rich" style="flex:1;">
+        <img src="images/booties-hero.webp" alt="" aria-hidden="true">
+        <h4>Aucun souvenir pour l'instant</h4>
+        <p>Une première dent, un premier sourire, une photo — tout ce que tu veux garder.</p>
+      </div>`;
     return;
   }
   grid.innerHTML = milestonesList.map(m => `
@@ -2931,7 +2942,18 @@ function renderTodayTimeline(){
   const todays = entries.filter(e => e.dayKey === today).sort((a,b)=> a.timestamp - b.timestamp);
 
   if(!todays.length){
-    container.innerHTML = `<div class="empty">Aucun biberon aujourd'hui pour le moment.<br>Ajoutez le premier ci-dessus.</div>`;
+    // État vide illustré plutôt qu'une ligne de texte gris : c'est le premier
+    // écran que voit un parent au réveil, et le seul contenu de la page tant
+    // que rien n'est enregistré (voir .empty-rich dans style.css).
+    container.innerHTML = `
+      <div class="empty-rich">
+        <img src="images/bunny-hero.webp" alt="" aria-hidden="true">
+        <h4>La journée commence</h4>
+        <p>Rien d'enregistré pour l'instant. Le premier biberon apparaîtra ici.</p>
+        <button class="empty-rich-btn" id="empty-add-bottle-btn" type="button">Ajouter un biberon</button>
+      </div>`;
+    const emptyBtn = $('empty-add-bottle-btn');
+    if(emptyBtn) emptyBtn.addEventListener('click', openAddModal);
     return;
   }
 

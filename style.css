@@ -277,6 +277,12 @@
     pointer-events:none; filter: drop-shadow(0 14px 14px rgba(43,35,64,.32));
   }
   .stat-hero.stat-hero-welcome{ padding-right:20px; }
+  /* Le libellé d'accueil est une phrase, pas un chiffre : il doit pouvoir
+     passer à la ligne, alors que .stat-hero .num force white-space:nowrap
+     pour garder "1 h 30 min" sur une seule ligne. Sans ça, "Ajoute le
+     premier biberon de <prénom>" débordait et était coupé par le clip-path
+     de la carte. */
+  .stat-hero.stat-hero-welcome .num{ white-space:normal; line-height:1.25; }
   .stat-hero .num{ position:relative; font-family:'JetBrains Mono', monospace; font-variant-numeric:tabular-nums; font-size: 32px; font-weight:700; letter-spacing:-.01em; white-space:nowrap; }
   .stat-hero .lbl{
     position:relative; font-size: 11px; text-transform:uppercase; letter-spacing:.1em; color: var(--ink-dim); font-weight:600;
@@ -1258,6 +1264,38 @@
     position:absolute; top:6px; right:6px; width:24px; height:24px; border-radius:50%;
     background:rgba(10,20,35,.55); color: var(--on-accent); border:none; cursor:pointer; font-size:12px;
   }
+  /* ===========================================================
+     ÉTATS VIDES ILLUSTRÉS — remplacent la simple ligne de texte gris
+     (.empty) là où l'écran serait autrement complètement nu : première
+     journée sans entrée, aucun souvenir, aucune mesure. Classe distincte
+     de .empty, qui reste utilisée telle quelle pour les cas secondaires
+     (jour vide du calendrier, liste de vaccins) où une illustration
+     pleine largeur serait disproportionnée.
+     =========================================================== */
+  .empty-rich{
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+    padding: 26px 20px 22px; margin-top:4px;
+    background: var(--glass-bg); border:1px solid var(--glass-border); border-radius: var(--radius);
+    -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
+    animation: blockFadeIn .45s cubic-bezier(.22,1,.36,1) backwards;
+  }
+  .empty-rich img{
+    width:124px; height:auto; margin-bottom:14px;
+    filter: drop-shadow(0 14px 16px rgba(43,35,64,.28));
+  }
+  html[data-theme="dark"] .empty-rich img{ filter: drop-shadow(0 14px 20px rgba(0,0,0,.55)); }
+  .empty-rich h4{ margin:0 0 6px; font-size:15px; font-weight:700; color: var(--ink); }
+  .empty-rich p{ margin:0; font-size:12.5px; line-height:1.55; color: var(--ink-dim); max-width:30ch; }
+  .empty-rich .empty-rich-btn{
+    margin-top:16px; background: linear-gradient(135deg, var(--milk-light), var(--milk));
+    color: var(--on-accent); border:none; font-family:'Sora'; font-weight:700; font-size:13px;
+    padding:11px 20px; border-radius:999px; cursor:pointer;
+    box-shadow: var(--shadow-gloss), 0 6px 16px -8px var(--milk);
+    transition: transform .12s ease;
+  }
+  .empty-rich .empty-rich-btn:active{ transform: scale(.96); }
+  @media (prefers-reduced-motion: reduce){ .empty-rich{ animation:none; } }
+
   .milestone-add-btn{
     display:flex; align-items:center; justify-content:center; gap:6px;
     background: var(--bg-2); border:1px dashed var(--line); color: var(--ink-dim);
@@ -1299,6 +1337,35 @@
   .search-result-comment mark{ background: var(--milk-dim); color: var(--milk); border-radius:3px; padding:0 2px; }
   .search-no-results{ text-align:center; color: var(--ink-faint); font-size:13px; padding:20px 10px; }
   .cal-search-panel{ margin-bottom:14px; }
+
+  /* ===========================================================
+     PHOTO D'EN-TÊTE PAR ÉCRAN — même geste que la photo du biberon sur
+     .stat-hero (débordement dans le coin bas-droit, clip-path pour que le
+     filter de l'ombre ne casse pas l'arrondi du parent, contenu décalé à
+     gauche pour ne pas passer dessous). Classes modificatrices dédiées
+     (.cal-nav-photo, .profile-hero-photo) plutôt que la classe de base :
+     .cal-nav et .profile-hero servent aussi ailleurs sans photo (§4.3).
+     =========================================================== */
+  .view-hero-photo{
+    position:absolute; right:-14px; bottom:-12px; width:104px; height:auto;
+    pointer-events:none; filter: drop-shadow(0 12px 14px rgba(43,35,64,.3));
+  }
+  html[data-theme="dark"] .view-hero-photo{ filter: drop-shadow(0 12px 16px rgba(0,0,0,.5)); }
+
+  .cal-nav-photo{
+    position:relative; overflow:hidden; clip-path: inset(0 round var(--radius));
+  }
+  .cal-nav-photo .cal-nav-top,
+  .cal-nav-photo .cal-nav-stats{ position:relative; padding-right:74px; }
+
+  .profile-hero-photo{ clip-path: inset(0 round var(--radius)); }
+  /* Photo plus petite ici que sur les autres écrans, et âge autorisé à
+     passer sur deux lignes : "Aylan · 9 mois et 18 jours" est l'info
+     principale de la carte, hors de question de la tronquer pour laisser
+     de la place à l'illustration. */
+  .profile-hero-photo .view-hero-photo{ width:84px; right:-16px; bottom:-14px; }
+  .profile-hero-photo .profile-hero-info{ padding-right:58px; }
+  .profile-hero-photo .profile-hero-info .num{ white-space:normal; overflow:visible; line-height:1.25; }
 
   .cal-nav{
     display:flex; flex-direction:column;
