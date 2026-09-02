@@ -61,13 +61,26 @@ function todayKeyFor(tz) {
   return `${y}-${m}-${d}`;
 }
 
+// Une heure "HH:MM" garantie dans le passé proche (maintenant - 5 min), pour les
+// fixtures d'entrées du jour — un horaire codé en dur (ex. "09:00") est refusé
+// par le garde-fou "pas de biberon futur" quand les tests tournent tôt le matin.
+// Volontairement dans le fuseau LOCAL du bac à sable (pas TEST_TZ) : saveEntry()
+// construit sa comparaison via `new Date(y, mo-1, d, h, m)`, qui est toujours
+// interprété dans le fuseau local du navigateur — utiliser l'heure "murale" de
+// TEST_TZ ici a déjà produit un décalage de 2h (Europe/Paris vs bac à sable en
+// UTC) et un faux échec des tests d'édition.
+function nowTimeFor() {
+  const d = new Date(Date.now() - 5 * 60000);
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
 function baseStore() {
   const s = {};
   setPath(s, 'families/fam1/meta', { name: 'Famille Test', features: { sleep: false, health: false, vaccines: false }, reminder: { enabled: false, thresholdMinutes: 210 }, timezone: TEST_TZ });
   setPath(s, 'families/fam1/children/c1/profile', { firstName: 'Test', lastName: 'Enfant', birthDate: '2026-01-15', gender: 'M' });
   setPath(s, 'families/fam1/children/c1/meta', { order: 0 });
   setPath(s, 'families/fam1/children/c1/entries', {
-    e1: { id: 'e1', type: 'biberon', ml: 120, diaper: 'none', timestamp: Date.now(), dayKey: todayKeyFor(TEST_TZ), time: '09:00', updatedAt: 1000 },
+    e1: { id: 'e1', type: 'biberon', ml: 120, diaper: 'none', timestamp: Date.now(), dayKey: todayKeyFor(TEST_TZ), time: nowTimeFor(), updatedAt: 1000 },
   });
   setPath(s, 'families/fam1/children/c1/growth', {});
   setPath(s, 'families/fam1/children/c1/vaccines', {});
@@ -296,7 +309,7 @@ async function run() {
   console.log('\n10. Édition d\'un biberon créé par quelqu\'un d\'autre — lastEditedBy renseigné, authorEmail préservé');
   {
     const store = baseStore();
-    setPath(store, 'families/fam1/children/c1/entries/e1', { id: 'e1', type: 'biberon', ml: 120, diaper: 'none', timestamp: Date.now(), dayKey: todayKeyFor(TEST_TZ), time: '09:00', updatedAt: 1000, authorEmail: 'autre-parent@example.com' });
+    setPath(store, 'families/fam1/children/c1/entries/e1', { id: 'e1', type: 'biberon', ml: 120, diaper: 'none', timestamp: Date.now(), dayKey: todayKeyFor(TEST_TZ), time: nowTimeFor(), updatedAt: 1000, authorEmail: 'autre-parent@example.com' });
     const page = await newPage(browser, store);
     await page.evaluate(() => startEdit('e1'));
     await page.waitForTimeout(200);

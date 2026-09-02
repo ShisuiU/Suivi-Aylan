@@ -108,7 +108,7 @@ function applyTheme(theme){
   const switchBtn = $('theme-toggle-switch');
   if(switchBtn) switchBtn.classList.toggle('active', theme === 'dark');
   const metaTheme = document.querySelector('meta[name="theme-color"]');
-  if(metaTheme) metaTheme.setAttribute('content', theme === 'dark' ? '#221a16' : '#fbf6f0');
+  if(metaTheme) metaTheme.setAttribute('content', theme === 'dark' ? '#0a0d18' : '#f5f2fb');
   try{ localStorage.setItem('aylan-theme', theme); }catch(e){}
 }
 
