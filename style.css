@@ -228,6 +228,24 @@
      mini-stats n'ont plus ni fond ni bordure propres, juste de l'espacement,
      pour rester lisibles comme un même bloc plutôt que des cartes empilées. */
   #stat-hero-container{ display:flex; margin-bottom:18px; }
+
+  /* Bande défilante de stats du jour — reste discrète (texte petit, teinte
+     atténuée, cycle lent) : une seule chose ambiante qui bouge en continu,
+     pas un élément qui capte l'attention. Masquée tant qu'il n'y a rien à
+     résumer (renderTodayTicker vide le conteneur). */
+  #today-ticker-container:empty{ display:none; }
+  .today-ticker{
+    margin: 4px 0 20px; border-top:1px solid var(--glass-border); border-bottom:1px solid var(--glass-border);
+    overflow:hidden; white-space:nowrap;
+  }
+  .today-ticker-track{ display:inline-block; padding:7px 0; animation: tickerScroll 24s linear infinite; }
+  .today-ticker span{
+    display:inline-block; padding:0 14px; font-family:'JetBrains Mono', monospace;
+    font-size:10px; font-weight:600; letter-spacing:.04em; color: var(--ink-faint); text-transform:uppercase;
+  }
+  .today-ticker span b{ color: var(--milk-light); font-weight:700; }
+  @keyframes tickerScroll{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce){ .today-ticker-track{ animation:none; } }
   .stat-hero{
     position:relative; overflow:hidden;
     /* overflow:hidden seul ne suffit pas partout : un enfant avec un
@@ -567,22 +585,40 @@
     from{ opacity:0; transform: translateY(10px); }
     to{ opacity:1; transform: translateY(0); }
   }
-  .card, .stat, .qa-btn, .settings-section, .feature-page-card, .child-chip,
+  .card, .stat, .qa-btn, .feature-page-card, .child-chip,
   .search-result-item, .milestone-card, .stat-hero, .profile-hero, .chart-scroll{
     animation: blockFadeIn .4s cubic-bezier(.22,1,.36,1) backwards;
   }
-  .qa-btn:nth-child(1){ animation-delay: .03s; }
-  .qa-btn:nth-child(2){ animation-delay: .06s; }
-  .qa-btn:nth-child(3){ animation-delay: .09s; }
-  .qa-btn:nth-child(4){ animation-delay: .12s; }
-  .stat:nth-child(1){ animation-delay: .03s; }
-  .stat:nth-child(2){ animation-delay: .06s; }
-  .stat:nth-child(3){ animation-delay: .09s; }
+  /* Délais espacés plutôt que quasi simultanés (0,03-0,12s à l'origine) —
+     une chose entre, puis la suivante, à la façon d'apple.com plutôt que
+     tout l'écran qui bouge d'un coup à l'ouverture. */
+  .qa-btn:nth-child(1){ animation-delay: .18s; }
+  .qa-btn:nth-child(2){ animation-delay: .23s; }
+  .qa-btn:nth-child(3){ animation-delay: .28s; }
+  .qa-btn:nth-child(4){ animation-delay: .33s; }
+  .stat:nth-child(1){ animation-delay: .05s; }
+  .stat:nth-child(2){ animation-delay: .1s; }
+  .stat:nth-child(3){ animation-delay: .15s; }
   @media (prefers-reduced-motion: reduce){
-    .card, .stat, .qa-btn, .settings-section, .feature-page-card, .child-chip,
+    .card, .stat, .qa-btn, .feature-page-card, .child-chip,
     .search-result-item, .milestone-card, .stat-hero, .profile-hero, .chart-scroll, .entry{
       animation: none;
     }
+  }
+
+  /* Révélation au défilement (inspirée du GSAP ScrollTrigger vu sur
+     ciaokombucha.com) — appliquée via JS (initScrollReveal) plutôt qu'à
+     l'ouverture d'écran comme .blockFadeIn : les sections qui composent
+     Paramètres apparaissent une par une à mesure qu'on descend la page,
+     pas toutes d'un coup. Se révèle une seule fois (l'observateur se
+     désabonne après), jamais en boucle au grappé haut/bas. */
+  .scroll-reveal{
+    opacity:0; transform: translateY(16px);
+    transition: opacity .5s cubic-bezier(.22,1,.36,1), transform .5s cubic-bezier(.22,1,.36,1);
+  }
+  .scroll-reveal.revealed{ opacity:1; transform: translateY(0); }
+  @media (prefers-reduced-motion: reduce){
+    .scroll-reveal{ opacity:1; transform:none; transition:none; }
   }
 
   /* ===========================================================
@@ -1196,8 +1232,17 @@
   .vaccine-add-row input[type="date"]{ flex:1.4; }
 
   /* Souvenirs / étapes clés */
-  .milestone-grid{ display:grid; grid-template-columns: repeat(2,1fr); gap:10px; margin-top:14px; }
+  /* Carrousel horizontal plutôt que grille figée (inspiré du glissement
+     produit vu sur ciaokombucha.com) — se prête mieux à une collection de
+     souvenirs qui grandit dans le temps qu'une grille qui se contente de
+     s'allonger verticalement. */
+  .milestone-grid{
+    display:flex; gap:10px; overflow-x:auto; scroll-snap-type:x proximity;
+    -webkit-overflow-scrolling:touch; padding:2px 2px 8px; margin-top:14px; scrollbar-width:none;
+  }
+  .milestone-grid::-webkit-scrollbar{ display:none; }
   .milestone-card{
+    flex:0 0 132px; scroll-snap-align:start;
     background: var(--glass-bg); border:1px solid var(--glass-border); border-radius:14px; overflow:hidden; position:relative;
     -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
   }

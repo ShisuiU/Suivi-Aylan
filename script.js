@@ -2686,7 +2686,30 @@ function renderStats(){
     vomitBadge.classList.toggle('hidden', vomitCount === 0);
   }
 
+  renderTodayTicker(totalMl, feedCount, diaperCount, vomitCount);
   checkReminderNotification(overdue, lastBottleTimestamp);
+}
+
+// Bande défilante de stats du jour (inspirée des bandes "marquee" vues sur
+// ciaokombucha.com) — reste factuelle plutôt que décorative : une seule
+// occurrence dans l'app (Aujourd'hui), masquée tant qu'il n'y a rien à
+// résumer, jamais un doublon pur du bloc "Dernier biberon" juste au-dessus.
+function renderTodayTicker(totalMl, feedCount, diaperCount, vomitCount){
+  const el = $('today-ticker-container');
+  if(!el) return;
+  if(!feedCount && !diaperCount && !vomitCount){ el.innerHTML = ''; return; }
+
+  const stats = [`<b>${totalMl}</b> ml aujourd'hui`, `<b>${diaperCount}</b> couche${diaperCount > 1 ? 's' : ''}`];
+  if(familyFeatures.sleep){
+    const today = todayKey(new Date());
+    const sleepToday = entries.filter(e => e.dayKey === today && e.type === 'sleep' && e.end != null);
+    const totalSleepMin = sleepToday.reduce((s,e) => s + (e.durationMin != null ? e.durationMin : (e.end - e.start) / 60000), 0);
+    if(totalSleepMin > 0) stats.push(`<b>${formatDuration(totalSleepMin)}</b> de sommeil`);
+  }
+  if(vomitCount) stats.push(`<b>${vomitCount}</b> vomissement${vomitCount > 1 ? 's' : ''}`);
+
+  const items = stats.map(s => `<span>${s}</span>`).join('');
+  el.innerHTML = `<div class="today-ticker"><div class="today-ticker-track">${items}${items}</div></div>`;
 }
 
 function buildDailySummaryText(){
@@ -4301,3 +4324,37 @@ document.addEventListener('visibilitychange', () => {
     renderAgeHero();
   }
 });
+
+// Révélation au défilement — voir .scroll-reveal dans style.css. Les
+// éléments déjà visibles à l'écran au moment d'observer (ex. les premières
+// sections de Paramètres sur un grand écran) sont révélés immédiatement :
+// pas de contenu qui reste invisible en attendant un scroll qui n'arrivera
+// peut-être jamais (voir la même exigence pour les artefacts publiés).
+function initScrollReveal(selector){
+  const els = document.querySelectorAll(selector);
+  if(!els.length) return;
+  let reduced = false;
+  try{ reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+  if(reduced || !window.IntersectionObserver){
+    els.forEach(el => el.classList.add('revealed'));
+    return;
+  }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('revealed');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -30px 0px' });
+  els.forEach(el => {
+    el.classList.add('scroll-reveal');
+    const rect = el.getBoundingClientRect();
+    if(rect.top < window.innerHeight && rect.bottom > 0){
+      el.classList.add('revealed');
+    }else{
+      observer.observe(el);
+    }
+  });
+}
+initScrollReveal('.settings-section');
