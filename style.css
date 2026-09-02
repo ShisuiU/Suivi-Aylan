@@ -323,12 +323,14 @@
   .tab-btn{
     flex:1; background:none; border:none; color: var(--ink-dim);
     font-family:'Sora'; font-weight:700; font-size:13px; padding:11px; border-radius:999px;
-    cursor:pointer; transition: color .2s ease;
+    cursor:pointer;
+    transition: color .2s ease, background-color .3s ease, box-shadow .3s ease, transform .25s cubic-bezier(.34,1.56,.64,1);
   }
   .tab-btn.hidden{ display:none; }
   .tab-btn.active{
     color: var(--on-accent); background: var(--milk);
     box-shadow: var(--shadow-gloss), 0 4px 10px -4px rgba(110,86,214,.5);
+    transform: scale(1.03);
   }
   .tab-panel{ display:none; }
   .tab-panel.active{ display:block; animation: blockFadeIn .35s cubic-bezier(.22,1,.36,1); }
@@ -600,7 +602,7 @@
     65%{ opacity:1; transform: scale(1.06); }
     100%{ opacity:1; transform: scale(1); }
   }
-  .stat-hero .num, .bento-wide .v, .bento-small .v, .stat .num, .cs-stat .v{
+  .stat-hero .num, .bento-wide .v, .bento-small .v, .stat .num, .cs-stat .v, .profile-hero-info .num, .cal-nav-stats b{
     display:inline-block; animation: numPop .45s cubic-bezier(.22,1.4,.36,1) backwards;
   }
   .stat-hero .num{ animation-delay:.08s; }
@@ -608,7 +610,7 @@
   .bento-small:nth-of-type(2) .v{ animation-delay:.18s; }
   .bento-small:nth-of-type(3) .v{ animation-delay:.22s; }
   @media (prefers-reduced-motion: reduce){
-    .stat-hero .num, .bento-wide .v, .bento-small .v, .stat .num, .cs-stat .v{ animation:none; }
+    .stat-hero .num, .bento-wide .v, .bento-small .v, .stat .num, .cs-stat .v, .profile-hero-info .num, .cal-nav-stats b{ animation:none; }
   }
 
   /* ===========================================================
@@ -744,7 +746,7 @@
     border:1px solid var(--glass-border); border-bottom:none;
     -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
     border-radius: 24px 24px 0 0; padding: 22px 20px calc(22px + env(safe-area-inset-bottom));
-    position:relative; transform:translateY(0); transition: transform .32s cubic-bezier(.22,1,.36,1);
+    position:relative; transform:translateY(0); transition: transform .38s cubic-bezier(.3,1.4,.4,1);
   }
   .modal-overlay.hidden .modal-panel{ transform:translateY(60px); }
 
@@ -785,7 +787,7 @@
      un habillage propre, sans le bottom-sheet standard : fond sombre,
      image entière centrée sans recadrage. Scopé sur l'id pour ne toucher
      ni .modal-overlay ni .modal-panel ailleurs dans l'app. */
-  #photo-lightbox-overlay{ background: rgba(20,14,10,.92); align-items:center; -webkit-backdrop-filter:none; backdrop-filter:none; }
+  #photo-lightbox-overlay{ background: rgba(13,10,22,.92); align-items:center; -webkit-backdrop-filter:none; backdrop-filter:none; }
   #photo-lightbox-overlay .modal-panel{
     background:none; border:none; box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none;
     width:100%; height:100%; max-width:none; max-height:none; padding:0; border-radius:0;
@@ -876,20 +878,24 @@
   }
   .settings-summary-top{
     display:flex; align-items:center; gap:14px;
-    background: var(--milk);
+    background: linear-gradient(135deg, var(--milk-deep) 0%, var(--milk) 55%, var(--diaper) 100%);
     color: var(--on-accent); padding:18px 20px; position:relative; overflow:hidden;
   }
   .settings-summary-top::before{
     content:''; position:absolute; width:130px; height:130px; border-radius:50%;
-    background:none;
+    background:rgba(255,255,255,.12); filter: blur(2px);
     top:-55px; right:-30px; pointer-events:none;
+    animation: auroraDrift2 14s ease-in-out infinite;
   }
+  @media (prefers-reduced-motion: reduce){ .settings-summary-top::before{ animation:none; } }
   .settings-summary-avatar{
     position:relative; flex-shrink:0; width:52px; height:52px; border-radius:50%;
     background:rgba(255,255,255,.18);
     display:flex; align-items:center; justify-content:center;
     box-shadow: var(--shadow-gloss);
+    animation: haloPulse 2.6s ease-out infinite;
   }
+  @media (prefers-reduced-motion: reduce){ .settings-summary-avatar{ animation:none; } }
   .settings-summary-info{ position:relative; min-width:0; flex:1; }
   .settings-summary-name{
     font-size:15.5px; font-weight:700; color: var(--on-accent);
@@ -1015,21 +1021,25 @@
      changer, au lieu d'une liste complète de lignes. */
   .profile-hero{
     display:flex; align-items:center; gap:14px;
-    background: var(--milk);
+    background: linear-gradient(135deg, var(--milk-deep) 0%, var(--milk) 55%, var(--diaper) 100%);
     color: var(--on-accent); border-radius: var(--radius); border: none;
     padding: 16px 18px; margin-bottom:14px; position:relative; overflow:hidden;
   }
   .profile-hero::before{
     content:''; position:absolute; width:130px; height:130px; border-radius:50%;
-    background:none;
+    background:rgba(255,255,255,.12); filter: blur(2px);
     top:-50px; right:-30px; pointer-events:none;
+    animation: auroraDrift1 12s ease-in-out infinite;
   }
+  @media (prefers-reduced-motion: reduce){ .profile-hero::before{ animation:none; } }
   .profile-hero-avatar{
     position:relative; flex-shrink:0; width:52px; height:52px; border-radius:50%;
     background:rgba(255,255,255,.18);
     display:flex; align-items:center; justify-content:center; font-weight:700; font-size:19px;
     text-transform:uppercase; overflow:hidden; box-shadow: var(--shadow-gloss);
+    animation: haloPulse 2.6s ease-out infinite;
   }
+  @media (prefers-reduced-motion: reduce){ .profile-hero-avatar{ animation:none; } }
   .profile-hero-avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
   .profile-hero-info{ position:relative; flex:1; min-width:0; }
   .profile-hero-info .lbl{ font-size: 10.5px; text-transform:uppercase; letter-spacing:.1em; opacity:.9; font-weight:600; }
@@ -1307,7 +1317,7 @@
     border-top: 1.5px solid var(--milk-dim);
     font-size:11.5px; color: var(--ink-faint); font-weight:500;
   }
-  .cal-nav-stats b{ color: var(--ink); font-weight:700; }
+  .cal-nav-stats b{ color: var(--ink); font-weight:700; font-family:'JetBrains Mono', monospace; font-variant-numeric:tabular-nums; }
   .cal-grid{
     display:grid; grid-template-columns: repeat(7,1fr); gap:6px; margin-bottom:22px;
     touch-action: pan-y;
@@ -1325,7 +1335,7 @@
     aspect-ratio:1; border-radius:14px; border:2px solid transparent; background: var(--bg-2);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     cursor:pointer; font-size:13px; color: var(--ink-dim); gap:3px; position:relative;
-    transition: transform .1s ease, background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+    transition: transform .2s cubic-bezier(.34,1.56,.64,1), background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
   }
   .cal-day.empty-cell{ background:none; cursor:default; }
   .cal-day:focus-visible{ outline:none; box-shadow: var(--focus-ring); }
@@ -1343,6 +1353,7 @@
   .cal-day.selected{
     border-color: var(--milk-deep); background: var(--milk); color: var(--on-accent);
     box-shadow: 0 3px 0 var(--milk-deep);
+    transform: scale(1.08);
   }
   .cal-day.selected .dot{ background: var(--on-accent); box-shadow:none; }
 
@@ -1369,6 +1380,19 @@
   }
   .chart-scroll svg{ display:block; animation: chartFadeIn .4s cubic-bezier(.22,1,.36,1) backwards; }
   .chart-empty{ text-align:center; color: var(--ink-faint); font-size:13px; padding: 40px 10px; }
+
+  /* La courbe se dessine au lieu d'apparaître d'un coup — dasharray plus
+     large que n'importe quel tracé réaliste, la valeur exacte n'a pas besoin
+     d'être calculée pour que l'effet fonctionne. */
+  .chart-line-path{
+    stroke-dasharray: 2400; stroke-dashoffset: 2400;
+    animation: drawChartLine 1.1s .15s cubic-bezier(.22,.7,.3,1) forwards;
+  }
+  @keyframes drawChartLine{ to{ stroke-dashoffset: 0; } }
+  @media (prefers-reduced-motion: reduce){
+    .chart-scroll svg{ animation:none; }
+    .chart-line-path{ animation:none; stroke-dashoffset:0; }
+  }
   .who-legend{
     display:flex; gap:16px; justify-content:center; margin-top:8px; font-size:10.5px; color: var(--ink-faint);
   }
