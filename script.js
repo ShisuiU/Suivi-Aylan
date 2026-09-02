@@ -1481,21 +1481,21 @@ function renderSimpleLineChart(container, points, opts){
     const gridLines = [0, 0.5, 1].map(f => {
       const val = scaleMin + (scaleMax - scaleMin) * f;
       const y = yFor(val);
-      return `<line x1="${leftPad}" y1="${y}" x2="${svgW - rightPad}" y2="${y}" stroke="var(--line)" stroke-width="1" stroke-dasharray="3,4"/><text x="2" y="${y + 3.5}" font-size="9" fill="var(--ink-faint)" font-family="Plus Jakarta Sans">${val.toFixed(opts.decimals || 0)}</text>`;
+      return `<line x1="${leftPad}" y1="${y}" x2="${svgW - rightPad}" y2="${y}" stroke="var(--line)" stroke-width="1" stroke-dasharray="3,4"/><text x="2" y="${y + 3.5}" font-size="9" fill="var(--ink-faint)" font-family="Sora">${val.toFixed(opts.decimals || 0)}</text>`;
     }).join('');
 
     const pathD = 'M ' + points.map((p,i) => `${xFor(i)},${yFor(p.value)}`).join(' L ');
     const areaD = n > 1 ? `${pathD} L ${xFor(n-1)},${topPad+chartH} L ${xFor(0)},${topPad+chartH} Z` : '';
     const dots = points.map((p,i) => `<circle cx="${xFor(i)}" cy="${yFor(p.value)}" r="3.5" fill="var(--milk)"/>`).join('');
-    const labels = points.map((p,i) => `<text x="${xFor(i)}" y="${topPad + chartH + 20}" font-size="9" fill="var(--ink-faint)" font-family="Plus Jakarta Sans" text-anchor="middle">${p.label}</text>`).join('');
+    const labels = points.map((p,i) => `<text x="${xFor(i)}" y="${topPad + chartH + 20}" font-size="9" fill="var(--ink-faint)" font-family="Sora" text-anchor="middle">${p.label}</text>`).join('');
     const last = points[n-1];
-    const lastLabel = `<text x="${xFor(n-1)}" y="${yFor(last.value) - 10}" font-size="10.5" font-weight="600" fill="var(--milk)" font-family="Plus Jakarta Sans" text-anchor="middle">${last.value}${opts.suffix || ''}</text>`;
+    const lastLabel = `<text x="${xFor(n-1)}" y="${yFor(last.value) - 10}" font-size="10.5" font-weight="600" fill="var(--milk)" font-family="Sora" text-anchor="middle">${last.value}${opts.suffix || ''}</text>`;
 
     container.innerHTML = `
       <svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">
         ${gridLines}
         ${areaD ? `<path d="${areaD}" fill="var(--milk-dim)" opacity="0.6"/>` : ''}
-        <path d="${pathD}" fill="none" stroke="var(--milk)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+        <path class="chart-line-path" d="${pathD}" fill="none" stroke="var(--milk)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
         ${dots}
         ${lastLabel}
         ${labels}
@@ -1544,7 +1544,7 @@ function renderSimpleLineChart(container, points, opts){
   const gridLines = [0, 0.5, 1].map(f => {
     const val = scaleMin + (scaleMax - scaleMin) * f;
     const y = yFor(val);
-    return `<line x1="${leftPad}" y1="${y}" x2="${svgW - rightPad}" y2="${y}" stroke="var(--line)" stroke-width="1" stroke-dasharray="3,4"/><text x="2" y="${y + 3.5}" font-size="9" fill="var(--ink-faint)" font-family="Plus Jakarta Sans">${val.toFixed(opts.decimals || 0)}</text>`;
+    return `<line x1="${leftPad}" y1="${y}" x2="${svgW - rightPad}" y2="${y}" stroke="var(--line)" stroke-width="1" stroke-dasharray="3,4"/><text x="2" y="${y + 3.5}" font-size="9" fill="var(--ink-faint)" font-family="Sora">${val.toFixed(opts.decimals || 0)}</text>`;
   }).join('');
 
   const p3Path = sampleAges.map((a,i) => `${i===0?'M':'L'} ${xFor(a)},${yFor(whoSamples[i].p3)}`).join(' ');
@@ -1557,20 +1557,20 @@ function renderSimpleLineChart(container, points, opts){
   let xLabels = '';
   for(let i = 0; i < tickCount; i++){
     const a = i * tickStep;
-    xLabels += `<text x="${xFor(a)}" y="${topPad + chartH + 20}" font-size="9" fill="var(--ink-faint)" font-family="Plus Jakarta Sans" text-anchor="middle">${Math.round(a)}m</text>`;
+    xLabels += `<text x="${xFor(a)}" y="${topPad + chartH + 20}" font-size="9" fill="var(--ink-faint)" font-family="Sora" text-anchor="middle">${Math.round(a)}m</text>`;
   }
 
   const pathD = 'M ' + pointsWithAge.map(p => `${xFor(p.ageM)},${yFor(p.value)}`).join(' L ');
   const dots = pointsWithAge.map(p => `<circle cx="${xFor(p.ageM)}" cy="${yFor(p.value)}" r="3.5" fill="var(--milk)"/>`).join('');
   const last = pointsWithAge[pointsWithAge.length - 1];
-  const lastLabel = `<text x="${xFor(last.ageM)}" y="${yFor(last.value) - 10}" font-size="10.5" font-weight="600" fill="var(--milk)" font-family="Plus Jakarta Sans" text-anchor="middle">${last.value}${opts.suffix || ''}</text>`;
+  const lastLabel = `<text x="${xFor(last.ageM)}" y="${yFor(last.value) - 10}" font-size="10.5" font-weight="600" fill="var(--milk)" font-family="Sora" text-anchor="middle">${last.value}${opts.suffix || ''}</text>`;
 
   container.innerHTML = `
     <svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">
       ${gridLines}
       <path d="${bandPath}" fill="var(--who-band)" opacity="0.45"/>
       <path d="${p50Path}" fill="none" stroke="var(--ink-faint)" stroke-width="1.3" stroke-dasharray="4,3"/>
-      <path d="${pathD}" fill="none" stroke="var(--milk)" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round"/>
+      <path class="chart-line-path" d="${pathD}" fill="none" stroke="var(--milk)" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round"/>
       ${dots}
       ${lastLabel}
       ${xLabels}
@@ -3179,7 +3179,7 @@ function renderDayChartSVG(container, days, values, opts){
   const gridLines = [0, 0.5, 1].map(f => {
     const val = Math.round(niceMax * f);
     const y = yFor(val);
-    return `<line x1="${leftPad}" y1="${y}" x2="${svgW - rightPad}" y2="${y}" stroke="var(--line)" stroke-width="1" stroke-dasharray="3,4"/><text x="2" y="${y + 3.5}" font-size="9" fill="var(--ink-faint)" font-family="Plus Jakarta Sans">${val}</text>`;
+    return `<line x1="${leftPad}" y1="${y}" x2="${svgW - rightPad}" y2="${y}" stroke="var(--line)" stroke-width="1" stroke-dasharray="3,4"/><text x="2" y="${y + 3.5}" font-size="9" fill="var(--ink-faint)" font-family="Sora">${val}</text>`;
   }).join('');
 
   const pathD = 'M ' + days.map((d,i) => `${xFor(i)},${yFor(values[i])}`).join(' L ');
@@ -3189,7 +3189,7 @@ function renderDayChartSVG(container, days, values, opts){
   const xLabels = days.map((d,i) => {
     if(i % labelInterval !== 0 && i !== n - 1) return '';
     const short = `${pad(d.date.getDate())}/${pad(d.date.getMonth()+1)}`;
-    return `<text x="${xFor(i)}" y="${topPad + chartH + 20}" font-size="9.5" fill="var(--ink-faint)" font-family="Plus Jakarta Sans" text-anchor="middle">${short}</text>`;
+    return `<text x="${xFor(i)}" y="${topPad + chartH + 20}" font-size="9.5" fill="var(--ink-faint)" font-family="Sora" text-anchor="middle">${short}</text>`;
   }).join('');
 
   const dots = days.map((d,i) => {
@@ -3205,7 +3205,7 @@ function renderDayChartSVG(container, days, values, opts){
   const todayIdx = days.findIndex(d => d.dayKey === todayStr);
   let todayLabel = '';
   if(todayIdx >= 0){
-    todayLabel = `<text x="${xFor(todayIdx)}" y="${yFor(values[todayIdx]) - 10}" font-size="10.5" font-weight="600" fill="var(--milk)" font-family="Plus Jakarta Sans" text-anchor="middle">${opts.formatValue(values[todayIdx])}</text>`;
+    todayLabel = `<text x="${xFor(todayIdx)}" y="${yFor(values[todayIdx]) - 10}" font-size="10.5" font-weight="600" fill="var(--milk)" font-family="Sora" text-anchor="middle">${opts.formatValue(values[todayIdx])}</text>`;
   }
 
   container.innerHTML = `
@@ -3213,7 +3213,7 @@ function renderDayChartSVG(container, days, values, opts){
     <svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">
       ${gridLines}
       <path d="${areaD}" fill="var(--milk-dim)" opacity="0.6"/>
-      <path d="${pathD}" fill="none" stroke="var(--milk)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <path class="chart-line-path" d="${pathD}" fill="none" stroke="var(--milk)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
       ${dots}
       ${todayLabel}
       ${xLabels}

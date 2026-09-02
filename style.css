@@ -33,6 +33,7 @@
     --vomit-light: #d1954f;
     --sage: #1f9e78;
     --sage-light: #4bb593;
+    --sage-dim: #e2f4ee;
     --line: #e3ddf3;
     --radius: 22px;
     --radius-sm: 14px;
@@ -86,6 +87,7 @@
     --vomit-light: #e8bd7c;
     --sage: #38e1b0;
     --sage-light: #63e8c1;
+    --sage-dim: #15332b;
     --line: rgba(255,255,255,.12);
     --bg-glow: #0e1220;
     --bg-glow-2: #0e1220;
@@ -323,7 +325,7 @@
   .tab-btn{
     flex:1; background:none; border:none; color: var(--ink-dim);
     font-family:'Sora'; font-weight:700; font-size:13px; padding:11px; border-radius:999px;
-    cursor:pointer; transition: color .2s ease;
+    cursor:pointer; transition: color .25s ease, background-color .3s ease, box-shadow .3s ease;
   }
   .tab-btn.hidden{ display:none; }
   .tab-btn.active{
@@ -491,7 +493,11 @@
     display:flex; align-items:center; justify-content:center;
     box-shadow: var(--shadow-gloss);
   }
-  .diaper-log-btn .qa-ic{ background: var(--milk); }
+  /* Chaque type d'action reprend la couleur déjà utilisée pour ses entrées
+     dans la chronologie (.diaper-node, .sleep-node...) — Couche et Santé
+     réutilisaient par erreur la couleur d'un autre type (--milk / --vomit),
+     ce qui brouillait le repère visuel entre l'action et son historique. */
+  .diaper-log-btn .qa-ic{ background: var(--diaper); }
   .vomit-log-btn .qa-ic{ background: var(--vomit); }
   .qa-badge{
     position:absolute; top:-6px; right:-6px; min-width:17px; height:17px; padding:0 4px;
@@ -628,14 +634,23 @@
   .fab{
     position:fixed; right:20px; bottom: calc(94px + env(safe-area-inset-bottom));
     width:58px; height:58px; border-radius:19px;
-    background: var(--milk); color: var(--on-accent);
+    background: linear-gradient(135deg, var(--milk-light), var(--milk));
+    color: var(--on-accent);
     border:none; box-shadow: var(--shadow-hero); display:flex; align-items:center;
     justify-content:center; cursor:pointer; z-index:20;
     transition: background-color .3s ease, transform .28s cubic-bezier(.34,1.56,.64,1);
+    animation: fabBreathe 4.8s ease-in-out infinite;
   }
-  .fab:active{ transform: scale(0.9); }
+  .fab:active{ transform: scale(0.9); animation-play-state:paused; }
   .fab svg{ transition: transform .3s cubic-bezier(.34,1.56,.64,1); }
   .fab.is-open svg{ transform: rotate(45deg); }
+  /* Respiration lente et discrète — un détail vivant, pas un effet qui
+     attire l'œil : faible amplitude, cycle long. */
+  @keyframes fabBreathe{
+    0%,100%{ box-shadow: var(--shadow-hero); }
+    50%{ box-shadow: var(--shadow-card), 0 18px 40px -16px var(--milk-light); }
+  }
+  @media (prefers-reduced-motion: reduce){ .fab{ animation:none; } }
 
   /* Navigation flottante du bas */
   .bottom-nav{
@@ -828,12 +843,12 @@
   }
   .settings-summary-top{
     display:flex; align-items:center; gap:14px;
-    background: var(--milk);
+    background: linear-gradient(135deg, var(--milk-deep), var(--milk));
     color: var(--on-accent); padding:18px 20px; position:relative; overflow:hidden;
   }
   .settings-summary-top::before{
     content:''; position:absolute; width:130px; height:130px; border-radius:50%;
-    background:none;
+    background:rgba(255,255,255,.1);
     top:-55px; right:-30px; pointer-events:none;
   }
   .settings-summary-avatar{
@@ -841,7 +856,9 @@
     background:rgba(255,255,255,.18);
     display:flex; align-items:center; justify-content:center;
     box-shadow: var(--shadow-gloss);
+    animation: haloPulse 2.6s ease-out infinite;
   }
+  @media (prefers-reduced-motion: reduce){ .settings-summary-avatar{ animation:none; } }
   .settings-summary-info{ position:relative; min-width:0; flex:1; }
   .settings-summary-name{
     font-size:15.5px; font-weight:700; color: var(--on-accent);
@@ -907,7 +924,8 @@
     background: var(--milk-dim); overflow:hidden;
   }
   .hero-progress-fill{
-    height:100%; border-radius:999px; background: var(--milk);
+    height:100%; border-radius:999px;
+    background: linear-gradient(90deg, var(--milk-deep), var(--milk-light));
     transition: width .4s ease;
   }
   .ml-delta{
@@ -967,13 +985,13 @@
      changer, au lieu d'une liste complète de lignes. */
   .profile-hero{
     display:flex; align-items:center; gap:14px;
-    background: var(--milk);
+    background: linear-gradient(135deg, var(--milk-deep), var(--milk));
     color: var(--on-accent); border-radius: var(--radius); border: none;
     padding: 16px 18px; margin-bottom:14px; position:relative; overflow:hidden;
   }
   .profile-hero::before{
     content:''; position:absolute; width:130px; height:130px; border-radius:50%;
-    background:none;
+    background:rgba(255,255,255,.1);
     top:-50px; right:-30px; pointer-events:none;
   }
   .profile-hero-avatar{
@@ -981,7 +999,9 @@
     background:rgba(255,255,255,.18);
     display:flex; align-items:center; justify-content:center; font-weight:700; font-size:19px;
     text-transform:uppercase; overflow:hidden; box-shadow: var(--shadow-gloss);
+    animation: haloPulse 2.6s ease-out infinite;
   }
+  @media (prefers-reduced-motion: reduce){ .profile-hero-avatar{ animation:none; } }
   .profile-hero-avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
   .profile-hero-info{ position:relative; flex:1; min-width:0; }
   .profile-hero-info .lbl{ font-size: 10.5px; text-transform:uppercase; letter-spacing:.1em; opacity:.9; font-weight:600; }
@@ -1078,7 +1098,7 @@
   .switch.active::after{ transform: translateX(18px); background: var(--on-accent); }
 
   /* Sommeil */
-  .sleep-log-btn .qa-ic{ background: var(--sage); }
+  .sleep-log-btn .qa-ic{ background: var(--sleep); }
   .sleep-log-btn.sleeping{ color: var(--ink); }
   .sleep-log-btn.sleeping .qa-ic{
     background:#2c3a52; color: var(--on-accent);
@@ -1087,11 +1107,13 @@
   .entry-sleep-label{ font-size:14px; color: var(--sleep); font-weight:600; }
   .entry .node.sleep-node{ background: var(--sleep-dim); color: var(--sleep); }
 
-  /* Santé */
-  .health-log-btn .qa-ic{ background: var(--vomit); }
+  /* Santé — sa propre couleur (--sage) plutôt que de partager --vomit avec
+     les vomissements : les deux types étaient indiscernables au premier
+     coup d'œil dans la chronologie du jour. */
+  .health-log-btn .qa-ic{ background: var(--sage); }
   .health-type-row{ display:grid; grid-template-columns: repeat(3,1fr); gap:8px; }
-  .entry-health-label{ font-size:14px; font-weight:600; color: var(--vomit); }
-  .entry .node.health-node{ background: var(--vomit-dim); color: var(--vomit); }
+  .entry-health-label{ font-size:14px; font-weight:600; color: var(--sage); }
+  .entry .node.health-node{ background: var(--sage-dim); color: var(--sage); }
 
   /* Partage du résumé du jour */
   .today-timeline-head{ display:flex; align-items:baseline; justify-content:space-between; margin:4px 4px 12px; }
@@ -1320,6 +1342,20 @@
     to{ opacity:1; transform: translateY(0); }
   }
   .chart-scroll svg{ display:block; animation: chartFadeIn .4s cubic-bezier(.22,1,.36,1) backwards; }
+
+  /* La courbe se dessine au lieu d'apparaître d'un coup — dasharray plus
+     large que n'importe quel tracé réaliste, la valeur exacte n'a pas
+     besoin d'être calculée pour que l'effet fonctionne. Ease-out simple
+     (pas de rebond) pour un rendu posé plutôt que ludique. */
+  .chart-line-path{
+    stroke-dasharray: 2400; stroke-dashoffset: 2400;
+    animation: drawChartLine 1.3s .2s ease-out forwards;
+  }
+  @keyframes drawChartLine{ to{ stroke-dashoffset: 0; } }
+  @media (prefers-reduced-motion: reduce){
+    .chart-scroll svg{ animation:none; }
+    .chart-line-path{ animation:none; stroke-dashoffset:0; }
+  }
   .chart-empty{ text-align:center; color: var(--ink-faint); font-size:13px; padding: 40px 10px; }
   .who-legend{
     display:flex; gap:16px; justify-content:center; margin-top:8px; font-size:10.5px; color: var(--ink-faint);
