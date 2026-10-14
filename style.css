@@ -1166,6 +1166,39 @@
   .who-dot-band{ background: var(--who-band); }
   .who-dot-median{ background: var(--ink-faint); border-radius:50%; width:6px; height:6px; }
   .who-hint{ text-align:center; font-size:11px; color: var(--ink-faint); padding:8px 10px 0; }
+
+  /* Note « quelle référence ? » sous les courbes de croissance.
+     Classes dédiées : rien de partagé avec les autres écrans. */
+  .growth-ref-note{
+    margin-top:16px; background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border:2px solid var(--line); border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card); overflow:hidden;
+  }
+  .growth-ref-note > summary{
+    display:flex; align-items:center; gap:9px; cursor:pointer; list-style:none;
+    padding:13px 15px; font-size:13px; font-weight:600; color: var(--ink);
+  }
+  .growth-ref-note > summary::-webkit-details-marker{ display:none; }
+  .growth-ref-note > summary:focus-visible{ outline:2px solid var(--milk); outline-offset:-2px; }
+  .growth-ref-badge{
+    flex-shrink:0; font-size:10px; font-weight:700; letter-spacing:.06em;
+    padding:3px 7px; border-radius:7px; background: var(--milk); color: var(--on-accent);
+  }
+  .growth-ref-chevron{
+    margin-left:auto; flex-shrink:0; color: var(--ink-faint);
+    transition: transform .25s cubic-bezier(.22,1,.36,1);
+  }
+  .growth-ref-note[open] .growth-ref-chevron{ transform: rotate(180deg); }
+  .growth-ref-body{
+    padding:0 15px 14px; font-size:12.5px; line-height:1.55; color: var(--ink-dim);
+    border-top:1px solid var(--line);
+  }
+  .growth-ref-body p{ margin:11px 0 0; }
+  .growth-ref-body strong{ color: var(--ink); font-weight:600; }
+  @media (prefers-reduced-motion: reduce){
+    .growth-ref-chevron{ transition:none; }
+  }
   .chart-point{ cursor:pointer; }
   .chart-tooltip{
     position:absolute; background: var(--ink); color: var(--card);

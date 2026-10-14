@@ -395,6 +395,19 @@
         <div class="chart-card-caption" id="headcirc-chart-label">Courbe du périmètre crânien</div>
       </div>
 
+      <details class="growth-ref-note">
+        <summary>
+          <span class="growth-ref-badge">OMS</span>
+          Quelle référence pour ces courbes&nbsp;?
+          <svg class="growth-ref-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <div class="growth-ref-body">
+          <p>La zone colorée et la médiane viennent des <strong>Normes de croissance de l'OMS (2006)</strong>, calculées sur des enfants allaités de six pays. Elles décrivent une croissance «&nbsp;idéale&nbsp;», pas la moyenne d'un pays donné.</p>
+          <p>Depuis avril 2018, le <strong>carnet de santé français</strong> utilise des courbes françaises (AFPA-Inserm/CRESS-CompuGroup Medical), mesurées sur 261&nbsp;000 enfants suivis en France. Elles sont <strong>un peu plus hautes</strong> que celles de l'OMS&nbsp;: à poids égal, le percentile français est donc légèrement plus bas qu'ici.</p>
+          <p>Ces courbes françaises ne sont pas libres de droits, elles ne peuvent pas être reproduites dans cette app. En cas de doute, <strong>le carnet de santé et le pédiatre font référence</strong>, pas cet écran.</p>
+        </div>
+      </details>
+
       <div class="settings-section" data-section="growth-history" id="growth-history-section" style="margin-top:22px;">
         <button class="settings-section-title" type="button" data-section-toggle>
           <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span>
@@ -710,6 +723,7 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div id="print-summary"></div>
 
+<script defer src="growth-reference.js"></script>
 <script defer src="script.js"></script>
 </body>
 </html>

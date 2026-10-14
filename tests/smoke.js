@@ -82,6 +82,13 @@ async function newPage(browser, store, opts) {
   page.on('pageerror', (e) => consoleErrors.push(e.message));
   page.consoleErrors = consoleErrors;
 
+  // Les quatre <script> du CDN Firebase écrasent window.firebase quand le
+  // réseau est disponible : le test se retrouvait alors face au vrai SDK (donc
+  // un vrai écran de connexion, aucun utilisateur) au lieu du stub. On bloque
+  // ces requêtes pour que le stub posé par addInitScript reste le seul
+  // Firebase de la page, avec ou sans connectivité.
+  await page.route('**/firebasejs/**', (route) => route.abort());
+
   await page.exposeFunction('__bridgeGet', (p) => getPath(store, p));
   await page.exposeFunction('__bridgeSet', (p, val) => { setPath(store, p, val); return true; });
   await page.exposeFunction('__shouldFailWrite', () => !!opts.failWrites);
@@ -322,6 +329,103 @@ async function run() {
     await page.waitForTimeout(200);
     const restored = getPath(store, 'families/fam1/children/c1/growth/g1');
     assert(!!(restored && restored.weight === 7.2), 'Le bouton "Annuler" du toast restaure la mesure supprimée');
+    await page.close();
+  }
+
+  console.log('\n12. Croissance — référence OMS en paramètres L/M/S');
+  {
+    const store = baseStore();
+    const page = await newPage(browser, store);
+
+    // 12.a Les tables générées sont bien chargées (growth-reference.js).
+    const refLoaded = await page.evaluate(() => typeof GROWTH_REF === 'object'
+      && GROWTH_REF.weight && GROWTH_REF.height && GROWTH_REF.headCirc
+      && GROWTH_REF_AGE_DAYS.length * 3 === GROWTH_REF.weight.M.length);
+    assert(refLoaded, 'growth-reference.js est chargé et les 3 tables ont la bonne longueur');
+
+    // 12.b Les L/M/S reproduisent les valeurs publiées par l'OMS
+    // (contre-vérifiées sur les fichiers « zscore expanded tables » officiels).
+    const casOMS = await page.evaluate(() => [
+      [lmsValue(growthLMS('weight', 'M', 0), -2), 2.459],
+      [lmsValue(growthLMS('weight', 'M', 0), 0), 3.3464],
+      [lmsValue(growthLMS('weight', 'M', 0), 2), 4.419],
+      [lmsValue(growthLMS('weight', 'F', 365), 0), 8.9462],
+      [lmsValue(growthLMS('height', 'M', 365), 0), 75.7488],
+      [lmsValue(growthLMS('headCirc', 'M', 274), 0), 45.0007],
+    ].map(([got, exp]) => Math.abs(got - exp) / exp));
+    assert(casOMS.every(e => e < 0.0005), `Les L/M/S reproduisent les valeurs OMS (écart max ${(Math.max(...casOMS) * 100).toFixed(3)}%)`);
+
+    // 12.c z-score et valeur sont bien réciproques sur toute la plage 0-5 ans.
+    const allerRetour = await page.evaluate(() => {
+      let max = 0;
+      for (const m of ['weight', 'height', 'headCirc']) for (const g of ['M', 'F'])
+        for (let d = 0; d <= 1856; d += 11) for (const z of [-3, -1.88079, 0, 1.88079, 3]) {
+          const lms = growthLMS(m, g, d);
+          max = Math.max(max, Math.abs(lmsZScore(lms, lmsValue(lms, z)) - z));
+        }
+      return max;
+    });
+    assert(allerRetour < 1e-9, `z -> valeur -> z est réciproque (écart max ${allerRetour.toExponential(1)})`);
+
+    // 12.d Le percentile affiché correspond bien au z-score de la mesure.
+    const libelles = await page.evaluate(() => {
+      const lms = growthLMS('weight', 'M', 183);
+      return {
+        median: growthPercentileLabel('weight', 'M', 183, lmsValue(lms, 0)),
+        p3: growthPercentileLabel('weight', 'M', 183, lmsValue(lms, -1.88079)),
+        p97: growthPercentileLabel('weight', 'M', 183, lmsValue(lms, 1.88079)),
+        tresBas: growthPercentileLabel('weight', 'M', 183, 3),
+      };
+    });
+    assert(libelles.median === '50ᵉ percentile', `La médiane OMS s'affiche « 50ᵉ percentile » (reçu « ${libelles.median} »)`);
+    assert(libelles.p3 === '3ᵉ percentile', `Le P3 OMS s'affiche « 3ᵉ percentile » (reçu « ${libelles.p3} »)`);
+    assert(libelles.p97 === '97ᵉ percentile', `Le P97 OMS s'affiche « 97ᵉ percentile » (reçu « ${libelles.p97} »)`);
+    assert(libelles.tresBas === '<1ᵉ percentile', `Un poids très bas s'affiche « <1ᵉ percentile » plutôt que « 0ᵉ » (reçu « ${libelles.tresBas} »)`);
+    await page.close();
+  }
+
+  console.log('\n13. Croissance — rendu du graphique et du percentile dans l\'écran Infos');
+  {
+    const store = baseStore();
+    // Mesures posées à des âges connus (la naissance est au 2026-01-15).
+    setPath(store, 'families/fam1/children/c1/growth/g1', { id: 'g1', date: '2026-02-15', weight: 4.5, height: 55, headCirc: 38, updatedAt: 1000 });
+    setPath(store, 'families/fam1/children/c1/growth/g2', { id: 'g2', date: '2026-04-15', weight: 6.4, height: 62, headCirc: 41, updatedAt: 2000 });
+    setPath(store, 'families/fam1/children/c1/growth/g3', { id: 'g3', date: '2026-07-17', weight: 7.9, height: 68, headCirc: 43.5, updatedAt: 3000 });
+    const page = await newPage(browser, store);
+    await page.evaluate(() => switchView('chart'));
+    await page.waitForTimeout(150);
+    await page.evaluate(() => {
+      const b = document.querySelector('.tab-btn[data-tab-group="chart"][data-tab="growth"]');
+      if (b) b.click();
+    });
+    await page.waitForTimeout(400);
+
+    const chart = await page.evaluate(() => {
+      const svg = document.querySelector('#weight-chart-scroll svg');
+      const paths = svg ? [...svg.querySelectorAll('path')].map(p => p.getAttribute('d') || '') : [];
+      return {
+        svg: !!svg,
+        bande: paths.some(d => d.includes('Z') && d.length > 200),
+        nan: paths.some(d => d.includes('NaN')),
+        label: (document.getElementById('weight-chart-label') || {}).textContent || '',
+        note: !!document.querySelector('.growth-ref-note'),
+      };
+    });
+    assert(chart.svg, 'La courbe de poids est bien rendue en SVG');
+    assert(chart.bande, 'La bande OMS P3-P97 est tracée sous la courbe');
+    assert(!chart.nan, 'Aucune coordonnée NaN dans les tracés (interpolation LMS saine)');
+    assert(/\d+ᵉ percentile/.test(chart.label), `Le libellé de la courbe porte un percentile (reçu « ${chart.label} »)`);
+    assert(chart.note, 'La note « quelle référence ? » est présente sous les courbes');
+
+    // La carte d'accueil doit afficher le même percentile, pas « ~0ᵉ ».
+    await page.evaluate(() => switchView('today'));
+    await page.waitForTimeout(300);
+    const carte = await page.evaluate(() => {
+      const el = document.querySelector('#today-growth-snapshot .pct');
+      return el ? el.textContent.trim() : '';
+    });
+    assert(/percentile OMS$/.test(carte), `La carte d'accueil affiche le percentile OMS (reçu « ${carte} »)`);
+    assert(page.consoleErrors.length === 0, `Aucune erreur JS pendant le parcours croissance (reçu: ${page.consoleErrors.join(', ') || 'aucune'})`);
     await page.close();
   }
 

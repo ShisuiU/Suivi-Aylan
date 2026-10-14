@@ -1314,102 +1314,96 @@ async function saveMilestone(){
   }
 }
 
-// Repères de croissance approximatifs (garçons), à titre indicatif uniquement — ne remplace pas le carnet de santé officiel.
-const WHO_WEIGHT_BOYS = [
-  {m:0, p3:2.5, p50:3.3, p97:4.4}, {m:1, p3:3.4, p50:4.5, p97:5.8},
-  {m:2, p3:4.3, p50:5.6, p97:7.1}, {m:3, p3:5.0, p50:6.4, p97:8.0},
-  {m:4, p3:5.6, p50:7.0, p97:8.7}, {m:5, p3:6.0, p50:7.5, p97:9.3},
-  {m:6, p3:6.4, p50:7.9, p97:9.8}, {m:9, p3:7.1, p50:8.9, p97:11.0},
-  {m:12, p3:7.7, p50:9.6, p97:11.8}, {m:15, p3:8.3, p50:10.3, p97:12.8},
-  {m:18, p3:8.8, p50:10.9, p97:13.7}, {m:21, p3:9.2, p50:11.5, p97:14.5},
-  {m:24, p3:9.7, p50:12.2, p97:15.3}
-];
-const WHO_HEIGHT_BOYS = [
-  {m:0, p3:46.1, p50:49.9, p97:53.7}, {m:1, p3:50.8, p50:54.7, p97:58.6},
-  {m:2, p3:54.4, p50:58.4, p97:62.4}, {m:3, p3:57.3, p50:61.4, p97:65.5},
-  {m:4, p3:59.7, p50:63.9, p97:68.0}, {m:5, p3:61.7, p50:65.9, p97:70.1},
-  {m:6, p3:63.3, p50:67.6, p97:71.9}, {m:9, p3:67.5, p50:72.0, p97:76.5},
-  {m:12, p3:71.0, p50:75.7, p97:80.5}, {m:15, p3:74.1, p50:79.1, p97:84.2},
-  {m:18, p3:76.9, p50:82.3, p97:87.7}, {m:21, p3:79.4, p50:85.1, p97:90.9},
-  {m:24, p3:81.7, p50:87.8, p97:93.9}
-];
-// Filles — mêmes repères approximatifs, à titre indicatif uniquement.
-const WHO_WEIGHT_GIRLS = [
-  {m:0, p3:2.4, p50:3.2, p97:4.3}, {m:1, p3:3.2, p50:4.2, p97:5.4},
-  {m:2, p3:3.9, p50:5.1, p97:6.5}, {m:3, p3:4.5, p50:5.8, p97:7.3},
-  {m:4, p3:5.1, p50:6.4, p97:8.0}, {m:5, p3:5.5, p50:6.9, p97:8.6},
-  {m:6, p3:5.9, p50:7.3, p97:9.1}, {m:9, p3:6.5, p50:8.2, p97:10.1},
-  {m:12, p3:7.1, p50:8.9, p97:10.9}, {m:15, p3:7.7, p50:9.6, p97:11.9},
-  {m:18, p3:8.2, p50:10.2, p97:12.8}, {m:21, p3:8.7, p50:10.9, p97:13.7},
-  {m:24, p3:9.1, p50:11.5, p97:14.4}
-];
-const WHO_HEIGHT_GIRLS = [
-  {m:0, p3:45.4, p50:49.1, p97:52.8}, {m:1, p3:49.9, p50:53.7, p97:57.5},
-  {m:2, p3:53.2, p50:57.1, p97:61.0}, {m:3, p3:55.8, p50:59.8, p97:63.8},
-  {m:4, p3:58.0, p50:62.1, p97:66.1}, {m:5, p3:59.9, p50:64.0, p97:68.1},
-  {m:6, p3:61.5, p50:65.7, p97:69.9}, {m:9, p3:65.7, p50:70.1, p97:74.5},
-  {m:12, p3:69.4, p50:74.0, p97:78.7}, {m:15, p3:72.6, p50:77.5, p97:82.5},
-  {m:18, p3:75.4, p50:80.7, p97:86.0}, {m:21, p3:78.1, p50:83.7, p97:89.4},
-  {m:24, p3:80.4, p50:86.4, p97:92.4}
-];
-// Périmètre crânien — repères approximatifs, à titre indicatif uniquement.
-const WHO_HEADCIRC_BOYS = [
-  {m:0, p3:32.1, p50:34.5, p97:36.9}, {m:1, p3:35.1, p50:37.3, p97:39.5},
-  {m:2, p3:36.9, p50:39.1, p97:41.3}, {m:3, p3:38.3, p50:40.5, p97:42.8},
-  {m:4, p3:39.4, p50:41.6, p97:43.9}, {m:5, p3:40.3, p50:42.6, p97:44.8},
-  {m:6, p3:41.0, p50:43.3, p97:45.6}, {m:9, p3:42.6, p50:45.0, p97:47.4},
-  {m:12, p3:43.5, p50:46.1, p97:48.6}, {m:15, p3:44.2, p50:46.9, p97:49.4},
-  {m:18, p3:44.8, p50:47.5, p97:50.1}, {m:21, p3:45.2, p50:48.0, p97:50.7},
-  {m:24, p3:45.6, p50:48.3, p97:51.1}
-];
-const WHO_HEADCIRC_GIRLS = [
-  {m:0, p3:31.5, p50:33.9, p97:36.2}, {m:1, p3:34.2, p50:36.5, p97:38.9},
-  {m:2, p3:35.8, p50:38.3, p97:40.7}, {m:3, p3:37.1, p50:39.5, p97:42.0},
-  {m:4, p3:38.1, p50:40.6, p97:43.1}, {m:5, p3:38.9, p50:41.5, p97:44.0},
-  {m:6, p3:39.6, p50:42.2, p97:44.8}, {m:9, p3:41.1, p50:43.8, p97:46.4},
-  {m:12, p3:42.2, p50:45.0, p97:47.6}, {m:15, p3:43.0, p50:45.8, p97:48.5},
-  {m:18, p3:43.6, p50:46.5, p97:49.2}, {m:21, p3:44.1, p50:47.0, p97:49.8},
-  {m:24, p3:44.5, p50:47.5, p97:50.2}
-];
+// === Croissance : référence OMS en paramètres L/M/S ===
+// Les tables brutes vivent dans growth-reference.js (fichier généré depuis les
+// fichiers officiels de l'OMS). Avant, on interpolait linéairement 13 repères
+// P3/P50/P97 saisis à la main : le percentile affiché pouvait dériver de
+// plusieurs points de pourcentage, et la courbe était anguleuse entre deux
+// repères. On calcule désormais le z-score exact par la méthode LMS, donc le
+// percentile réel, ce qui compte sur une app où un chiffre faux inquiète ou
+// rassure à tort.
 
-function ageInMonths(birthDateStr, dateStr){
+// z-scores des percentiles 3 et 97 (bornes de la « zone OMS » affichée).
+const GROWTH_Z_P3 = -1.88079, GROWTH_Z_P97 = 1.88079;
+// L'OMS indexe ses tables en jours ; le reste de l'app raisonne en mois.
+const DAYS_PER_MONTH = 30.4375;
+
+function ageInDays(birthDateStr, dateStr){
   const [by,bm,bd] = birthDateStr.split('-').map(Number);
   const [dy,dm,dd] = dateStr.split('-').map(Number);
-  const birth = new Date(by, bm-1, bd);
-  const date = new Date(dy, dm-1, dd);
-  return Math.max(0, (date - birth) / 86400000 / 30.4375);
+  return Math.max(0, (new Date(dy, dm-1, dd) - new Date(by, bm-1, bd)) / 86400000);
 }
 
-function interpolateWHO(table, ageMonths){
-  if(ageMonths <= table[0].m) return table[0];
-  const last = table[table.length-1];
-  if(ageMonths >= last.m) return last;
-  for(let i=0; i<table.length-1; i++){
-    const a = table[i], b = table[i+1];
-    if(ageMonths >= a.m && ageMonths <= b.m){
-      const f = (ageMonths - a.m) / (b.m - a.m);
-      return {
-        p3: a.p3 + (b.p3 - a.p3) * f,
-        p50: a.p50 + (b.p50 - a.p50) * f,
-        p97: a.p97 + (b.p97 - a.p97) * f
-      };
-    }
-  }
-  return last;
+function ageInMonths(birthDateStr, dateStr){
+  return ageInDays(birthDateStr, dateStr) / DAYS_PER_MONTH;
 }
 
-// Estimation approximative du percentile à partir des 3 repères P3/P50/P97
-// (interpolation linéaire en 2 segments) — indicatif uniquement.
-function estimatePercentile(table, ageMonths, value){
-  const ref = interpolateWHO(table, ageMonths);
-  if(value <= ref.p3) return 3;
-  if(value >= ref.p97) return 97;
-  if(value <= ref.p50){
-    const span = (ref.p50 - ref.p3) || 1;
-    return Math.round(3 + (value - ref.p3) / span * (50 - 3));
+// Interpole L, M et S à un âge quelconque sur la grille de growth-reference.js
+// (resserrée sur les premiers mois, où la courbe s'incurve le plus).
+// metric : 'weight' | 'height' | 'headCirc'
+function growthLMS(metric, gender, ageDays){
+  if(typeof GROWTH_REF === 'undefined' || !GROWTH_REF[metric]) return null;
+  const flat = GROWTH_REF[metric][gender === 'F' ? 'F' : 'M'];
+  const ages = GROWTH_REF_AGE_DAYS;
+  if(!flat || !ages || !ages.length) return null;
+  const d = Math.min(Math.max(ageDays, ages[0]), ages[ages.length - 1]);
+  let lo = 0, hi = ages.length - 1;
+  while(hi - lo > 1){
+    const mid = (lo + hi) >> 1;
+    if(ages[mid] <= d) lo = mid; else hi = mid;
   }
-  const span = (ref.p97 - ref.p50) || 1;
-  return Math.round(50 + (value - ref.p50) / span * (97 - 50));
+  const span = ages[lo + 1] - ages[lo];
+  const f = span > 0 ? (d - ages[lo]) / span : 0;
+  const a = lo * 3, b = (lo + 1) * 3;
+  return {
+    L: flat[a]     + (flat[b]     - flat[a])     * f,
+    M: flat[a + 1] + (flat[b + 1] - flat[a + 1]) * f,
+    S: flat[a + 2] + (flat[b + 2] - flat[a + 2]) * f
+  };
+}
+
+// Valeur (kg ou cm) correspondant à un z-score — méthode LMS (Cole & Green).
+function lmsValue(lms, z){
+  if(!lms) return null;
+  if(Math.abs(lms.L) < 1e-7) return lms.M * Math.exp(lms.S * z);
+  const base = 1 + lms.L * lms.S * z;
+  if(base <= 0) return null; // z extrême hors du domaine de la transformation
+  return lms.M * Math.pow(base, 1 / lms.L);
+}
+
+// z-score d'une mesure — inverse exact de lmsValue.
+function lmsZScore(lms, value){
+  if(!lms || !(value > 0)) return null;
+  if(Math.abs(lms.L) < 1e-7) return Math.log(value / lms.M) / lms.S;
+  return (Math.pow(value / lms.M, lms.L) - 1) / (lms.L * lms.S);
+}
+
+// Loi normale centrée réduite — approximation Abramowitz & Stegun 26.2.17
+// (erreur < 7,5e-8), suffisante pour afficher un percentile arrondi.
+function normalCdf(z){
+  const t = 1 / (1 + 0.2316419 * Math.abs(z));
+  const poly = t * (0.319381530 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))));
+  const p = 1 - Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI) * poly;
+  return z >= 0 ? p : 1 - p;
+}
+
+// Bornes P3 / médiane / P97 à un âge donné : ce que la bande du graphique trace.
+function growthBand(metric, gender, ageDays){
+  const lms = growthLMS(metric, gender, ageDays);
+  if(!lms) return { p3: 0, p50: 0, p97: 0 };
+  const p3 = lmsValue(lms, GROWTH_Z_P3), p97 = lmsValue(lms, GROWTH_Z_P97);
+  return { p3: p3 == null ? lms.M : p3, p50: lms.M, p97: p97 == null ? lms.M : p97 };
+}
+
+// Percentile prêt à afficher. Les extrêmes sont bornés plutôt qu'arrondis à
+// 0 ou 100 : « 0ᵉ percentile » n'a pas de sens et affole pour rien.
+function growthPercentileLabel(metric, gender, ageDays, value){
+  const z = lmsZScore(growthLMS(metric, gender, ageDays), value);
+  if(z == null || !isFinite(z)) return '';
+  const pct = normalCdf(z) * 100;
+  if(pct < 1) return '<1ᵉ percentile';
+  if(pct > 99) return '>99ᵉ percentile';
+  return Math.round(pct) + 'ᵉ percentile';
 }
 
 function renderSimpleLineChart(container, points, opts){
@@ -1418,7 +1412,7 @@ function renderSimpleLineChart(container, points, opts){
     return;
   }
 
-  const hasWHO = opts.whoTable && profileData && profileData.birthDate;
+  const hasWHO = opts.metric && profileData && profileData.birthDate;
 
   if(!hasWHO){
     const n = points.length;
@@ -1445,15 +1439,15 @@ function renderSimpleLineChart(container, points, opts){
     const gridLines = [0, 0.5, 1].map(f => {
       const val = scaleMin + (scaleMax - scaleMin) * f;
       const y = yFor(val);
-      return `<line x1="${leftPad}" y1="${y}" x2="${svgW - rightPad}" y2="${y}" stroke="var(--line)" stroke-width="1" stroke-dasharray="3,4"/><text x="2" y="${y + 3.5}" font-size="9" fill="var(--ink-faint)" font-family="Plus Jakarta Sans">${val.toFixed(opts.decimals || 0)}</text>`;
+      return `<line x1="${leftPad}" y1="${y}" x2="${svgW - rightPad}" y2="${y}" stroke="var(--line)" stroke-width="1" stroke-dasharray="3,4"/><text x="2" y="${y + 3.5}" font-size="9" fill="var(--ink-faint)" font-family="Sora">${val.toFixed(opts.decimals || 0)}</text>`;
     }).join('');
 
     const pathD = 'M ' + points.map((p,i) => `${xFor(i)},${yFor(p.value)}`).join(' L ');
     const areaD = n > 1 ? `${pathD} L ${xFor(n-1)},${topPad+chartH} L ${xFor(0)},${topPad+chartH} Z` : '';
     const dots = points.map((p,i) => `<circle cx="${xFor(i)}" cy="${yFor(p.value)}" r="3.5" fill="var(--milk)"/>`).join('');
-    const labels = points.map((p,i) => `<text x="${xFor(i)}" y="${topPad + chartH + 20}" font-size="9" fill="var(--ink-faint)" font-family="Plus Jakarta Sans" text-anchor="middle">${p.label}</text>`).join('');
+    const labels = points.map((p,i) => `<text x="${xFor(i)}" y="${topPad + chartH + 20}" font-size="9" fill="var(--ink-faint)" font-family="Sora" text-anchor="middle">${p.label}</text>`).join('');
     const last = points[n-1];
-    const lastLabel = `<text x="${xFor(n-1)}" y="${yFor(last.value) - 10}" font-size="10.5" font-weight="600" fill="var(--milk)" font-family="Plus Jakarta Sans" text-anchor="middle">${last.value}${opts.suffix || ''}</text>`;
+    const lastLabel = `<text x="${xFor(n-1)}" y="${yFor(last.value) - 10}" font-size="10.5" font-weight="600" fill="var(--milk)" font-family="Sora" text-anchor="middle">${last.value}${opts.suffix || ''}</text>`;
 
     container.innerHTML = `
       <svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">
@@ -1464,7 +1458,7 @@ function renderSimpleLineChart(container, points, opts){
         ${lastLabel}
         ${labels}
       </svg>
-      ${opts.whoTable ? `<div class="who-hint">Renseigne la date de naissance dans Enfant(s) pour comparer aux repères OMS.</div>` : ''}
+      ${opts.metric ? `<div class="who-hint">Renseigne la date de naissance dans Enfant(s) pour comparer aux repères OMS.</div>` : ''}
     `;
 
     requestAnimationFrame(() => { container.scrollLeft = container.scrollWidth; });
@@ -1488,7 +1482,8 @@ function renderSimpleLineChart(container, points, opts){
   const sampleAges = [];
   for(let a = 0; a < domainMax; a += 0.5) sampleAges.push(a);
   sampleAges.push(domainMax);
-  const whoSamples = sampleAges.map(a => interpolateWHO(opts.whoTable, a));
+  const refGender = (profileData && profileData.gender === 'F') ? 'F' : 'M';
+  const whoSamples = sampleAges.map(a => growthBand(opts.metric, refGender, a * DAYS_PER_MONTH));
 
   const allVals = [
     ...pointsWithAge.map(p => p.value),
@@ -1508,7 +1503,7 @@ function renderSimpleLineChart(container, points, opts){
   const gridLines = [0, 0.5, 1].map(f => {
     const val = scaleMin + (scaleMax - scaleMin) * f;
     const y = yFor(val);
-    return `<line x1="${leftPad}" y1="${y}" x2="${svgW - rightPad}" y2="${y}" stroke="var(--line)" stroke-width="1" stroke-dasharray="3,4"/><text x="2" y="${y + 3.5}" font-size="9" fill="var(--ink-faint)" font-family="Plus Jakarta Sans">${val.toFixed(opts.decimals || 0)}</text>`;
+    return `<line x1="${leftPad}" y1="${y}" x2="${svgW - rightPad}" y2="${y}" stroke="var(--line)" stroke-width="1" stroke-dasharray="3,4"/><text x="2" y="${y + 3.5}" font-size="9" fill="var(--ink-faint)" font-family="Sora">${val.toFixed(opts.decimals || 0)}</text>`;
   }).join('');
 
   const p3Path = sampleAges.map((a,i) => `${i===0?'M':'L'} ${xFor(a)},${yFor(whoSamples[i].p3)}`).join(' ');
@@ -1516,18 +1511,18 @@ function renderSimpleLineChart(container, points, opts){
   const bandPath = `${p3Path} ${p97PathRev} Z`;
   const p50Path = sampleAges.map((a,i) => `${i===0?'M':'L'} ${xFor(a)},${yFor(whoSamples[i].p50)}`).join(' ');
 
-  const tickCount = Math.min(8, Math.max(2, Math.ceil(domainMax) + 1));
-  const tickStep = domainMax / (tickCount - 1);
+  // Graduations sur des mois entiers. Avec un pas fractionnaire, l'arrondi des
+  // libellés donnait une suite incohérente du type « 0m 1m 3m 4m 6m 7m 9m 10m ».
+  const tickStep = Math.max(1, Math.ceil(domainMax / 7));
   let xLabels = '';
-  for(let i = 0; i < tickCount; i++){
-    const a = i * tickStep;
-    xLabels += `<text x="${xFor(a)}" y="${topPad + chartH + 20}" font-size="9" fill="var(--ink-faint)" font-family="Plus Jakarta Sans" text-anchor="middle">${Math.round(a)}m</text>`;
+  for(let a = 0; a <= domainMax + 1e-9; a += tickStep){
+    xLabels += `<text x="${xFor(a)}" y="${topPad + chartH + 20}" font-size="9" fill="var(--ink-faint)" font-family="Sora" text-anchor="middle">${a}m</text>`;
   }
 
   const pathD = 'M ' + pointsWithAge.map(p => `${xFor(p.ageM)},${yFor(p.value)}`).join(' L ');
   const dots = pointsWithAge.map(p => `<circle cx="${xFor(p.ageM)}" cy="${yFor(p.value)}" r="3.5" fill="var(--milk)"/>`).join('');
   const last = pointsWithAge[pointsWithAge.length - 1];
-  const lastLabel = `<text x="${xFor(last.ageM)}" y="${yFor(last.value) - 10}" font-size="10.5" font-weight="600" fill="var(--milk)" font-family="Plus Jakarta Sans" text-anchor="middle">${last.value}${opts.suffix || ''}</text>`;
+  const lastLabel = `<text x="${xFor(last.ageM)}" y="${yFor(last.value) - 10}" font-size="10.5" font-weight="600" fill="var(--milk)" font-family="Sora" text-anchor="middle">${last.value}${opts.suffix || ''}</text>`;
 
   container.innerHTML = `
     <svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">
@@ -1569,36 +1564,25 @@ function renderGrowthCharts(){
   const weightPoints = sorted.filter(g => g.weight != null).map(g => ({ date: g.date, label: formatShortDateNoYear(g.date), value: g.weight }));
   const heightPoints = sorted.filter(g => g.height != null).map(g => ({ date: g.date, label: formatShortDateNoYear(g.date), value: g.height }));
   const headCircPoints = sorted.filter(g => g.headCirc != null).map(g => ({ date: g.date, label: formatShortDateNoYear(g.date), value: g.headCirc }));
-  const isGirl = profileData && profileData.gender === 'F';
-  const weightTable = isGirl ? WHO_WEIGHT_GIRLS : WHO_WEIGHT_BOYS;
-  const heightTable = isGirl ? WHO_HEIGHT_GIRLS : WHO_HEIGHT_BOYS;
-  const headCircTable = isGirl ? WHO_HEADCIRC_GIRLS : WHO_HEADCIRC_BOYS;
-  renderSimpleLineChart($('weight-chart-scroll'), weightPoints, { suffix: ' kg', decimals: 2, whoTable: weightTable });
-  renderSimpleLineChart($('height-chart-scroll'), heightPoints, { suffix: ' cm', decimals: 0, whoTable: heightTable });
-  renderSimpleLineChart($('headcirc-chart-scroll'), headCircPoints, { suffix: ' cm', decimals: 1, whoTable: headCircTable });
+  const refGender = (profileData && profileData.gender === 'F') ? 'F' : 'M';
+  renderSimpleLineChart($('weight-chart-scroll'), weightPoints, { suffix: ' kg', decimals: 2, metric: 'weight' });
+  renderSimpleLineChart($('height-chart-scroll'), heightPoints, { suffix: ' cm', decimals: 0, metric: 'height' });
+  renderSimpleLineChart($('headcirc-chart-scroll'), headCircPoints, { suffix: ' cm', decimals: 1, metric: 'headCirc' });
 
   const weightAvg = avgRatePerDay(weightPoints, 'g');
   const heightAvg = avgRatePerDay(heightPoints, 'cm');
   const headCircAvg = avgRatePerDay(headCircPoints, 'cm');
 
-  let weightPercentileTxt = '', heightPercentileTxt = '', headCircPercentileTxt = '';
-  if(profileData && profileData.birthDate){
-    if(weightPoints.length){
-      const last = weightPoints[weightPoints.length - 1];
-      const ageM = ageInMonths(profileData.birthDate, last.date);
-      weightPercentileTxt = ' · ~' + estimatePercentile(weightTable, ageM, last.value) + 'e percentile';
-    }
-    if(heightPoints.length){
-      const last = heightPoints[heightPoints.length - 1];
-      const ageM = ageInMonths(profileData.birthDate, last.date);
-      heightPercentileTxt = ' · ~' + estimatePercentile(heightTable, ageM, last.value) + 'e percentile';
-    }
-    if(headCircPoints.length){
-      const last = headCircPoints[headCircPoints.length - 1];
-      const ageM = ageInMonths(profileData.birthDate, last.date);
-      headCircPercentileTxt = ' · ~' + estimatePercentile(headCircTable, ageM, last.value) + 'e percentile';
-    }
-  }
+  // Percentile de la dernière mesure de chaque série (vide si pas de date de naissance).
+  const lastPercentile = (metric, pts) => {
+    if(!pts.length || !profileData || !profileData.birthDate) return '';
+    const last = pts[pts.length - 1];
+    const lbl = growthPercentileLabel(metric, refGender, ageInDays(profileData.birthDate, last.date), last.value);
+    return lbl ? ' · ' + lbl : '';
+  };
+  const weightPercentileTxt = lastPercentile('weight', weightPoints);
+  const heightPercentileTxt = lastPercentile('height', heightPoints);
+  const headCircPercentileTxt = lastPercentile('headCirc', headCircPoints);
 
   $('weight-chart-label').textContent = 'Courbe de poids' + (weightAvg ? ' · ' + weightAvg : '') + weightPercentileTxt;
   $('height-chart-label').textContent = 'Courbe de taille' + (heightAvg ? ' · ' + heightAvg : '') + heightPercentileTxt;
@@ -2136,13 +2120,12 @@ function renderTodaySidebar(){
     }
     if(growthLbl) growthLbl.style.display = '';
     const last = sorted[sorted.length - 1];
-    const table = (profileData.gender === 'F') ? WHO_WEIGHT_GIRLS : WHO_WEIGHT_BOYS;
-    const ageM = ageInMonths(profileData.birthDate, last.date);
-    const pct = estimatePercentile(table, ageM, last.weight);
+    const gender = (profileData.gender === 'F') ? 'F' : 'M';
+    const pct = growthPercentileLabel('weight', gender, ageInDays(profileData.birthDate, last.date), last.weight);
     growthEl.innerHTML = `
       <button type="button" class="today-growth-card" id="today-growth-card-btn">
         <div class="val">${last.weight} kg</div>
-        <div class="pct">~${pct}ᵉ percentile OMS</div>
+        <div class="pct">${pct ? pct + ' OMS' : 'Référence OMS'}</div>
         <div class="date">${formatShortDateNoYear(last.date)}</div>
       </button>
     `;
@@ -3118,7 +3101,7 @@ function renderDayChartSVG(container, days, values, opts){
   const gridLines = [0, 0.5, 1].map(f => {
     const val = Math.round(niceMax * f);
     const y = yFor(val);
-    return `<line x1="${leftPad}" y1="${y}" x2="${svgW - rightPad}" y2="${y}" stroke="var(--line)" stroke-width="1" stroke-dasharray="3,4"/><text x="2" y="${y + 3.5}" font-size="9" fill="var(--ink-faint)" font-family="Plus Jakarta Sans">${val}</text>`;
+    return `<line x1="${leftPad}" y1="${y}" x2="${svgW - rightPad}" y2="${y}" stroke="var(--line)" stroke-width="1" stroke-dasharray="3,4"/><text x="2" y="${y + 3.5}" font-size="9" fill="var(--ink-faint)" font-family="Sora">${val}</text>`;
   }).join('');
 
   const pathD = 'M ' + days.map((d,i) => `${xFor(i)},${yFor(values[i])}`).join(' L ');
@@ -3128,7 +3111,7 @@ function renderDayChartSVG(container, days, values, opts){
   const xLabels = days.map((d,i) => {
     if(i % labelInterval !== 0 && i !== n - 1) return '';
     const short = `${pad(d.date.getDate())}/${pad(d.date.getMonth()+1)}`;
-    return `<text x="${xFor(i)}" y="${topPad + chartH + 20}" font-size="9.5" fill="var(--ink-faint)" font-family="Plus Jakarta Sans" text-anchor="middle">${short}</text>`;
+    return `<text x="${xFor(i)}" y="${topPad + chartH + 20}" font-size="9.5" fill="var(--ink-faint)" font-family="Sora" text-anchor="middle">${short}</text>`;
   }).join('');
 
   const dots = days.map((d,i) => {
@@ -3144,7 +3127,7 @@ function renderDayChartSVG(container, days, values, opts){
   const todayIdx = days.findIndex(d => d.dayKey === todayStr);
   let todayLabel = '';
   if(todayIdx >= 0){
-    todayLabel = `<text x="${xFor(todayIdx)}" y="${yFor(values[todayIdx]) - 10}" font-size="10.5" font-weight="600" fill="var(--milk)" font-family="Plus Jakarta Sans" text-anchor="middle">${opts.formatValue(values[todayIdx])}</text>`;
+    todayLabel = `<text x="${xFor(todayIdx)}" y="${yFor(values[todayIdx]) - 10}" font-size="10.5" font-weight="600" fill="var(--milk)" font-family="Sora" text-anchor="middle">${opts.formatValue(values[todayIdx])}</text>`;
   }
 
   container.innerHTML = `
