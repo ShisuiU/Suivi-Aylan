@@ -1,2 +1,5 @@
 __pycache__/
 *.pyc
+
+# Tables brutes de l'OMS : téléchargeables via tools/gen-growth-reference.py --telecharger
+tools/who-data/
