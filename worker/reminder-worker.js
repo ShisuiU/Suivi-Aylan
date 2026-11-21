@@ -25,6 +25,21 @@
  *   FIREBASE_SERVICE_ACCOUNT  — JSON complet du compte de service (secret)
  *   FIREBASE_DATABASE_URL     — ex. https://suivi-aylan-default-rtdb.europe-west1.firebasedatabase.app
  *   MANUAL_TRIGGER_KEY        — clé arbitraire pour déclencher un run manuel via GET ?key=... (secret)
+ *
+ * Secrets optionnels, pour la route POST /biberon (app Raccourcis iPhone,
+ * Siri, domotique... — voir RACCOURCI-IPHONE.md) :
+ *   ENTRY_API_KEY             — clé qui autorise POST /biberon. Tant qu'elle
+ *                               n'est pas définie, la route est désactivée.
+ *                               Volontairement distincte de
+ *                               MANUAL_TRIGGER_KEY : elle vit sur un
+ *                               téléphone, dans un raccourci que n'importe
+ *                               qui peut ouvrir, donc elle doit pouvoir être
+ *                               révoquée seule sans casser le reste.
+ *   ENTRY_API_AUTHOR_EMAIL    — e-mail attribué aux biberons créés par cette
+ *                               route, pour que la pastille d'auteur dans
+ *                               l'app soit la bonne. Sans lui, l'entrée n'a
+ *                               pas d'auteur (pas de pastille) — ce qui reste
+ *                               correct, juste moins lisible à plusieurs.
  */
 
 export default {
@@ -38,6 +53,18 @@ export default {
 
   async fetch(request, env) {
     const url = new URL(request.url);
+
+    // Ajout d'un biberon depuis l'extérieur de l'app (Raccourcis iPhone,
+    // Siri...). Route et secret séparés du déclenchement manuel des rappels :
+    // ce n'est ni le même usage, ni le même niveau d'exposition.
+    if (url.pathname === '/biberon') {
+      try {
+        return await handleAddBottle(request, env, url);
+      } catch (err) {
+        return jsonResponse({ error: String(err && err.message || err) }, 500);
+      }
+    }
+
     // Deux causes distinctes derrière un "Unauthorized" générique : le
     // secret n'est pas configuré sur ce Worker, ou la clé fournie ne
     // correspond pas — on les distingue explicitement pour ne pas laisser
@@ -74,7 +101,10 @@ export default {
   },
 };
 
-async function runReminders(env) {
+// Lecture et contrôle des secrets Firebase, communs aux rappels planifiés et
+// à la route POST /biberon : une seule source de vérité pour les messages
+// d'erreur de configuration, qui sont la principale cause de panne ici.
+function loadFirebaseConfig(env) {
   if (!env.FIREBASE_SERVICE_ACCOUNT) throw new Error("Le secret FIREBASE_SERVICE_ACCOUNT n'est pas configuré.");
   if (!env.FIREBASE_DATABASE_URL) throw new Error("Le secret FIREBASE_DATABASE_URL n'est pas configuré.");
 
@@ -88,7 +118,11 @@ async function runReminders(env) {
     throw new Error("FIREBASE_SERVICE_ACCOUNT est un JSON valide mais il manque private_key, client_email ou project_id — vérifie que c'est bien le fichier téléchargé depuis Firebase (Comptes de service > Générer une nouvelle clé privée), pas un autre JSON.");
   }
 
-  const databaseURL = env.FIREBASE_DATABASE_URL.replace(/\/$/, '');
+  return { serviceAccount, databaseURL: env.FIREBASE_DATABASE_URL.replace(/\/$/, '') };
+}
+
+async function runReminders(env) {
+  const { serviceAccount, databaseURL } = loadFirebaseConfig(env);
   const projectId = serviceAccount.project_id;
   const now = Date.now();
   const summary = { checked: 0, notified: 0, errors: [], details: [] };
@@ -329,6 +363,232 @@ async function rtdbPut(databaseURL, path, accessToken, value) {
   });
   if (!resp.ok) throw new Error(`RTDB PUT ${path} a échoué (${resp.status}) : ${await resp.text()}`);
   return resp.json();
+}
+
+// ---------------------------------------------------------------------------
+// POST /biberon — ajout d'un biberon depuis l'extérieur de l'app
+// ---------------------------------------------------------------------------
+//
+// Pensé pour l'app Raccourcis de l'iPhone : une seule action HTTP, un seul
+// secret. Le Worker écrit avec le compte de service, qui contourne les règles
+// de sécurité de la Realtime Database — donc TOUTE la validation que les
+// règles assureraient côté client doit être refaite ici, explicitement.
+// L'entrée produite est volontairement identique, champ pour champ, à celle
+// qu'écrit saveEntry() dans script.js : même forme d'identifiant, même
+// `dayKey`, même `time`. Une entrée créée ici doit être indiscernable d'une
+// entrée saisie à la main, y compris à la modification.
+
+const DIAPER_VALUES = ['none', 'pipi', 'caca', 'both', 'skip'];
+const MAX_ML = 1000;
+const MAX_COMMENT = 500;
+// Tolérance d'horloge : le téléphone et le Worker ne sont pas à la seconde.
+const CLOCK_SKEW_MS = 60000;
+// Un raccourci vocal part facilement deux fois (double appui, Siri qui
+// redemande). Deux biberons du même volume à moins d'une minute d'intervalle
+// n'existent pas dans la vraie vie : on renvoie celui déjà écrit plutôt que
+// d'en créer un second que quelqu'un devra supprimer à la main.
+const DEDUPE_WINDOW_MS = 60000;
+// Repli si la famille n'a pas encore choisi de fuseau dans Paramètres. Côté
+// app, le repli est le fuseau de l'appareil ; un Worker n'en a pas, donc on
+// assume celui de la famille. Le fuseau retenu est renvoyé dans la réponse
+// pour que l'écart se voie tout de suite plutôt qu'au bout d'une semaine.
+const DEFAULT_TIMEZONE = 'Europe/Paris';
+
+function jsonResponse(payload, status) {
+  return new Response(JSON.stringify(payload, null, 2), {
+    status: status || 200,
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+  });
+}
+
+// Même forme que generateId('e') dans script.js — préfixe, base 36, suffixe
+// aléatoire : rien ne distingue une entrée créée ici d'une autre.
+function generateEntryId() {
+  return 'e_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+// `dayKey` et `time` sont ce que l'app AFFICHE, pas des dérivés de l'heure
+// UTC : ils doivent être calculés dans le fuseau de la famille, sinon un
+// biberon de 00h30 se retrouve classé la veille (ou le lendemain).
+function formatInZone(timestamp, timeZone) {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hour12: false,
+  }).formatToParts(new Date(timestamp));
+  const get = (type) => (parts.find((p) => p.type === type) || {}).value;
+  // Certains runtimes rendent minuit "24" en horloge 24 h.
+  const hour = get('hour') === '24' ? '00' : get('hour');
+  return { dayKey: `${get('year')}-${get('month')}-${get('day')}`, time: `${hour}:${get('minute')}` };
+}
+
+async function handleAddBottle(request, env, url) {
+  if (!env.ENTRY_API_KEY) {
+    return jsonResponse({
+      error: "La route /biberon est désactivée : le secret ENTRY_API_KEY n'est pas configuré sur ce Worker (Settings > Variables and Secrets).",
+    }, 501);
+  }
+  if (request.method !== 'POST') {
+    return jsonResponse({
+      error: `Méthode ${request.method} refusée sur /biberon — cette route écrit en base, elle n'accepte que POST.`,
+    }, 405);
+  }
+
+  // Paramètres acceptés en query ET en corps JSON, le corps l'emportant :
+  // l'app Raccourcis sait faire les deux selon comment le raccourci est
+  // construit, autant ne pas imposer un format.
+  let body = {};
+  const raw = await request.text();
+  if (raw.trim()) {
+    try {
+      body = JSON.parse(raw);
+    } catch (e) {
+      return jsonResponse({ error: "Le corps de la requête n'est pas du JSON valide." }, 400);
+    }
+    if (body === null || typeof body !== 'object' || Array.isArray(body)) {
+      return jsonResponse({ error: 'Le corps JSON doit être un objet.' }, 400);
+    }
+  }
+  const param = (name) => (body[name] !== undefined && body[name] !== null ? body[name] : url.searchParams.get(name));
+
+  if (String(param('key') == null ? '' : param('key')) !== env.ENTRY_API_KEY) {
+    return jsonResponse({ error: 'Unauthorized — la clé fournie ne correspond pas au secret ENTRY_API_KEY.' }, 401);
+  }
+
+  // --- Validation des paramètres (les règles Firebase ne s'appliquent pas
+  // à une écriture par compte de service : c'est le seul garde-fou) ---
+  const mlRaw = param('ml');
+  const ml = Number(String(mlRaw == null ? '' : mlRaw).trim());
+  if (mlRaw == null || String(mlRaw).trim() === '' || !Number.isInteger(ml) || ml < 0 || ml > MAX_ML) {
+    return jsonResponse({ error: `Paramètre « ml » manquant ou invalide — un nombre entier de 0 à ${MAX_ML} est attendu.` }, 400);
+  }
+
+  const diaper = String(param('diaper') == null ? 'none' : param('diaper')).trim() || 'none';
+  if (!DIAPER_VALUES.includes(diaper)) {
+    return jsonResponse({ error: `Paramètre « diaper » invalide : « ${diaper} ». Valeurs acceptées : ${DIAPER_VALUES.join(', ')}.` }, 400);
+  }
+
+  const comment = String(param('comment') == null ? '' : param('comment'));
+  if (comment.length > MAX_COMMENT) {
+    return jsonResponse({ error: `Le commentaire dépasse ${MAX_COMMENT} caractères.` }, 400);
+  }
+
+  let timestamp = Date.now();
+  const atRaw = param('at');
+  if (atRaw != null && String(atRaw).trim() !== '') {
+    const at = String(atRaw).trim();
+    const parsed = /^\d+$/.test(at) ? new Date(Number(at)) : new Date(at);
+    if (isNaN(parsed.getTime())) {
+      return jsonResponse({ error: `Paramètre « at » illisible : « ${at} ». Attendu : un horodatage ISO 8601 ou un nombre de millisecondes.` }, 400);
+    }
+    timestamp = parsed.getTime();
+  }
+  // Même refus que l'app : un biberon daté dans le futur rendrait négatif le
+  // temps écoulé affiché sur « Dernier biberon ».
+  if (timestamp > Date.now() + CLOCK_SKEW_MS) {
+    return jsonResponse({ error: "Impossible d'enregistrer un biberon à une heure qui n'est pas encore passée." }, 400);
+  }
+
+  // --- Résolution de la famille et de l'enfant ---
+  const { serviceAccount, databaseURL } = loadFirebaseConfig(env);
+  const accessToken = await getGoogleAccessToken(serviceAccount, [
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/firebase.database',
+  ]);
+
+  let familyId = param('family') == null ? '' : String(param('family')).trim();
+  if (!familyId) {
+    const ids = Object.keys((await rtdbGet(databaseURL, 'families', accessToken, { shallow: true })) || {});
+    if (ids.length !== 1) {
+      return jsonResponse({
+        error: ids.length
+          ? 'Plusieurs familles existent : précise laquelle avec le paramètre « family ».'
+          : 'Aucune famille trouvée dans la base.',
+        familles: ids,
+      }, 400);
+    }
+    familyId = ids[0];
+  }
+
+  const children = await rtdbGet(databaseURL, `families/${familyId}/children`, accessToken);
+  if (!children || !Object.keys(children).length) {
+    return jsonResponse({ error: `Aucun enfant trouvé pour la famille « ${familyId} ».` }, 404);
+  }
+
+  const childName = (child) => String(((child || {}).profile || {}).firstName || '').trim();
+  const childParam = param('child') == null ? '' : String(param('child')).trim();
+  let childId;
+  if (childParam) {
+    if (children[childParam]) {
+      childId = childParam;
+    } else {
+      // Un raccourci dicté à Siri fournira naturellement un prénom, pas un
+      // identifiant interne — on accepte les deux.
+      const matches = Object.keys(children).filter((id) => childName(children[id]).toLowerCase() === childParam.toLowerCase());
+      if (matches.length !== 1) {
+        return jsonResponse({
+          error: matches.length
+            ? `Plusieurs enfants s'appellent « ${childParam} » : utilise l'identifiant plutôt que le prénom.`
+            : `Aucun enfant « ${childParam} » dans cette famille.`,
+          enfants: Object.keys(children).map((id) => ({ id, prenom: childName(children[id]) })),
+        }, 400);
+      }
+      childId = matches[0];
+    }
+  } else {
+    // Par défaut, le premier enfant au sens de l'app (meta.order), avec
+    // l'identifiant en départage pour rester déterministe. Le prénom retenu
+    // est renvoyé dans la réponse : à plusieurs enfants, un mauvais défaut se
+    // voit dès la première notification du raccourci.
+    const order = (id) => {
+      const v = ((children[id] || {}).meta || {}).order;
+      return typeof v === 'number' ? v : Number.MAX_SAFE_INTEGER;
+    };
+    childId = Object.keys(children).sort((a, b) => order(a) - order(b) || a.localeCompare(b))[0];
+  }
+
+  const meta = await rtdbGet(databaseURL, `families/${familyId}/meta`, accessToken);
+  const timezone = (meta && meta.timezone) || DEFAULT_TIMEZONE;
+  const { dayKey, time } = formatInZone(timestamp, timezone);
+  const prenom = childName(children[childId]) || 'Bébé';
+
+  // --- Anti-doublon ---
+  if (String(param('force') == null ? '' : param('force')) !== '1') {
+    const existing = Object.values((children[childId] || {}).entries || {}).find((e) =>
+      e && e.type === 'biberon' && e.ml === ml && typeof e.timestamp === 'number'
+      && Math.abs(e.timestamp - timestamp) < DEDUPE_WINDOW_MS);
+    if (existing) {
+      return jsonResponse({
+        ok: true,
+        doublon_ignore: true,
+        message: `Biberon de ${ml} ml déjà enregistré il y a moins d'une minute — rien n'a été ajouté.`,
+        entry: existing, family: familyId, child: childId, prenom, timezone,
+      });
+    }
+  }
+
+  // --- Écriture : un seul chemin, comme addEntryToDB() côté app ---
+  const entry = {
+    id: generateEntryId(),
+    type: 'biberon',
+    time,
+    ml,
+    diaper,
+    comment,
+    timestamp,
+    dayKey,
+    authorEmail: env.ENTRY_API_AUTHOR_EMAIL || null,
+    lastEditedBy: null,
+    updatedAt: Date.now(),
+  };
+  await rtdbPut(databaseURL, `families/${familyId}/children/${childId}/entries/${entry.id}`, accessToken, entry);
+
+  return jsonResponse({
+    ok: true,
+    // Champ prévu pour être affiché tel quel par le raccourci (notification).
+    message: `Biberon de ${ml} ml enregistré pour ${prenom} à ${time}.`,
+    entry, family: familyId, child: childId, prenom, timezone,
+  });
 }
 
 // ---------------------------------------------------------------------------

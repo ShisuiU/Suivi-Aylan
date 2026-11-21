@@ -52,6 +52,12 @@ Sur la page du Worker → **Settings** → **Variables and Secrets** → **Add**
 | `FIREBASE_DATABASE_URL` | Secret (ou texte) | `https://suivi-aylan-default-rtdb.europe-west1.firebasedatabase.app` |
 | `MANUAL_TRIGGER_KEY` | Secret | Une chaîne inventée par toi (ex. un mot de passe long) — sert uniquement à te permettre de déclencher un test manuel |
 
+Deux secrets optionnels s'ajoutent si tu veux pouvoir ajouter un biberon
+depuis l'app Raccourcis de l'iPhone (`ENTRY_API_KEY`,
+`ENTRY_API_AUTHOR_EMAIL`) — voir [`RACCOURCI-IPHONE.md`](./RACCOURCI-IPHONE.md).
+Sans eux, la route correspondante reste désactivée et le Worker se comporte
+exactement comme avant.
+
 ## 4. Planifier l'exécution
 
 Toujours sur la page du Worker → **Settings** → **Triggers** → **Cron
@@ -71,6 +77,17 @@ https://suivi-aylan-reminder.<ton-sous-domaine>.workers.dev/?key=LA_VALEUR_DE_MA
 Ça déclenche un passage immédiat et renvoie un résumé JSON — pratique pour
 vérifier sans attendre le prochain créneau planifié. Consulte aussi
 **Logs** (onglet du Worker) pour voir les exécutions passer.
+
+## Tests
+
+Le Worker n'a pas de suite de tests complète, mais la route d'ajout de
+biberon en a une : elle écrit en base avec le compte de service, donc en
+contournant les règles de sécurité Firebase — sa validation est le seul
+garde-fou. Aucun réseau requis, aucune dépendance :
+
+```sh
+node worker/tests/bottle-route.mjs
+```
 
 ## Notes
 

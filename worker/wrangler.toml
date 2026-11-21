@@ -13,3 +13,8 @@ crons = ["*/15 * * * *"]
 #   wrangler secret put FIREBASE_SERVICE_ACCOUNT
 #   wrangler secret put FIREBASE_DATABASE_URL
 #   wrangler secret put MANUAL_TRIGGER_KEY
+#
+# Optionnels, pour la route POST /biberon (app Raccourcis iPhone) — tant que
+# ENTRY_API_KEY n'est pas défini, cette route est désactivée :
+#   wrangler secret put ENTRY_API_KEY
+#   wrangler secret put ENTRY_API_AUTHOR_EMAIL
