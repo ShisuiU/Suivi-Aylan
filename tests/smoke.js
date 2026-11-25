@@ -487,6 +487,39 @@ async function run() {
     await page.close();
   }
 
+  console.log('\n16. Quantités rapides de la modale biberon');
+  {
+    const store = baseStore();
+    const page = await newPage(browser, store);
+    await page.click('#fab-btn');
+    await page.waitForTimeout(200);
+
+    const quick = await page.evaluate(() =>
+      [...document.querySelectorAll('#quick-ml button')].map((b) => ({
+        data: b.getAttribute('data-ml'), texte: b.textContent.trim(),
+      })));
+    // Les volumes suivent la croissance de l'enfant : cette liste a déjà
+    // changé une fois et rechangera. Le test fige surtout l'invariant qui
+    // casserait en silence — libellé et data-ml désaccordés.
+    assert(quick.map((b) => b.data).join(',') === '120,150,180,210,240',
+      `Les raccourcis de volume sont 120/150/180/210/240 (reçu ${quick.map((b) => b.data).join(',')})`);
+    assert(quick.every((b) => b.texte === b.data), 'Chaque bouton affiche exactement le volume qu\'il applique');
+
+    const defaut = await page.evaluate(() => document.getElementById('ml-input').value);
+    assert(quick.some((b) => b.data === defaut), `La valeur par défaut du champ (${defaut} ml) fait partie des raccourcis proposés`);
+
+    await page.click('#quick-ml button[data-ml="210"]');
+    await page.waitForTimeout(100);
+    assert(await page.evaluate(() => document.getElementById('ml-input').value) === '210',
+      'Cliquer un raccourci reporte bien le volume dans le champ');
+    await page.click('#save-btn');
+    await page.waitForTimeout(400);
+    const saved = Object.values(getPath(store, 'families/fam1/children/c1/entries')).find((e) => e.ml === 210);
+    assert(!!saved, 'Le biberon de 210 ml est bien enregistré en base');
+    assert(page.consoleErrors.length === 0, `Aucune erreur JS (reçu: ${page.consoleErrors.join(', ') || 'aucune'})`);
+    await page.close();
+  }
+
   await browser.close();
 
   console.log(`\n${'='.repeat(60)}`);
