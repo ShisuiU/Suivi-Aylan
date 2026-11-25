@@ -416,7 +416,12 @@
   }
   .ml-unit{ color: var(--ink-faint); font-size:14px; }
 
-  .quick-ml{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+  /* Grille plutôt que flex-wrap : à sept volumes, le dernier se retrouvait
+     seul sur une deuxième ligne, avec l'air d'un oubli. Quatre colonnes
+     donnent 4 + 3, des boutons de largeur égale et des cibles tactiles plus
+     larges. Classe exclusive à #quick-ml (vérifié) — .quick-ml-btn-toggle est
+     une autre classe, que ce sélecteur ne touche pas. */
+  .quick-ml{ display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-top:10px; }
   .quick-ml button{
     background: var(--bg-2); border:1px solid var(--line); color: var(--ink-dim);
     padding: 7px 12px; border-radius: 999px; font-size:12.5px; cursor:pointer; font-family:'Karla';

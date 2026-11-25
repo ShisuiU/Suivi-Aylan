@@ -501,8 +501,8 @@ async function run() {
     // Les volumes suivent la croissance de l'enfant : cette liste a déjà
     // changé une fois et rechangera. Le test fige surtout l'invariant qui
     // casserait en silence — libellé et data-ml désaccordés.
-    assert(quick.map((b) => b.data).join(',') === '120,150,180,210,240',
-      `Les raccourcis de volume sont 120/150/180/210/240 (reçu ${quick.map((b) => b.data).join(',')})`);
+    assert(quick.map((b) => b.data).join(',') === '120,150,180,210,240,270,300',
+      `Les raccourcis de volume sont 120/150/180/210/240/270/300 (reçu ${quick.map((b) => b.data).join(',')})`);
     assert(quick.every((b) => b.texte === b.data), 'Chaque bouton affiche exactement le volume qu\'il applique');
 
     const defaut = await page.evaluate(() => document.getElementById('ml-input').value);
